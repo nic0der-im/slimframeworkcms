@@ -1,0 +1,123 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Listado de bugs y TODO{% endblock %}
+{% block header_title %}Listado de bugs y TODO{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	<a href="{{path_for('bugs.index')}}">Bugs</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row prospectos listado">
+	{% if auth.empleado.master == -1 %}
+		{% include 'admin_views/admin_partials/vista_programador.twig' %}
+	{% endif %}
+	<div class="col-xs-12">
+		<div class="card card-success">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Listado general:</h3>
+			</div>
+			<div class="card-body">
+				{% if bugs|length > 0 %}
+					<div class="table-responsive">
+						<table class="table table-striped table-condensed bugs_tabla" style=" margin-bottom: 0px;">
+							<thead>
+								<th>ID</th>
+								<th>Creador</th>
+								<th>Fecha y hora</th>
+								<th>Tipo</th>
+								<th>Estado</th>
+								<th style="width: 40vw;">Observaciones</th>
+								<th data-orderable="false">Acciones</th>
+							</thead>
+							<tbody>
+								{% for bug in bugs %}
+								<tr data-id_prospecto="{{bug.id}}" data-nombre="{{bug.nombre}} {{bug.apellido}}" data-localidad="{{bug.localidad}}" data-observaciones="{{bug.observaciones}}">
+									<td>{{bug.id}}</td>
+									<td>{{bug.individuo.nombre}} {{bug.individuo.apellido}}</td>
+									<td>{{bug.created_at|date('d/m/Y')}} {{bug.created_at|date('H:i')}}</td>
+									<td>{% if bug.tipo == 0 %}<span class="label label-warning">Bug</span>{% else %}<span class="label label-info">Tarea</span>{% endif %}</td>
+									<td>{% if bug.estado == 0 %}<span class="label label-danger">Incompleto</span>{% else %}<span class="label label-success">Completo</span>{% endif %}</td>
+									<td><textarea style="min-width: 100%; max-width: 100%; resize: none;" disabled>{{bug.texto}}</textarea></td>
+									<td>
+									<a href="{{path_for('bugs.aprobar', {	'id': bug.id })}}" class="btn btn-flat btn-xs btn-success">{% if bug.estado == 0 %}<i class="fa fa-check" aria-hidden="true"></i>{% else %}<i class="fa fa-times" aria-hidden="true"></i>{% endif %}</a>
+									<a href="{{path_for('bugs.eliminar', {	'id': bug.id })}}" class="btn btn-flat btn-xs btn-warning"><i class="fa fa-trash" aria-hidden="true"></i></a>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% else %}
+					<h4 class="text-center text-bold">No hay bugs a reparar.</h4>
+				{% endif %}
+				<br>
+				<button type="button" class="btn btn-flat btn-sm btn-info pull-right" data-toggle="modal" data-target="#myModal"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Agregar</button>
+			</div>
+		</div>
+		<div id="myModal" class="modal fade" role="dialog">
+		  <div class="modal-dialog">
+		  	<form name="bugs_crear_form" method="POST" action="{{path_for('bugs.crear', {'id': auth.user.id } )}}">
+		    <!-- Modal content-->
+		    <div class="modal-content">
+		      	<div class="modal-header">
+		        	<button type="button" class="close" data-dismiss="modal">&times;</button>
+		        	<h4 class="modal-title">Descripción del bug/tarea a realizar:</h4>
+		      	</div>
+		      	<div class="modal-body">
+				  	<div class="form-group">
+				    	<label for="email">Descripción:</label><br>
+				    	<textarea id="bugs_crear_form_texto" style="min-width: 100%; max-width: 100%; min-height:200px; resize:none;" name="bugs_crear_form_texto"></textarea>
+				    	<input type="text" class="form-control" name="bug_crear_id_usuario" id="bug_crear_id_usuario" readonly="" value="{{auth.user.id}}" required>
+				  	</div>
+		      	</div>
+		      	<div class="modal-footer">
+		      		<button type="submit" class="btn btn-warning btn-flat" name="bug_crear_accion" value="0">Cargar como Bug</button>
+		      		<button type="submit" class="btn btn-success btn-info" name="bug_crear_accion" value="1">Cargar como Tarea</button>
+		      	</div>
+		    </div>
+		    {{ csrf.field | raw }}
+		    </form>
+		  </div>
+		</div>
+	</div>
+{% endblock %}
+{% block custom_js %}
+<script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript">
+$('.bugs_tabla').dataTable( {
+	"bLengthChange": false,
+	"iDisplayLength": 50,
+	"language": {
+	    "sProcessing":     "Procesando...",
+	    "sLengthMenu":     "Mostrar _MENU_ registros",
+	    "sZeroRecords":    "No se encontraron resultados",
+	    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+	    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+	    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+	    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+	    "sInfoPostFix":    "",
+	    "sSearch":         "Buscar:",
+	    "sUrl":            "",
+	    "sInfoThousands":  ",",
+	    "sLoadingRecords": "Cargando...",
+	    "oPaginate": {
+	        "sFirst":    "Primero",
+	        "sLast":     "Último",
+	        "sNext":     "Siguiente",
+	        "sPrevious": "Anterior"
+	    },
+	    "oAria": {
+	        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+	        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+	    }
+	}
+});
+</script>
+{% endblock %}

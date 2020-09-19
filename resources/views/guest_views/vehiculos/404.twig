@@ -1,0 +1,31 @@
+{% extends "guest_views/base_fixed.twig" %}
+
+{% block aditional_css %}
+<link rel="stylesheet" href="{{static_assets}}/css/vehiculos/vehicles.css"/>
+<link rel="stylesheet" href="{{static_assets}}/css/vehiculos/single-vehicle.css"/>
+{% endblock %}
+{% block title %}{{publicacion.titulo}}{% endblock %}
+{% block head %}
+	<meta name="description" content="Elegí tu financiación y empezá a vivir tu sueño. Tomamos tu usado como forma de pago y al mejor precio del mercado. Contacto: +54 387 4898080."/> 
+	<meta name="og:description" content="Elegí tu financiación y empezá a vivir tu sueño. Tomamos tu usado como forma de pago y al mejor precio del mercado. Contacto: +54 387 4898080."/>
+	<meta name="og:title" content="Estás viendo: {{publicacion.titulo}} en Ciro Automotores"/> 
+	<meta name="og:url" content="{{base_url()}}{{path_for('vehicle.ver', {	'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.vehiculo.id })}}"/> 
+	{% if publicacion.vehiculo.getFotos is iterable %}
+		{% for foto in publicacion.vehiculo.getFotos %}
+			<meta property="og:image" content="{{base_url()}}{{foto.archivo}}" />			
+		{% endfor %}
+	{% else %}
+		<meta property="og:image" content="{{base_url()}}/images/logo.png" />
+	{% endif %}		 
+{% endblock %}
+{% block content %}	
+	<div class="container-fluid">
+		<div class="single-vehicle">
+			<div class="col-sm-12">
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block custom_js %}
+{% endblock %}

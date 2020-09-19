@@ -1,0 +1,184 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Editar empleado{% endblock %}
+{% block header_title %}Editar empleado{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('empleados.index')}}">Empleados</a>
+</li>
+<li class="breadcrumb-item active">
+	Editar
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<form name="emp_editar_basic_form" method="POST" action="{{path_for('empleados.editarpost')}}">
+	<div class="row">
+	  <div class="col-lg-3">
+	    <!-- Profile Image -->
+	    <div class="card card-info">
+	      <div class="card-body">
+	        <img class="profile-user-img img-responsive img-circle" src="images/default-avatar.png" alt="User profile picture">
+	        <h3 class="profile-username text-center">{{ empleado.individuo.nombre }} {{ empleado.individuo.apellido }}</h3>
+
+	        <p class="text-muted text-center">{{ empleado.puesto.nombre }}</p>
+
+	        <ul class="list-group list-group-unbordered">
+	          <li class="list-group-item">
+	            <b>Sucursal:</b> <a class="pull-right">{{ empleado.agencia.nombre }}</a>
+	          </li>
+	          <li class="list-group-item">
+	            <b>Prospectos realizados:</b> <a class="pull-right">13</a>
+	          </li>
+	          <li class="list-group-item">
+	            <b>Ventas concetradas:</b> <a class="pull-right">23</a>
+	          </li>
+	        </ul>
+	      </div>
+	    </div>
+	  </div>
+
+	  <div class="col-lg-5">
+	  	<div class="card card-info">
+				<div class="card-header">
+					<h3 class="card-title text-bold">Datos básicos:</h3>
+				</div>
+				<div class="card-body">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-sm-4">
+								<label for="empleado_editar_nombre">Nombre:</label>
+								<input type="text" class="form-control" name="empleado_editar_nombre" value="{{empleado.individuo.nombre}}" required>
+							</div>
+							<div class="col-sm-4">
+								<label for="empleado_editar_apellido">Apellido:</label>
+								<input type="text" class="form-control" name="empleado_editar_apellido" value="{{empleado.individuo.apellido}}" required>
+							</div>
+							<div class="col-sm-2" {# style="visibility: hidden" #}>
+								<label for="empleado_editar_id">Emp:</label>
+								<input type="text" class="form-control" name="empleado_editar_id" readonly="" value="{{empleado.id}}" required>
+							</div>
+							<div class="col-sm-2"  {# style="visibility: hidden" #}>
+								<label for="empleado_editar_id">Usu:</label>
+								<input type="text" class="form-control" name="empleado_editar_id_usuario" readonly="" value="{{empleado.id_usuario}}" required>
+							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="col-sm-12">
+								<label for="empleado_editar_nombre">Correo Electrónico:</label>
+								<input type="text" class="form-control" name="empleado_editar_email" value="{{empleado.usuario.email}}" required>
+							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="col-sm-12">
+								<label for="empleado_editar_telefono">Teléfono:</label>
+								<input type="text" class="form-control" name="empleado_editar_telefono" value="{{empleado.individuo.telefono}}" required>
+							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="col-sm-4">
+								<label for="sel1">Selecione la agencia:</label>
+								<select class="form-control" name="empleado-editar-sucursal" id="sel1">
+									{% for agencia in agencias %}
+								    	{% if agencia.id == empleado.agencia.id %}
+								    		<option value="{{agencia.id}}" selected="selected">{{agencia.nombre}}</option>
+								    	{% else %}
+								    		<option value="{{agencia.id}}">{{agencia.nombre}}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+							<div class="col-sm-4">
+								<label for="sel2">Selecione el puesto:</label>
+								<select class="form-control" name="empleado-editar-puesto" id="sel2">
+									{% for puesto in puestos %}
+								    	{% if puesto.id_puesto == empleado.puesto.id_puesto %}
+								    		<option value="{{puesto.id_puesto}}" selected="selected">{{puesto.nombre}}</option>
+								    	{% else %}
+								    		<option value="{{puesto.id_puesto}}">{{puesto.nombre}}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+							<div class="col-sm-4">
+								<label for="sel3">Selecione la ubicacion:</label>
+								<select class="form-control" name="empleado-editar-ubicacion" id="sel3">
+									{% for ubicacion in ubicaciones %}
+								    	{% if ubicacion.id == empleado.ubicacion.id %}
+								    		<option value="{{ubicacion.id}}" selected="selected">{{ubicacion.nombre}}</option>
+								    	{% else %}
+								    		<option value="{{ubicacion.id}}">{{ubicacion.nombre}}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+							<div class="col-sm-12">
+	              <div class="form-group">
+	                <label>Cajas Sucursales</label>
+	                <select class="form-control select2" multiple="multiple" name="empleado_editar_sucursales[]" id="empleado_editar_sucursales" >
+	                  {% for sucursal in sucursales %}
+	                  	<option value="{{sucursal.id}}">{{sucursal.sucursal}} ({{sucursal.descripcion}})</option>
+	                	{% endfor %}
+	                </select>
+	              </div>
+	            </div>
+						</div>
+					</div>
+				</div>
+			</div>
+	  </div>
+	  <div class="col-lg-4">
+	  	<div class="card card-info">
+				<div class="card-header">
+					<h3 class="card-title text-bold">Permisos por empleado:</h3>
+				</div>
+				<div class="card-body">
+					{% if modulos|length > 0 %}
+						{% for modulo in modulos %}
+		        	<i class="fa {{ modulo.icono_modulo }}"></i>  Modulo de {{ modulo.nombre_modulo }}:<br>
+		        	{% for enlace in modulo.getEnlaces %}
+		        		{% set count = 0 %}
+								{% for permiso in permisos %}
+									{% if permiso.id_enlace == enlace.id %}
+										{% set count = 1 %}
+									{% endif %}
+								{% endfor %}
+								<div style="padding-left:3em;">
+		          			<label class="checkbox-inline">
+						      	<input type="checkbox" name="empleado_checkbox{{enlace.id}}" {% if count == 1 %} checked {% endif %}><i class="fa fa-{% if enlace.tipo_enlace == 1 %}angle-right{% else %}link{% endif %}"></i>&nbsp;&nbsp;{{ enlace.nombre }}
+							    </label>
+						    </div>
+							{% endfor %}
+			    	{% endfor %}
+					{% else %}
+						<h4 class="text-center text-bold">No hay a modulos disponibles.</h4>
+					{% endif %}
+				</div>
+			</div>
+	  </div>
+		<div class="col-lg-12" >
+			<button class="btn btn-primary btn-block btn-flat" type="submit">Guardar cambios</button>
+		</div>
+		{{ csrf.field | raw }}
+	</div>
+</form>
+{% endblock %}
+{% block custom_js %}
+<script>
+  $(function () {
+    //Initialize Select2 Elements
+    $('.select2').select2({
+    	theme: "bootstrap",
+    	placeholder: "Selecccione la sucursal"
+    });
+    $('#empleado_editar_sucursales').val({{ sucursalesEmpleado|json_encode|raw  }}).trigger("change");
+  });
+</script>
+{% endblock %}

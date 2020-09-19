@@ -1,0 +1,278 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+
+</style>
+{% endblock %}
+{% block title %}
+  Ver
+{% endblock %}
+{% block header_title %}
+
+{% endblock %}
+{% block breadcrumb %}
+	<li class="breadcrumb-item">
+		<a href="{{path_for('cliente.index')}}">Clientes</a>
+	</li>
+	<li class="breadcrumb-item active" >
+			Ver
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  {% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-4 d-flex justify-content-center">
+            <img class="img-fluid" src="/images/logo.png" alt="">
+          </div>
+          <div class="col-8">
+            <div class="row">
+              <div class="col-12">
+                <h4>
+                  <u>FICHA DEL CLIENTE</u>
+                </h4>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-12">
+                <b>Responsable:</b>&nbsp;{{cliente.individuo.apellido}}&nbsp;{{cliente.individuo.nombre}}
+                <small class="float-right">
+                  <b>Fecha de Confeccion:</b>&nbsp;{{cliente.created_at|date('d/m/Y h:m')}}
+                  <br>
+                  <b>Ultima vez modificado:</b>&nbsp;{{cliente.updated_at|date('d/m/Y h:m')}}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <h4>
+              <u>DATOS</u>
+            </h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="row">
+              <div class="col-md-6">
+                <b>Apellido&nbsp;y&nbsp;Nombre:</b>&nbsp;{{cliente.apellido}}&nbsp;{{cliente.nombre}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <b>Tipo&nbsp;y&nbsp;Nº&nbsp;Doc.:</b>&nbsp;{{cliente.tipoDocumento.nombre}}&nbsp;{{cliente.documento}}
+              </div>
+              <div class="col-md-4">
+                <b>Fecha&nbsp;de&nbsp;Nac.:</b>&nbsp;{{cliente.fecha_nacimiento|date('d/m/Y')}}&nbsp;({{ date('now').diff(cliente.fecha_nacimiento).format('edad %y ') }})
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <b>Numero&nbsp;de&nbsp;Telefono:</b>&nbsp;{{cliente.telefono}}
+              </div>
+              <div class="col-md-4">
+                <b>Numero&nbsp;de&nbsp;Celular:</b>&nbsp;{{cliente.celular}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <h4>
+              <u>DOMICILIO</u>
+            </h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <b>Domicilio:</b>&nbsp;{{cliente.domicilio}} {{cliente.numero}}
+            {% if cliente.piso|length>0 or cliente.dpto|length>0 %}
+            ({{cliente.piso|length>0?'Piso:' ~ cliente.piso:''}} {{cliente.dpto|length>0?'Dpto:' ~ cliente.dpto:''}})
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            <b>Localidad:</b>&nbsp;{{cliente.localidad}}
+          </div>
+          <div class="col-md-4">
+            <b>Provincia:</b>&nbsp;{{cliente.provincia.nombre}}
+          </div>
+          <div class="col-md-4">
+            <b>Codigo&nbsp;Postal:</b>&nbsp;{{cliente.cp > 0 ? cliente.cp : ''}}
+          </div>
+          <div class="col-md-12">
+            <b>Obasevaciones:</b>&nbsp;{{cliente.observaciones}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  {% if comprobantes | length > 0 %}
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Comprobantes Asociados</h4>
+      </div>
+      <div class="card-body">
+        <table class="table table-hover" width="100%">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Detalles</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for comprobante in comprobantes %}
+              {% set tipo_comprobante = comprobante.tipoComprobante.nombre %}
+              {% if comprobante.id_tipo_comprobante in [3,8,1] %}
+                {% set tipo_comprobante = '<label class="control-label">'~ comprobante.tipoComprobante.nombre ~'</label>' %}
+              {% elseif comprobante.id_tipo_comprobante in [99] %}
+                {% if comprobante.detalles[0].facturas | length > 0 %}
+                  {% set tipo_comprobante = '<label class="control-label">RECIBO PAGO</label>' %}
+                {% else %}
+                  {% set tipo_comprobante = 'RECIBO POSITIVO' %}
+                {% endif %}
+              {% endif %}
+              <tr class=" {{comprobante.estado == 0 ? 'bg-danger':''}}">
+                <td>
+                  {{comprobante.id}}
+                </td>
+                <td>
+                  {{tipo_comprobante|raw}}
+                  {% for detalle in comprobante.detalles %}
+                      <p>{{detalle.orden}}. {{detalle.descripcion}} $&nbsp;{{detalle.importe|number_format(2, ',', '.')}}</p>
+                      {% if not loop.last %}
+                        <br>
+                      {% endif %}
+                  {% endfor %}
+                </td>
+                <td>
+                  $&nbsp;{{comprobante.total|number_format(2, ',', '.')}}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <p>Facturas:&nbsp;$&nbsp;{{facturasTotal|number_format(2, ',', '.')}}&nbsp;(en&nbsp;{{facturasCantidad}}&nbsp;comprobantes)
+        <br>
+        Recibos:&nbsp;$&nbsp;{{recibosTotal|number_format(2, ',', '.')}}&nbsp;(en&nbsp;{{recibosCantidad}}&nbsp;comprobantes)</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <div class="col-lg-6">
+    <div class="row">
+      {% if cuentas | length > 0 %}
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Cuentas Corrientes</h4>
+          </div>
+          <div class="card-body">
+            <table class="table table-hover" width="100%">
+              <thead>
+                <tr>
+                  <th>Ultima Act.</th>
+                  <th>Descripcion</th>
+                  <th>Total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cuenta in cuentas %}
+                <tr class=" {{cuenta.estado == 0 ? 'bg-danger':''}}">
+                  <td>
+                    {{ cuenta.updated_at|timeago }}
+                  </td>
+                  <td>
+                    <p>
+                      {{ cuenta.nombre_cuenta }}
+                    </p>
+                  </td>
+                  <td>
+                    <b>$&nbsp;{{cuenta.total|number_format(2, ',', '.')}}</b>
+                  </td>
+                  <td>
+                    <a class="btn btn-sm btn-flat btn-primary ml-1" href="{{path_for('cuenta.movimientos', {'id': cuenta.id })}}"><i class="fa fa-book"></i></a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% if dateros | length > 0 %}
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Dateros</h4>
+          </div>
+          <div class="card-body">
+            <table class="table table-hover" width="100%">
+              <thead>
+                <tr>
+                  <th>Ultima Act.</th>
+                  <th>Empleado</th>
+                  <th>Vehiculo</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for datero in dateros %}
+                <tr class=" {{datero.estado == 0 ? 'bg-danger':''}}">
+                  <td>
+                    {{datero.updated_at|date('d/m/Y h:m')}}
+                  </td>
+                  <td>
+  									{{datero.individuo.nombre}} {{datero.individuo.apellido}}
+  								</td>
+                  <td>
+                    {{datero.marca.nombre}}: {{datero.vehiculo_modelo}}
+                  </td>
+                  <td>
+                    <div class="dropdown">
+  			              <button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+  			                <span class="caret"></span>
+  			                <span class="sr-only">Toggle Dropdown</span>
+  			              </button>
+  			              <div class="dropdown-menu bg-info " role="menu">
+  											<a class="dropdown-item text-secondary" target="_blank" href="{{path_for('cliente.datero.ver',{id:datero.id})}}"><span class="ion ion-eye"></span> Ver</a>
+  			              </div>
+  			            </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).on('ready', function(){
+
+});
+</script>
+{% endblock %}

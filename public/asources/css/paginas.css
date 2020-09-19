@@ -1,0 +1,13 @@
+.card:not(.loading) .overlay {
+	display: none;
+}
+
+#app:not(.onSaving) .show-on-saving {
+	display: none;
+	transition: 300ms;
+}
+
+#app.onSaving .hide-on-saving {
+	display: none;
+	transition: 300ms;
+}

@@ -1,0 +1,132 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block head %}
+	<meta property="og:image" itemprop="image" content="{{base_url()}}/public/images/logo300x200.png">
+	<meta property="og:image:width" content="300">
+	<meta property="og:image:height" content="200">
+	<meta property="og:title" content="Ciro Automotores - ¡Hacé contacto hoy mismo! Tenemos autos usados en Salta y Jujuy además de autos 0 KM" />
+	<meta property="og:type" content="article" />
+	<meta property="og:description" content="¡Hacé contacto con Ciro Automotores! Tenemos los mejores autos usados en Salta y Jujuy. ¡Te esperamos!" />
+	<meta name="description" content="{# 👁‍🗨 #} Ciro Automotores tiene los mejores autos usados en Salta y también contamos con autos 0 kilómetros. {# 🔥 #} !Hacé contacto ahora mismo! {# 🔥 #}" />
+	<meta name="keywords" content="autos usados salta, autos usados en salta, autos 0 km" />
+{% endblock %}
+{% block aditional_css %}
+	<link href="/dist/css/faqs.min.css" rel="stylesheet" />
+	<link href="/dist/css/contacto.min.css" rel="stylesheet" />
+{% endblock %}
+{% block title %}Tenés Una Consulta {% endblock %}
+{% block content %}
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="card">
+					<div class="card-body">
+						<div class="row">
+							<div class="col-lg-6 ">
+								<h4 class="card-title font-weight-bold">¿Tenés alguna duda?</h4>
+								<p class="card-text">Estamos contentos en poder resolver tus dudas. Por favor completá el formulario y especifícanos tu consulta.</p>
+								<form id="formConsulta">
+									<div class="row">
+										<div class="col-lg-6 col-12">
+											<div class="md-form">
+												<input type="text" name="consulta_nombre" class="form-control" value="{{ auth.individuo.nombre ? auth.individuo.nombre : '' }}" required>
+												<label for="consulta_nombre">Nombre</label>
+											</div>
+										</div>
+										<div class="col-lg-6">
+											<div class="md-form">
+												<input type="text" name="consulta_apellido" class="form-control" value="{{ auth.individuo.apellido ? auth.individuo.apellido : '' }}" required>
+												<label for="consulta_apellido">Apellido</label>
+											</div>
+										</div>
+									</div>
+									<div class="md-form {% if auth.individuo.telefono is not empty %}d-none{% endif %}">
+										<i class="fa fa-mobile prefix grey-text"></i>
+										<input type="tel" name="consulta_telefono" class="form-control" value="{{ auth.individuo.telefono ? auth.individuo.telefono : '' }}" required>
+										<label for="consulta_telefono">Teléfono</label>
+									</div>
+									<div class="md-form {% if auth.individuo.email is not empty %}d-none{% endif %}">
+										<i class="fa fa-at prefix grey-text"></i>
+										<input type="email" name="consulta_email" class="form-control consulta_email" value="{{ auth.individuo.email ? auth.individuo.email : '' }}" required>
+										<label for="consulta_email">Correo</label>
+									</div>
+									<div class="md-form">
+										<i class="fa fa-pencil prefix grey-text"></i>
+										<textarea class="form-control md-textarea fw-ta" name="consulta_texto" required></textarea>
+										<label for="consulta_texto">¿Tenés alguna consulta?</label>
+									</div>
+									<div class="form-group">
+										<input class="fw-ta form-control" hidden name="consulta_url" placeholder="Enlace de la publicacion" value="{{base_url()}}{{path_for('contacto')}}">
+									</div>
+									<div class="form-group">
+										<input class="fw-ta form-control" hidden name="consulta_userid" value="{{ auth.user.id ? auth.user.id : '-1' }}">
+									</div>
+									{{csrf.field | raw}}
+									<div class="row">
+										<div class="col-md-12">
+											<button type="submit" onClick="ga('send', 'event', 'pagina_contacto', 'consultar');" class="btn btn-md btn-flat btn-primary btn-block">Consultar</button>
+										</div>
+									</div>
+									&nbsp;
+									<div class="row">
+										<div class="col-md-6">
+											<a id="btnWhatsapp" onClick="ga('send', 'event', 'pagina_contacto', 'whatsapp');" class="btn btn-md btn-flat btn-success btn-block"><i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp</a>
+										</div>
+										<div class="col-md-6">
+											<a href="tel:543874898080" onClick="ga('send', 'event', 'pagina_contacto', 'llamar');" class="btn btn-md btn-flat btn-danger btn-block"><i class="fa fa-phone" aria-hidden="true"></i> Llamar</a>
+										</div>
+									</div>
+									
+								</form>
+								<div class="card text-white bg-primary rounded" id="consultaEnviada">
+									<div class="card-body">
+										Tu consulta ha sido enviada a nuestros asesores.
+										Se comunicarán contigo en las próximas horas.
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-6 d-none d-sm-block">
+								<video controls autoplay="autoplay" style="max-height:75%; text-align:center;">
+									<source src="{{static_assets}}/images/video.mp4" type="video/mp4">
+								</video>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(function() {
+
+	$('#consultaEnviada').hide();
+	var consulta = $('#formConsulta');
+	consulta.on('submit', function (e) {
+		e.preventDefault();
+		$.ajax({
+			url: "{{path_for('consulta')}}",
+			data: consulta.serialize(),
+			method: 'post',
+			success: function( data ) {
+				consulta.fadeOut(function(){
+					$('#consultaEnviada').fadeIn();
+				});
+			},
+		});
+	});
+
+	$('#btnWhatsapp').click(function(e){
+
+		var nombre = $('.consulta_nombre').val();
+		var apellido = $('.consulta_apellido').val();
+		var consulta = $('.consulta_texto_desktop').val();
+
+		var url = "https://api.whatsapp.com/send?phone=543874898080&text=Hola, mi nombre es " + nombre + " " + apellido + ". Consulta: " + consulta;
+
+		$("<a>").attr("href", url).attr("target", "_blank")[0].click();
+	});
+
+});
+</script>
+{% endblock %}

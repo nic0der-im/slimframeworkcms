@@ -1,0 +1,13 @@
+.cliente-upload div[class^='col-md']{
+	margin-bottom:1em;
+}
+
+.tooltip {
+	width: auto;
+}
+
+.tooltip-inner {
+	max-width: inherit !important;
+	text-align: center;
+	padding: 5px;
+}

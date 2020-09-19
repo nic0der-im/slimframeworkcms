@@ -1,0 +1,42 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+	
+{% endblock %}
+{% block title %}Listado de Íconos{% endblock %}
+{% block header_title %}Listado de Íconos{% endblock %}
+{% block breadcrumb %}
+	<li class="active">
+		<a href="{{path_for('paginas.index')}}">Íconos</a>
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+	<div class="col-sm-12">
+		<div class="box box-default">
+			<div class="box-header">
+				<div class="box-title">Listado de iconos</div>
+			</div>
+		</div>
+	</div>
+	{% for icono in iconos %}
+		<div class="col-lg-3">
+			<div class="box box-default">
+				<div class="box-header with-border">
+					<div class="box-title text-bold">
+						#{{icono.id}} {{icono.nombre}}
+					</div>
+					<div class="box-body" style="background-image: url('/images/transparent.jpg');">
+						<img src="{{icono.enlace}}" class="img-responsive" style="margin: auto;">						
+					</div>
+					<div class="box-body">
+						<input class="form-control" value="{{icono.enlace}}" readonly="">
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+</div>
+{% endblock %}
+{% block custom_js %}
+{% endblock %}

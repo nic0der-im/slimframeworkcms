@@ -1,0 +1,1539 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+a {color: black;}
+a:hover {color: grey;}
+.vehiculo_vendido{background-color:#228b22}
+.vehiculo_señado{background-color:#ffd700}
+.vehiculo_fotos{background-color:#ffa500}
+</style>
+{% endblock %}
+{% block title %}Listado de vehículos{% endblock %}
+{% block header_title %}
+	<div>
+	Listado de vehículos
+	<div class="dropdown" style="display: inline-block;">
+	  <button class="btn btn-sm btn-primary badge dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="font-size: initial;">
+	    {% if vista==0 %}
+	    	<span class="glyphicon glyphicon-th"></span>
+	  	{% else %}
+	  		<span class="glyphicon glyphicon-th-list"></span>
+			{% endif %}
+	    <span class="caret"></span>
+	  </button>
+	  <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
+	    <a class="dropdown-item" href="{{path_for('vehicle.index', {},{ 'vista':0	}) }}"><span class="glyphicon glyphicon-th"></span>Vista Cuadricula</a>
+	    <a class="dropdown-item" href="{{path_for('vehicle.index', {},{ 'vista':1	}) }}"><span class="glyphicon glyphicon-th-list"></span>Vista Tabla</a>
+	  </div>
+	</div>
+	<a class="btn btn-flat btn-sm btn-primary" href="{{path_for('publicaciones.index')}}">Listado de publicaciones</a>
+</div>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	Vehículos
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-8">
+		<div class="card card-info">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Aplicar filtros al Listado de Vehículos:</h3>
+			</div>
+			<div class="card-body">
+				<div class="form-group">
+					<div class="row">
+						<input type="hidden" value="0" id="codigo">
+						<div class="col-md-3">
+
+							<select class="form-control select2" id="ordenTabla" style="width: 100%;">
+								<option value="0">Ordenado por Creacion</option>
+								<option value="1">Ordenado por Modificacion</option>
+							</select>
+						</div>
+						<div class="col-md-2">
+							<a class="btn btn-primary" style="width:100%;" id="btnCodigo0">Sin filtro</a>
+						</div>
+						<div class="col-md-2">
+							<a class="btn btn-flat btn-info" style="background-color: white; color:black; width:100%;" id="btnCodigo1">Disponible</a>
+						</div>
+						<div class="col-md-2 " >
+							<a class="btn btn-flat btn-warning vehiculo_fotos" style="width:100%;" id="btnCodigo2">Sin Fotos</a>
+						</div>
+						<div class="col-md-3 " >
+							<a class="btn btn-flat btn-warning vehiculo_señado" style="width:100%;" id="btnCodigo3">Señado</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-4">
+		<div class="card card-success">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Precio U$D actual:</h3>
+			</div>
+			<div class="card-body" style="color:#FFF;">
+				<div class="form-group">
+					<div class="row">
+						<div class="col-md-6">
+							<a class="btn btn-success btn-block">Actual: $ {{ dolar_precio }}</i></a>
+						</div>
+						<div class="col-md-6">
+							<a class="btn btn-info btn-block">Máximo: $ {{ dolar_historico }}</i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% if vista==0 %}
+	<div class="card-deck">
+		{% for vehiculo in vehiculos %}
+		<div class="col-lg-4 col-md-6 col-sm-12">
+			<div class="card">
+				<div class="card-body">
+					{% if vehiculo.getFotos is defined and vehiculo.getFotos|length >= 1 %}
+					<div class="carousel slide" data-ride="carousel">
+						<div class="carousel-inner">
+							{% if vehiculo.getFotos is iterable %}
+								{% for imagen in vehiculo.getFotos|slice(0, 1) %}
+									<div class="carousel-item {% if loop.first %}active{% endif %}">
+										<img class="d-block w-100" src="{{ base_url() }}{{imagen.archivo}}">
+									</div>
+								{% endfor %}
+							{% endif %}
+						</div>
+						<a class="left carousel-control" href="#vehicle-carousel-{{vehiculo.id}}" role="button" data-slide="prev">
+							<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+							<span class="sr-only">Previous</span>
+						</a>
+						<a class="right carousel-control" href="#vehicle-carousel-{{vehiculo.id}}" role="button" data-slide="next">
+							<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+							<span class="sr-only">Next</span>
+						</a>
+					</div>
+					{% else %}
+					<div class="row">
+						<a title="Haz clic para ver más información sobre este vehículo." href="{{path_for('vehicle.getCar', {	'id': vehiculo.id })}}">
+							<div class="col-sm-12 no-padding">
+								<img class="d-block w-100" src="{{ base_url() }}/asources/images/no-disponible.png">
+							</div>
+						</a>
+					</div>
+					{% endif %}
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="card-header">
+								<a title="{{ vehiculo.getMarca.nombre }} {{ vehiculo.modelo }} {{vehiculo.year}}" href="{{path_for('vehicle.getCar', {	'id': vehiculo.id })}}">{{ vehiculo.getMarca.nombre }}
+									{{ vehiculo.modelo }} {{vehiculo.year}}
+								</a>
+								<div class="dropdown pull-right ">
+									<button type="button" class="btn btn-sm btn-primary btn-flat dropdown-toggle " data-toggle="dropdown">
+										<span class="caret"></span>
+										<span class="sr-only">Toggle Dropdown</span>
+									</button>
+									<div class="dropdown-menu" role="menu">
+										<a class="dropdown-item" href="{{path_for('vehicle.getCar', { 'id': vehiculo.id })}}">Ver vehículo</a>
+										<a class="dropdown-item" href="{{path_for('vehicle.getCar', { 'id': vehiculo.id })}}">Subir fotos</a>
+										<a class="dropdown-item" href="{{path_for('vehicle.modify', { 'id': vehiculo.id })}}">Editar vehículo</a>
+										{% if  vehiculo.id_estado == 1 %}
+											<a class="dropdown-item" href="{{path_for('vehicle.estado', {	'id': vehiculo.id },{ 'id_estado':2, 'vista':vista })}}">Cambiar a Señado</a>
+											<a class="dropdown-item" href="{{path_for('vehicle.estado', {	'id': vehiculo.id },{ 'id_estado':3, 'vista':vista })}}">Cambiar a Vendido</a>
+										{% endif %}
+										{% if  vehiculo.id_estado == 2 %}
+										  <a class="dropdown-item" href="{{path_for('vehicle.estado', {	'id': vehiculo.id },{ 'id_estado':1, 'vista':vista })}}">Cambiar a Disponible</a>
+										  <a class="dropdown-item" href="{{path_for('vehicle.estado', {	'id': vehiculo.id },{ 'id_estado':3, 'vista':vista })}}">Cambiar a Vendido</a>
+										{% endif %}
+										{% if  vehiculo.id_estado == 3 %}
+											<a class="dropdown-item" href="{{path_for('vehicle.estado', {	'id': vehiculo.id },{ 'id_estado':1, 'vista':vista })}}">Cambiar a Disponible</a>
+											<a class="dropdown-item" href="{{path_for('vehicle.estado', {	'id': vehiculo.id },{ 'id_estado':2, 'vista':vista })}}">Cambiar a Señado</a>
+										{% endif %}
+										<a class="dropdown-item" href="{{path_for('publicaciones.crear', {	'id': vehiculo.id })}}">Crear publicación</a>
+										{% if 24 in auth.permisosEnlaces %}
+											<a class="dropdown-item" href="{{path_for('vehicle.eliminar', {	'id': vehiculo.id },{ 'vista':vista })}}">Eliminar</a>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="row">
+									<div class="col-md-4 col-xs-4 no-padding"><b>Precio Venta</b> ${{vehiculo.precio_venta|number_format(0, ',', '.')}}</div>
+									<div class="col-md-4 col-xs-4 no-padding"><b>Precio Lista</b> ${{vehiculo.precio_lista|number_format(0, ',', '.')}}</div>
+									<div class="col-md-4 col-xs-4 no-padding"><b>Entrega Minima</b> ${{vehiculo.entrega_minima|number_format(0, ',', '.')}}</div>
+									<div class="col-md-4 col-xs-4 no-padding"><b>kilometraje</b> {{vehiculo.getUsado.kilometraje|default('0')}}</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card-footer"
+					{% if vehiculo.id_estado == 2 %}
+						style="background: gold;"
+					{% elseif vehiculo.id_estado == 3  %}
+						style="background: ForestGreen;"
+					{% endif %}
+				>
+						{% if vehiculo.getFotos is not defined %}
+							<span class="badge label-danger">Sin fotos</span>
+						{% endif %}
+						{% if vehiculo.publicado == true %}
+							<span class="badge label-info">Publicado</span>
+						{% else %}
+							<span class="badge label-danger">Sin publicar</span>
+						{% endif %}
+						<span class="badge label-info bg-aqua-active color-palette">{{vehiculo.getLocalidad.nombre}}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+	{% else %}
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title text-bold">Vehículos disponibles y señados:</h3>
+					{% if 24 in auth.permisosEnlaces %}
+					<div class="dropdown card-tools pull-right">
+			      <button type="button" class="btn btn-info" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			        <span class="caret"></span> Acciones
+			      </button>
+			      <div class="dropdown-menu">
+			        <a class="dropdown-item" href="{{path_for('vehicle.exportar')}}">Exportar listado de Vehiculos</a>
+			        <a class="dropdown-item" id="btnImportarExcel">Importar listado de Vehiculos</a>
+			      </div>
+			    </div>
+			  	{% endif %}
+				</div>
+				<div class="card-body p-0">
+					<div class="table-responsive" >
+						<table id="tablaVehiculos" class="table table-hover nowrap" cellspacing="0" width="100%">
+							<thead class="thead-dark">
+								<tr>
+									<th>
+										Agregado
+									</th>
+									<th>
+
+									</th>
+									<th>
+										Dominio
+									</th>
+									<th>
+										Marca
+									</th>
+									<th>
+										Modelo
+									</th>
+									<th>
+										Año
+									</th>
+									<th>
+										Km
+									</th>
+									<th>
+										Localidad
+									</th>
+									<th>
+										Precio<br>Contado
+									</th>
+									<th>
+										Precio<br>Lista
+									</th>
+									<th>
+										Entrega<br>Minima
+									</th>
+									<th>
+										Credito
+									</th>
+									<th>
+										Color
+									</th>
+									<th>
+									 	Cilindrada
+									</th>
+									<th>
+										Tipo Motor
+									</th>
+									<th>
+										Transmisión
+									</th>
+									<th>
+										Cant. Puertas
+									</th>
+									<th>
+										Ubicación
+									</th>
+									<th>
+										Estado
+									</th>
+									<th>
+										Ex Dueño
+									</th>
+									<th>
+										Precios
+									</th>
+									<th>
+										Foto
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12">
+			<div class="card card-success collapsed-card" id="boxVendidos">
+				<div class="card-header with-border">
+					<h3 class="card-title text-bold">Vehículos Vendidos</h3>
+					<div class="card-tools">
+            <button type="button" class="btn btn-tool" data-widget="collapse" id="btnColapsarVendidos"><i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+          </div>
+	    	</div>
+				<div class="card-body p-0">
+					<div class="table-responsive" >
+						<table id="tablaVendidos" class="table table-sm table-hover responsive nowrap" cellspacing="0" width="100%">
+							<thead>
+								<tr>
+									<th>
+										Ultimo
+									</th>
+									<th>
+										Dominio
+									</th>
+									<th>
+										Marca
+									</th>
+									<th>
+										Modelo
+									</th>
+									<th>
+										Año
+									</th>
+									<th>
+										Km
+									</th>
+									<th>
+										Localidad
+									</th>
+									<th>
+										Precio<br>Contado
+									</th>
+									<th>
+										Precio<br>Lista
+									</th>
+									<th>
+										Entrega<br>Minima
+									</th>
+									<th>
+										Credito
+									</th>
+									<th>
+									</th>
+									<th>
+										Color
+									</th>
+									<th>
+									 	Cilindrada
+									</th>
+									<th>
+										Tipo Motor
+									</th>
+									<th>
+										Transmisión
+									</th>
+									<th>
+										Cant. Puertas
+									</th>
+									<th>
+										Ubicación
+									</th>
+									<th>
+										Estado
+									</th>
+									<th>
+										Ex Dueño
+									</th>
+									<th>
+										Precios
+									</th>
+									<th>
+										Foto
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+	</div>
+<div class="modal fade" id="modalImportarExcel">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Seleccione el archivo</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-group" method="POST" action="{{ path_for('vehicle.importar') }}" id="formImportarExcel" enctype="multipart/form-data">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label class="control-label" for="excel_file">Receptor</label>
+                <div class="input-group" >
+                  <span class="input-group-addon"><i class="fa fa-file"></i></span>
+                  <input class="form-control" type="file" name="excel_file" id="excel_file" required>
+                </div>
+              </div>
+            </div>
+          </div>
+          {{ csrf.field | raw }}
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" id="submitImportarExcel">Continuar</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalHistorial">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+				<h4 class="modal-title">Historial de Modificaciones</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body p-0">
+      	<div class="table-responsive">
+					<table class="table table-bordered" id="tablaHistorial" width="100%">
+	      		<thead>
+	      			<tr>
+	      				<td>
+	      					Fecha
+	      				</td>
+	      				<td>
+	      					Descripcion
+	      				</td>
+	      				<td>
+	      					Autor
+	      				</td>
+	      			</tr>
+	      		</thead>
+	      	</table>
+      	</div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(function() {
+
+	$('#ordenTabla').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+	$.fn.dataTable.moment( 'DD/MM/YYYY' );
+
+	var ordenTabla = 'created_at';
+
+	$('#ordenTabla').on('select2:select',function(){
+		var orden = Number(this.value);
+		var tablaVehiculos = $('#tablaVehiculos').DataTable();
+  	var head_item = tablaVehiculos.columns(0).header();
+		if(orden == 0){
+  		$(head_item).html('Agregado');
+		} else {
+  		$(head_item).html('Modificado');
+		}
+  	tablaVehiculos.ajax.reload(null, true);
+	});
+
+	var tablaVehiculos = $('#tablaVehiculos').DataTable( {
+		order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    autoWidth: false,
+    responsive: {
+      details: {
+        renderer: function ( api, rowIdx, columns ) {
+        	var rowspan = 0;
+        	var primero = true;
+          var data = $.map( columns, function ( col, i ) {
+          	var render = '';
+          	if(col.hidden){
+          		rowspan = rowspan + 1;
+          		render = '<tr class="active" data-dt-row="'+col.rowIndex+'" data-dt-column="'+col.columnIndex+'">'+
+                '<td><b>'+col.title+':'+'</b></td> '+
+                '<td>'+col.data+'</td>';
+              if(primero){
+              	render += '{imagen}';
+              	primero = false;
+              }
+              render += '</tr>';
+          	}
+            return render;
+          } ).join('');
+          var imagen = '<td rowspan="'+rowspan+'" class="danger">SIN IMAGENES</td>';
+          if(columns[21].data){
+          	imagen = '<td rowspan="'+rowspan+'">'+columns[21].data+'</td>';
+          }
+          var body = data.replace('{imagen}',imagen);
+          var tabla = '<table class="table nowrap" cellspacing="0" width="100%">{body}</table>'
+          return data ?tabla.replace('{body}',body) : false;
+        }
+      }
+    },
+    ajax:{
+      url:"{{path_for('vehicle.disponibles')}}",
+      data: function(d){
+        d.codigo = $('#codigo').val();
+        d.orden = $('#ordenTabla').val();
+      },
+    },
+    columns: [
+      {
+        name: ordenTabla,
+        data: function(data,type,row){
+        	var respuesta = '';
+        	var orden = Number($('#ordenTabla').val());
+        	if(orden == 0){
+	      		var momentDate = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss');
+	      		var creado = '';
+	      		if(data.individuo){
+	      			creado = ' data-html="true" data-toggle="tooltip" title="Por '+formatTitle(data.individuo.apellido)+' '+formatTitle(data.individuo.nombre)+'" ';
+	      		}
+	      		respuesta = '<label class="control-label" '+creado+' >'+momentDate.format('DD/MM/YYYY')+'</label>';
+	      	} else {
+	      		var momentDate = moment(data.updated_at, 'YYYY-MM-DD HH:mm:ss');
+	      		respuesta = '<label class="control-label historial_modificado" >'+momentDate.format('DD/MM/YYYY')+'</label>';
+	      	}
+      		return respuesta;
+        },
+      },
+
+      {
+      	name: 'opciones',
+      	data: function(data,type,row){
+      		var path_for_estado = "{{path_for('vehicle.estado', {	'id': 88 })}}?vista={{vista}}";
+      		var path_for_getCar = "{{path_for('vehicle.getCar', {	'id': 88 })}}";
+      		var path_for_modify = "{{path_for('vehicle.modify', {	'id': 88 })}}";
+					var path_for_formulario = "{{path_for('vehicle.formulario', {  'id': 88 },{'return_to':current_path_wb})}}";
+      		var path_for_publicacion = "{{path_for('publicaciones.crear', {	'id': 88})}}";
+      		var path_for_keywords = "{{ path_for('vehicle.keywords', { 'id': 88 }) }}";
+      		var path_for_financiar = "{{ path_for('vehicle.financiar', { 'id': 88 }) }}";
+					var path_for_datero = "{{path_for('cliente.datero.cargar',{},{'id_vehiculo':'AA'})}}".replace('AA',data.id);
+
+        	var respuesta = '<div class="btn-group dropdown ">'+
+						'<button type="button" class="btn btn-sm btn-primary dropdown-toggle " data-toggle="dropdown">'+
+							'<span class="caret"></span>'+
+							'<span class="sr-only">Toggle Dropdown</span>'+
+						'</button>'+
+						'<div class="dropdown-menu" role="menu">'+
+							'<a class="dropdown-item" href="'+path_for_getCar.replace('88',data.id)+'" target="_blank" >Ver vehículo/Subir fotos</a>'+
+							'<a class="dropdown-item" href="'+path_for_financiar.replace('88', data.id)+'">Financiación</a>'+
+							'<a class="dropdown-item" href="'+path_for_modify.replace('88',data.id) +'"><span class="ion ion-edit"></span> Editar vehículo</a>'+
+							'<a class="dropdown-item" href="'+path_for_formulario.replace('88',data.id) +'"><span class="ion ion-document"></span> Formularios</a>';
+							if (data.id_estado == 1){
+								respuesta +=
+								'<a class="dropdown-item" onclick="cambiarSeñado('+data.id+');" ><span class="ion ion-link"></span> Cambiar a Señado</a>'+
+								'<a class="dropdown-item" onclick="cambiarVendido('+data.id+');" ><span class="ion ion-link"></span> Cambiar a Vendido</a>';
+							} else if (data.id_estado == 2){
+								respuesta +=
+								'<a class="dropdown-item" href="'+path_for_estado.replace('88',data.id)+'&id_estado=1"><span class="ion ion-link"></span> Cambiar a Disponible</a>'+
+							  '<a class="dropdown-item" onclick="cambiarVendido('+data.id+');" ><span class="ion ion-link"></span> Cambiar a Vendido</a>';
+							}
+							respuesta +=
+								'<a class="dropdown-item" href="'+path_for_publicacion.replace('88',data.id)+'">Crear Publicación</a>';
+							respuesta +=
+								'<a class="dropdown-item" href="'+path_for_datero+'">Crear Datero</a>';
+							{% if 24 in auth.permisosEnlaces %}
+							respuesta +=
+								'<a class="dropdown-item" onclick="historial('+data.id+');" >Historial</a>';
+							respuesta +=
+								'<a class="dropdown-item" onclick="eliminar('+data.id+');" >Eliminar</a>';
+							{% endif %}
+							{% if 45 in auth.permisosEnlaces %}
+							respuesta +=
+								'<a class="dropdown-item" href="'+path_for_keywords.replace('88', data.id)+'">Generar Keywords vehículos</a>';
+				        	{% endif %}
+							respuesta +=
+						'</div>'+
+					'</div>';
+        	return respuesta;
+        },
+      },
+      {
+        name: 'dominio',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+      			var momentDate = moment(data.updated_at, 'YYYY-MM-DD HH:mm:ss');
+      			var usuario = '';
+      			if(Object.keys(data.historial).length>0){
+      				var ultimo = data.historial.length - 1;
+      				usuario = '<br>por '+formatTitle(data.historial[ultimo].individuo.apellido)+' '+formatTitle(data.historial[ultimo].individuo.nombre);
+      			}
+	    			respuesta = '<div class="" data-html="true" data-toggle="tooltip" title="Modificado el<br>'+momentDate.format('DD/MM/YYYY')+usuario+'">'+data.get_usado.dominio+'</div>';
+	      	}
+	      	return respuesta;
+        },
+      },
+      {
+        name: 'id_marca',
+        data: 'get_marca.nombre',
+      },
+      {
+        name: 'modelo',
+        data: 'modelo',
+      },
+      {
+        name: 'year',
+        data: 'year',
+      },
+      {
+        name: 'kilometraje',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.kilometraje;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'id_localidad',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_localidad!=null){
+        		if(data.get_localidad.id==1){
+        			respuesta = 'SALTA';
+        		} else if(data.get_localidad.id==2){
+        			respuesta = 'ORAN';
+        		} else {
+        			respuesta = data.get_localidad.nombre;
+        		}
+        	}
+        	return respuesta;
+        },
+      },
+      
+      /*{
+        name: 'precio_venta',
+        data: function(data,type,row){
+        	var precio_final = data.precio_usd * {{ dolar_historico }};
+         	return formatCurrency(precio_final);
+        },
+      },
+      {
+        name: 'precio_lista',
+        data: function(data,type,row){
+        	var precio_final = data.precio_usd * {{ dolar_historico }};
+         	return formatCurrency(precio_final+10000);
+        },
+      },
+      {
+        name: 'calculo_entrega_minima',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.calculo_entrega_minima>0){
+        		respuesta = formatCurrency(data.calculo_entrega_minima);
+        	} else {
+        		respuesta = formatCurrency(data.entrega_minima);
+        	}
+        	return respuesta;
+        },
+      },*/
+
+      {
+        name: 'precio_venta',
+        data: 'precio_venta',
+        render: function(data,type,row){
+          return formatCurrency(data);
+        },
+      },
+      {
+        name: 'precio_lista',
+        data: 'precio_lista',
+        render: function(data,type,row){
+          return formatCurrency(data);
+        },
+      },
+      {
+        name: 'calculo_entrega_minima',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.calculo_entrega_minima>0){
+        		respuesta = formatCurrency(data.calculo_entrega_minima);
+        	} else {
+        		respuesta = formatCurrency(data.entrega_minima);
+        	}
+        	return respuesta;
+        },
+      },
+		      
+      {
+        name: 'calculo_credito',
+        data: 'calculo_credito',
+        render: function(data,type,row){
+          return formatCurrency(data);
+        },
+      },
+      {
+        name: 'color',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.color;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'motor',
+        data: 'motor',
+        render: function(data,type,row){
+          return (data).toFixed(1);
+        },
+      },
+      {
+        name: 'id_tipo_motor',
+        data: 'get_tipo_motor.nombre',
+      },
+      {
+        name: 'id_transmision',
+        data: 'get_transmision.nombre',
+      },
+      {
+        name: 'cantidad_puertas',
+        data: 'cantidad_puertas',
+      },
+      {
+        name: 'id_ubicacion',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_ubicacion!=null){
+        		respuesta = data.get_ubicacion.nombre;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+      	name: 'estado',
+      	data: function(data,type,row){
+					var estadoLista = '';
+					switch (data.estado_vehiculo) {
+						case 1:
+						estadoLista = '<span class="badge label-danger">'+data.get_estado_lista.nombre+'</span>';
+							break;
+						case 2:
+						estadoLista = '<span class="badge label-success">'+data.get_estado_lista.nombre+'</span>';
+							break;
+						case 3:
+							estadoLista = '<span class="badge label-warning">'+data.get_estado_lista.nombre+'</span>';
+								break;
+						default:
+						estadoLista = '<span class="badge label-default">'+data.get_estado_lista.nombre+'</span>';
+					}
+      		var publicado = (data.publicado)? '<span class="badge label-info">Publicado</span>': '<span class="badge label-danger">Sin publicar</span>';
+      		var vehiculo_estado = '';
+      		if(data.get_tipos_estado!=null){
+	      		if(data.id_estado == 1){
+	      			vehiculo_estado = '<span class="badge label-info">'+data.get_tipos_estado.nombre+'</span>';
+	      		} else if (data.id_estado == 2){
+	      			vehiculo_estado = '<span class="badge label-warning">'+data.get_tipos_estado.nombre+'</span>';
+	      		} else {
+	      			vehiculo_estado = '<span class="badge label-success">'+data.get_tipos_estado.nombre+'</span>';
+	      		}
+	      	}
+      		return estadoLista+'&nbsp;'+publicado+'&nbsp;'+vehiculo_estado;
+	      }
+      },
+      {
+        name: 'exowner',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.exowner;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'Precios',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	var precio_final = data.precio_usd * {{ dolar_precio | replace({',': '.'}) }};
+
+        	if(data.get_usado!=null){
+        		respuesta = '<label class="control-label">Toma:</label> '+formatCurrency(data.get_usado.precio_toma)+
+        		'<br><label class="control-label">Revista:</label> '+formatCurrency(data.get_usado.precio_revista)+
+        		'<br><label class="control-label">Reparacion:</label> '+formatCurrency(data.get_usado.precio_reparacion_estimado)+
+        		'<br><label class="control-label">Con dolar actual:</label> '+formatCurrency(precio_final);
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'foto',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(Object.keys(data.get_fotos).length>0){
+        		respuesta =
+        		'<div class="col-lg-10 col-md-12 col-sm-12 col-12">'+
+	        		'<div class="card">'+
+	        			'<div class="card-body p-0">'+
+									'<img class="img-fluid" src="'+data.get_fotos[0].archivo+'">'+
+								'</div>'+
+							'</div>'+
+						'</div>';
+        	}
+        	return respuesta;
+        },
+      },
+    ],
+    scrollCollapse: true,
+    fixedColumns:   {
+    	leftColumns: 1,
+      rightColumns: 1
+    },
+    columnDefs:[
+      {
+        targets:[1,3,5,6,9,10,11,13],
+        orderable: false,
+      },
+      {
+      	targets:[0,1,4,5,6,7,8,9,10,11],
+      	width: '15px',
+      },
+      {
+      	targets: [0,1,8,9,10,11],
+      	responsivePriority: 2,
+      },
+      {
+      	targets: [7],
+      	responsivePriority: 3,
+      	className: 'precio_contado',
+      },
+      {
+      	targets:[3],
+      	width: "20%",
+      },
+      {
+        targets:[8,9,10],
+        className: 'text-right',
+      },
+      {
+      	targets:[20,21],
+      	visible:false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+      if(data.id_estado==1){
+      	if(Object.keys(data.get_fotos).length==0){
+        	$(row).addClass('vehiculo_fotos');
+      	}
+      } else if(data.id_estado==2){
+        $(row).addClass('vehiculo_señado');
+      } else if (data.id_estado == 3){
+      	$(row).addClass('vehiculo_vendido');
+      }
+    },
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	tablaVehiculos.on( 'draw', function () {
+    console.log( 'Redraw occurred at: '+new Date().getTime() );
+	});
+
+	tablaVehiculos.MakeCellsEditable({
+    "onUpdate": modificarPrecioContado,
+    "inputCss":'input_precio_contado',
+    "columns": [8],
+    "allowNulls":
+    	{
+        "columns": [8],
+    	},
+  	"confirmationButton":
+  		{
+        "confirmCss": 'btn btn-success btn-xs',
+        "cancelCss": 'btn btn-danger btn-xs'
+    	},
+		"inputTypes": [
+			{
+				"column":8,
+				"type":"text",
+			}]
+  });
+
+  function  modificarPrecioContado(updatedCell, updatedRow, oldValue) {
+  	var row = updatedRow.data();
+  	var route = "{{path_for('vehicle.precioventa',{'id':99})}}".replace('99',row.id)+'?precio_venta='+updatedCell.data();
+  	$.ajax({
+      url: route,
+      type: 'GET',
+      async: false,
+      cache: false,
+      timeout: 30000,
+      error: function(){
+        $.toast({
+          heading: 'Vehiculo',
+          text: 'A ocurrido un problema. Por favor intente mas tarde.',
+          showHideTransition: 'slide',
+          icon: 'error',
+          position: 'bottom-right',
+          hideAfter: false,
+        });
+      },
+      success: function(msg){
+        $.toast({
+	        heading: 'Vehiculo',
+	        text: 'El precio fue modificado para el vehiculo '+row.get_usado.dominio,
+	        showHideTransition: 'slide',
+	        icon: 'success',
+	        position: 'bottom-right',
+	      });
+      }
+    });
+  }
+
+  $('#btnCodigo0').on('click',function(){
+  	$('#codigo').val(0);
+  	tablaVehiculos.ajax.reload(null, true);
+  });
+  $('#btnCodigo1').on('click',function(){
+  	$('#codigo').val(1);
+  	tablaVehiculos.ajax.reload(null, true);
+  });
+  $('#btnCodigo2').on('click',function(){
+  	$('#codigo').val(2);
+  	tablaVehiculos.ajax.reload(null, true);
+  });
+  $('#btnCodigo3').on('click',function(){
+  	$('#codigo').val(3);
+  	tablaVehiculos.ajax.reload(null, true);
+  });
+
+	$('#btnColapsarVendidos').on('click',function(){
+		if ( ! $.fn.DataTable.isDataTable( '#tablaVendidos' ) ) {
+			$('#tablaVendidos').DataTable( {
+				order:[[0,'desc']],
+		    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+		    processing: true,
+		    serverSide: true,
+		    autoWidth: false,
+		    responsive: {
+		      details: {
+		        renderer: function ( api, rowIdx, columns ) {
+		        	var rowspan = 0;
+		        	var primero = true;
+		          var data = $.map( columns, function ( col, i ) {
+		          	var render = '';
+		          	if(col.hidden){
+		          		rowspan = rowspan + 1;
+		          		render = '<tr class="active" data-dt-row="'+col.rowIndex+'" data-dt-column="'+col.columnIndex+'">'+
+		                '<td><b>'+col.title+':'+'</b></td> '+
+		                '<td>'+col.data+'</td>';
+		              if(primero){
+		              	render += '{imagen}';
+		              	primero = false;
+		              }
+		              render += '</tr>';
+		          	}
+		            return render;
+		          } ).join('');
+		          var imagen = '<td rowspan="'+rowspan+'" class="danger">SIN IMAGENES</td>';
+		          if(columns[21].data){
+		          	imagen = '<td rowspan="'+rowspan+'">'+columns[21].data+'</td>';
+		          }
+		          var body = data.replace('{imagen}',imagen);
+		          var tabla = '<table class="table nowrap" cellspacing="0" width="100%">{body}</table>'
+		          return data ?
+		            $('<table/>').append( tabla.replace('{body}',body) ) :
+		            false;
+		        }
+		      }
+		    },
+		    ajax:{
+		      url:"{{path_for('vehicle.vendidos')}}",
+		    },
+		    columns: [
+		      {
+		        name: 'created_at',
+		        data: function(data,type,row){
+		      		var momentDate = moment(data.updated_at, 'YYYY-MM-DD HH:mm:ss');
+		      		var creado = '';
+		      		if(data.individuo){
+		      			creado = ' data-html="true" data-toggle="tooltip" title="Por '+formatTitle(data.individuo.apellido)+' '+formatTitle(data.individuo.nombre)+'" ';
+		      		}
+		      		var respuesta = '<label class="control-label" '+creado+' >'+momentDate.format('DD/MM/YYYY')+'</label>';
+		      		return respuesta;
+		        },
+		      },
+		      {
+		        name: 'dominio',
+		        data: function(data,type,row){
+		        	var respuesta = '';
+		        	if(data.get_usado!=null){
+		      			var momentDate = moment(data.updated_at, 'YYYY-MM-DD HH:mm:ss');
+		      			var usuario = '';
+		      			if(Object.keys(data.historial).length>0){
+		      				var ultimo = data.historial.length - 1;
+		      				usuario = '<br>por '+formatTitle(data.historial[ultimo].individuo.apellido)+' '+formatTitle(data.historial[ultimo].individuo.nombre);
+		      			}
+			    			respuesta = '<div class="" data-html="true" data-toggle="tooltip" title="Modificado el<br>'+momentDate.format('DD/MM/YYYY')+usuario+'">'+data.get_usado.dominio+'</div>';
+			      	}
+			      	return respuesta;
+		        },
+		      },
+		      {
+		        name: 'marca',
+		        data: 'get_marca.nombre',
+		      },
+		      {
+		        name: 'modelo',
+		        data: 'modelo',
+		      },
+		      {
+		        name: 'year',
+		        data: 'year',
+		      },
+		      {
+		        name: 'kilometraje',
+		        data: function(data,type,row){
+		        	var respuesta = '';
+		        	if(data.get_usado!=null){
+		        		respuesta = data.get_usado.kilometraje;
+		        	}
+		        	return respuesta;
+		        },
+		      },
+		      {
+		        name: 'id_localidad',
+		        data: function(data,type,row){
+		        	var respuesta = '';
+		        	if(data.get_localidad!=null){
+		        		if(data.get_localidad.id==1){
+		        			respuesta = 'SALTA';
+		        		} else if(data.get_localidad.id==2){
+		        			respuesta = 'ORAN';
+		        		} else {
+		        			respuesta = data.get_localidad.nombre;
+		        		}
+		        	}
+		        	return respuesta;
+		        },
+		      },
+		      {
+		        name: 'precio_venta',
+		        data: 'precio_venta',
+		        render: function(data,type,row){
+		          return formatCurrency(data);
+		        },
+		      },
+		      {
+		        name: 'precio_lista',
+		        data: 'precio_lista',
+		        render: function(data,type,row){
+		          return formatCurrency(data);
+		        },
+		      },
+		      {
+		        name: 'calculo_entrega_minima',
+		        data: function(data,type,row){
+		        	var respuesta = '';
+		        	if(data.calculo_entrega_minima>0){
+		        		respuesta = formatCurrency(data.calculo_entrega_minima);
+		        	} else {
+		        		respuesta = formatCurrency(data.entrega_minima);
+		        	}
+		        	return respuesta;
+		        },
+		      },
+		      {
+		        name: 'calculo_credito',
+		        data: 'calculo_credito',
+		        render: function(data,type,row){
+		          return formatCurrency(data);
+		        },
+		      },
+		      {
+		      	name: 'opciones',
+		      	data: function(data,type,row){
+		      		var path_for_estado = "{{path_for('vehicle.estado', {	'id': 88 })}}?vista={{vista}}";
+		      		var path_for_getCar = "{{path_for('vehicle.getCar', {	'id': 88 })}}";
+							var path_for_modify = "{{path_for('vehicle.modify', {	'id': 88 })}}";
+		      		var path_for_formulario = "{{path_for('vehicle.formulario', {  'id': 88 },{'return_to':current_path_wb})}}";
+		      		var path_for_publicacion = "{{path_for('publicaciones.crear', {	'id': 88})}}";
+		      		var path_for_eliminar = "{{path_for('vehicle.eliminar', { 'id': 88 },{ 'vista':vista })}}";
+		        	var respuesta = '<div class="dropdown ">'+
+								'<button type="button" class="btn btn-sm btn-primary btn-flat dropdown-toggle " data-toggle="dropdown">'+
+									'<span class="caret"></span>'+
+									'<span class="sr-only">Toggle Dropdown</span>'+
+								'</button>'+
+								'<div class="dropdown-menu" role="menu">'+
+									'<a class="dropdown-item" href="'+path_for_getCar.replace('88',data.id)+'">Ver vehículo/Subir fotos</a>'+
+									'<a class="dropdown-item" href="'+path_for_modify.replace('88',data.id) +'">Editar vehículo</a>'+
+									'<a class="dropdown-item" href="'+path_for_formulario.replace('88',data.id) +'"><span class="ion ion-document"></span> Formularios</a>';
+ 									if (data.id_estado == 3){
+										respuesta +=
+										'<a class="dropdown-item" href="'+path_for_estado.replace('88',data.id)+'&id_estado=1"><span class="ion ion-link"></span> Cambiar a Disponible</a>';
+									}
+									respuesta +=
+									'<a class="dropdown-item" href="'+path_for_publicacion.replace('88',data.id)+'">Crear publicación</a>';
+									{% if 24 in auth.permisosEnlaces %}
+									respuesta +=
+										'<a class="dropdown-item" href="'+path_for_eliminar.replace('88',data.id)+'">Eliminar</a>';
+									{% endif %}
+									respuesta +=
+								'</div>'+
+							'</div>';
+		        	return respuesta;
+		        },
+		      },
+		      {
+		        name: 'color',
+		        data: function(data,type,row){
+		        	var respuesta = '';
+		        	if(data.get_usado!=null){
+		        		respuesta = data.get_usado.color;
+		        	}
+		        	return respuesta;
+		        },
+		      },
+		      {
+		        name: 'motor',
+		        data: 'motor',
+		        render: function(data,type,row){
+		          return (data).toFixed(1);
+		        },
+		      },
+		      {
+		        name: 'id_tipo_motor',
+		        data: 'get_tipo_motor.nombre',
+		      },
+		      {
+		        name: 'id_transmision',
+		        data: 'get_transmision.nombre',
+		      },
+		      {
+		        name: 'cantidad_puertas',
+		        data: 'cantidad_puertas',
+		      },
+		      {
+		        name: 'id_ubicacion',
+		        data: function(data,type,row){
+		        	var respuesta = '';
+		        	if(data.get_ubicacion!=null){
+		        		respuesta = data.get_ubicacion.nombre;
+		        	}
+		        	return respuesta;
+		        },
+		      },
+		      {
+		      	name: 'estado',
+		      	data: function(data,type,row)
+		      	{
+		      		var estadoLista = '<span class="label label-info">'+data.get_estado_lista.nombre+'</span>';
+		      		var publicado = (data.publicado)? '<span class="label label-info">Publicado</span>': '<span class="label label-danger">Sin publicar</span>';
+		      		var vehiculo_estado = '';
+		      		if(data.get_tipos_estado!=null)
+		      		{
+			      		if(data.id_estado == 1)
+			      		{
+			      			vehiculo_estado = '<span class="label label-info">'+data.get_tipos_estado.nombre+'</span>';
+			      		}
+			      		else if (data.id_estado == 2)
+			      		{
+			      			vehiculo_estado = '<span class="label label-warning">'+data.get_tipos_estado.nombre+'</span>';
+			      		}
+			      		else
+			      		{
+			      			vehiculo_estado = '<span class="label label-success">'+data.get_tipos_estado.nombre+'</span>';
+			      		}
+			      	}
+		      		return estadoLista+'&nbsp;'+publicado+'&nbsp;'+vehiculo_estado;
+			      }
+		      },
+		      {
+		        name: 'exowner',
+		        data: function(data,type,row){
+		        	var respuesta = '';
+		        	if(data.get_usado!=null){
+		        		respuesta = data.get_usado.exowner;
+		        	}
+		        	return respuesta;
+		        },
+		      },
+		      {
+		        name: 'Precios',
+		        data: function(data,type,row){
+		        	var respuesta = '';
+		        	if(data.get_usado!=null){
+		        		respuesta = '<label class="control-label">Toma:</label> '+formatCurrency(data.get_usado.precio_toma)+
+		        		'<br><label class="control-label">Revista:</label> '+formatCurrency(data.get_usado.precio_revista)+
+		        		'<br><label class="control-label">Reparacion:</label> '+formatCurrency(data.get_usado.precio_reparacion_estimado);
+		        	}
+		        	return respuesta;
+		        },
+		      },
+		      {
+		        name: 'foto',
+		        data: function(data,type,row){
+		        	var respuesta = '';
+		        	if(Object.keys(data.get_fotos).length>0){
+		        		respuesta =
+		        		'<div class="col-lg-4 col-md-6 col-sm-12">'+
+			        		'<div class="card card-default">'+
+			        			'<div class="carousel vehicle-carousel slide">'+
+				        			'<ol class="carousel-indicators">'+
+												'<li ></li>'+
+											'</ol>'+
+			        				'<div class="carousel-inner" role="listbox">'+
+												'<div class="item active">'+
+													'<img src="'+data.get_fotos[0].archivo+'">'+
+												'</div>'+
+											'</div>'+
+										'</div>'+
+									'</div>'+
+								'</div>';
+		        	}
+		        	return respuesta;
+		        },
+		      },
+		    ],
+		    fixedColumns:   {
+		    	leftColumns: 0,
+		      rightColumns: 1
+		    },
+		    columnDefs:[
+		      {
+		        targets:[3,6,7,11,13],
+		        orderable: false,
+		      },
+		      {
+		      	targets:[0,1,2,4,5,6,7,8,9,10,11],
+		      	width: "15px",
+		      },
+		      {
+		      	targets: [9,10,11],
+		      	responsivePriority: 2,
+		      },
+		      {
+		      	targets:[3],
+		      	width: "35%",
+		      },
+		      {
+		        targets:[8,9,10],
+		        className: 'text-right',
+		      },
+		      {
+		      	targets:[20,21],
+		      	visible:false,
+		      },
+		    ],
+		    createdRow: function (row, data, index) {
+		      if(data.id_estado==2){
+		        $(row).addClass('vehiculo_señado');
+		      } else if (data.id_estado == 3){
+		      	$(row).addClass('vehiculo_vendido');
+		      }
+		    },
+				"language": {
+				    "sProcessing":     "Procesando...",
+				    "sLengthMenu":     "Mostrar _MENU_ registros",
+				    "sZeroRecords":    "No se encontraron resultados",
+				    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+				    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+				    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+				    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+				    "sInfoPostFix":    "",
+				    "sSearch":         "Buscar:",
+				    "sUrl":            "",
+				    "sInfoThousands":  ",",
+				    "sLoadingRecords": "Cargando...",
+				    "oPaginate": {
+				        "sFirst":    "Primero",
+				        "sLast":     "Último",
+				        "sNext":     "Siguiente",
+				        "sPrevious": "Anterior"
+				    },
+				    "oAria": {
+				        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+				        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+				    }
+				}
+			});
+		}
+	});
+
+	$('#tablaHistorial').DataTable( {
+		order:[[0,'desc']],
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "No existen cambios.",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+	$('#btnImportarExcel').on('click',function(){
+    $('#modalImportarExcel').modal('show');
+  });
+
+  $('#submitImportarExcel').on('click',function(){
+		$('#formImportarExcel').submit();
+	});
+
+  function colapsar() {
+  	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+
+		} else {
+			$('a[data-widget="pushmenu"]').trigger('click');
+			tablaVehiculos.ajax.reload(null, true);
+			if ( $.fn.DataTable.isDataTable( '#tablaVendidos' ) ) {
+			  $('#example').DataTable().ajax.reload(null, true);
+			}
+		}
+  };
+
+	setTimeout(colapsar, 500);
+
+});
+
+function eliminar(id){
+  bootbox.confirm({
+    title: "Eliminar el Vehiculo?",
+    message: "Desea eliminar el Vehiculo? Los dateros y carpetas que esten asociadas no sufriran cambios.",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: '<i class="ion ion-trash-a"></i> Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result){
+				var route = "{{path_for('vehicle.eliminar', { id : 99 })}}"
+          .replace('99',id)
+          .replace(/&amp;/g,'&');
+        document.location.assign(route);
+      }
+    }
+  });
+}
+
+function historial(id){
+	var route = "{{path_for('vehicle.historial',{'id':99})}}".replace('99',id);
+	$.ajax({
+      url: route,
+      type: 'GET',
+      timeout: 30000,
+      error: function(){
+        $.toast({
+          heading: 'Vehiculo',
+          text: 'A ocurrido un problema. Por favor intente mas tarde.',
+          showHideTransition: 'slide',
+          icon: 'error',
+          position: 'bottom-right',
+          hideAfter: false,
+        });
+      },
+      success: function(data,status){
+    		$('#modalHistorial').modal('show');
+    		var tabla = $('#tablaHistorial').DataTable();
+    		tabla
+			    .clear()
+			    .draw();
+    		for (var i = 0; i < data.length; i++) {
+    			var row = data[i];
+    			var momentDate = moment(row.created_at, 'YYYY-MM-DD HH:mm:ss');
+    			var usuario = '';
+    			if(row.individuo){
+    				usuario = formatTitle(row.individuo.apellido)+' '+formatTitle(row.individuo.nombre);
+    			}
+      		tabla.row.add([
+						'<label class="control-label" >'+momentDate.format('DD/MM/YYYY')+'</label>'
+						,
+						row.descripcion
+						,
+						usuario
+						])
+					.draw()
+				  .node();
+    		}
+      }
+    });
+}
+
+function cambiarSeñado(id_vehiculo){
+	var route = "{{path_for('vehicle.dateros',{'id':99})}}".replace('99',id_vehiculo);
+	$.ajax({
+    url: route,
+    type: 'GET',
+    timeout: 30000,
+    error: function(){
+      $.toast({
+        heading: 'Vehiculo',
+        text: 'A ocurrido un problema. Por favor intente mas tarde.',
+        showHideTransition: 'slide',
+        icon: 'error',
+        position: 'bottom-right',
+        hideAfter: false,
+      });
+    },
+    success: function(data,status){
+			var opciones = [];
+			opciones.push({
+				value: 0,
+				text: 'Sin datero ASOCIADO',
+			});
+			for (var i = 0; i < data.length; i++) {
+				var momentDate = moment(data[i].created_at, 'YYYY-MM-DD HH:mm:ss');
+				opciones.push({
+					value: data[i].id,
+					text: momentDate.format('DD/MM/YY HH')+'Hs Titular: '+data[i].apellido+' '+data[i].nombre+' Estado: '+data[i].tipo_estado.nombre,
+				});
+			}
+			bootbox.prompt({
+		    title: "Señar Vehiculo. Asociando o no un Datero",
+				value: 0,
+		    inputType: 'select',
+		    inputOptions: opciones,
+		    buttons: {
+		      cancel: {
+		        label: '<i class="fa fa-times"></i> Cancelar'
+		      },
+		      confirm: {
+		        label: 'Continuar'
+		      }
+		    },
+		    callback: function (result) {
+		      if(result!=null && result!=''){
+						var path_for_estado = "{{path_for('vehicle.estado', {	'id': 88 },{id_estado:2,id_datero:'iddatero'})}}"
+							.replace('88',id_vehiculo)
+							.replace('iddatero',result)
+							.replace(/&amp;/g,'&');
+		        document.location.assign(path_for_estado);
+		      } else if(result!=null) {
+						$.toast({
+		          heading: 'Señar Vehiculo',
+		          text: 'Elija una opcion.',
+		          showHideTransition: 'slide',
+		          icon: 'warning',
+		          position: 'bottom-right',
+		          hideAfter: false,
+		        });
+					}
+		    }
+		  });
+    }
+  });
+}
+
+function cambiarVendido(id_vehiculo){
+	bootbox.prompt({
+	  title: "Cambiar a Vendido",
+		placeholder: "Observaciones",
+		buttons: {
+			cancel: {
+				label: '<i class="fa fa-times"></i> Cancelar'
+			},
+			confirm: {
+				label: 'Continuar'
+			}
+		},
+	  callback: function(result){
+			if(result!=null){
+				var path_for_estado = "{{path_for('vehicle.estado', {	'id': 88 },{id_estado:3,descripcion:'observaciones'})}}"
+					.replace('88',id_vehiculo)
+					.replace('observaciones',result)
+					.replace(/&amp;/g,'&');
+				document.location.assign(path_for_estado);
+			}
+		}
+	});
+}
+
+function formatCurrency(total) {
+    var neg = false;
+    if(total < 0) {
+        neg = true;
+        total = Math.abs(total);
+    }
+    var respuesta = parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+    return (neg ? "-$" : '$') + respuesta.substring(0, respuesta.length - 3);
+	}
+function formatTitle(str){
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+</script>
+{% endblock %}

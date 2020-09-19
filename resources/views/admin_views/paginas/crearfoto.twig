@@ -1,0 +1,39 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+	<link rel="stylesheet" href="{{ base_url() }}/asources/css/vehiculos.css">
+{% endblock %}
+{% block title %}Crear foto{% endblock %}
+{% block header_title %}Agregar foto{% endblock %}
+{% block breadcrumb %}<li><a href="{{path_for('paginas.index')}}">Páginas</a></li><li class="active"><a href="{{path_for('paginas.index')}}">Crear foto</a></li>{% endblock %}
+{% block content %}
+	<div class="row publicacion create">
+		<form name="foto_post" method="POST" action="{{path_for('paginas.fotos.crearpost')}}">
+			<div class="col-sm-12">
+				<div class="row">					
+					<div class="col-sm-12">
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Descripción de la foto:</h3>
+								<input type="hidden" name="pagina_id" id="pagina_id" value="{{ pagina.id }}">
+							</div>
+							<div class="box-body">
+								<div class="form-group">									
+									<div class="row">
+										<div class="col-sm-12">
+											<label for="foto_enlace">Enlace de la foto:</label>
+											<input type="text" class="form-control" name="foto_enlace" id="foto_enlace" placeholder="Enlace de la foto">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<button class="btn btn-primary btn-flat pull-right" type="submit">Agregar foto</button>
+					</div>
+				</div>
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+{% endblock %}
+{% block custom_js %}
+{% endblock %}

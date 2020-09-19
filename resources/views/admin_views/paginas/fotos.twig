@@ -1,0 +1,276 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+	<link rel="stylesheet" href="{{ base_url() }}/asources/css/vehiculos.css">
+{% endblock %}
+{% block title %}Listado de fotos{% endblock %}
+{% block header_title %}{{ pagina.titulo }}: Listado de fotos <a href="{{path_for('paginas.fotos.crear', {	'id': pagina.id })}}" role="button" class="btn btn-primary btn-flat btn-xs">Agregar por enlace</a>{% endblock %}
+{% block breadcrumb %}
+	<li><a href="{{path_for('paginas.index')}}">Paginas</a></li>
+	<li><a href="{{path_for('paginas.fotos', {	'id': pagina.id })}}">Listado de Fotos</a></li>
+{% endblock %}
+{% block content %}
+<div class="row vehicle-upload" data-step="1">
+	<div class="col-sm-12">
+		<div class="box box-default">
+			<form name="veh_upload_images_form">
+				<div class="box-header with-border">
+					<h3 class="box-title text-bold">Carga de imágenes</h3>
+				</div>
+				<div class="box-body">
+					<input type="file" multiple class="veh_upload_main" name="veh_upload_main[]" hidden="hidden" accept="image/*"/>
+					<div class="body-images clear">
+					</div>
+					<i class="help-block clear">Aquí se listarán las fotos que vayas adjuntando.</i>
+				</div>
+				<div class="box-footer">
+					<div class="input-group veh_upload_files_box">
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-app veh_upload_search_file"><i class="fa fa-file"></i>Examinar</button>
+						</div>
+						<input type="text" class="form-control veh_upload_file_txt" style="height: 60px; line-height: 60px;" value="" readonly="">
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-app veh_upload_upload_all" disabled=""><i class="fa fa-upload"></i>Subir</button>
+						</div>
+					</div>
+					<div class="help-block veh_upload_upload_info">Esperando acción.</div>
+				</div>
+				{{ csrf.field | raw }}
+			</form>
+		</div>
+	</div>
+</div>
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+	{% set index = 1 %}
+	{% for foto in fotos %}
+    <div class="col-lg-4 col-md-6 col-sm-12">
+			<div class="box box-default vehicle-box">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="col-sm-12 no-padding">
+							<div class="box-header">
+								<div class="btn-group vehicle-dropdown ">
+									<button type="button" class="btn btn-sm btn-primary btn-flat label dropdown-toggle " data-toggle="dropdown">
+										<span class="caret"></span>
+										<span class="sr-only">Toggle Dropdown</span>
+									</button>
+									<ul class="dropdown-menu dropdown-menu-right bg-blue" role="menu">
+										{% if foto.enlace starts with 'http' %}
+											<li><a href="{{path_for('paginas.fotos.editar', {	'id': foto.id })}}">Editar foto</a></li>
+										{% endif %}
+								    	<li><a href="{{path_for('paginas.fotos.eliminar', {	'id': foto.id })}}" onclick="return confirm('¿Estas seguro que quieres eliminar esta foto? No hay vuelta atras capo.');">Eliminar foto</a></li>
+									</ul>
+								</div>
+								{% set count = foto.enlace|length - 20 %}
+								{% if foto.enlace starts with 'http' %}
+									<span class="vehicle-modelo">{{index}})...{{foto.enlace[count:]}} [{{foto.id}}]</span>
+					    		<img src="{{ foto.enlace }}">
+					    	{% else %}
+					    		<span class="vehicle-modelo">{{index}}){{foto.enlace[16:36]}}... [{{foto.id}}]</span>
+					    		<img src="{{ base_url() }}{{foto.enlace}}">
+					    	{% endif %}
+					    	{% set index = index + 1 %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script>
+	function dec2hex (dec) {
+		return ('0' + dec.toString(16)).substr(-2)
+	}
+
+	// generateId :: Integer -> String
+	function generateId (len) {
+		var arr = new Uint8Array((len || 40) / 2)
+		window.crypto.getRandomValues(arr)
+		return Array.from(arr, dec2hex).join('')
+	}
+
+	function getBase64(file) {
+		var reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onload = function () {
+			console.log(reader.result);
+		};
+		reader.onerror = function (error) {
+			console.log('Error: ', error);
+		};
+	}
+
+	$(document).on('ready', function(){
+		$('form[name=veh_upload_basic_form]').on('submit', function(e){
+			e.preventDefault();
+			$(this).parent().find('.overlay').removeClass('hidden');
+			$('.vehicle-upload').data('step', 2);
+			$('form[name=veh_upload_aditional_form]').parent().find('.overlay').addClass('hidden');
+		});
+	});
+
+
+	$(document).on('ready', function(){
+		sessionStorage.setItem('selecting', 'false');
+		sessionStorage.setItem('current_id', null);
+		var lista_archivos = new Object();
+
+		$('#veh_upload_marca').focus();
+		$('.veh_upload_search_file').on('click', function(){
+			$('.veh_upload_upload_info').html('Seleccioná los archivos...');
+			sessionStorage.setItem('selecting', 'true');
+			$('.veh_upload_main').click();
+		});
+
+		function AddToFileList(file) {
+			var uid = generateId();
+			$('.veh_upload_file_txt').val(file.name);
+			$('.body-images').append('<div class="veh_upload_preview_box" id="pbox_' + uid + '" data-uploaded="0"><a href="#" class="pbox_remove" data-remove="' + uid + '"><i class="fa fa-close"></i></a><div class="pimg_box"><img id="pimg_' + uid + '"></div><span class="filename">' + file.name + '</span><span class="filesize">' + parseInt((file.size/1024)) + 'kb</span></div>');
+			var fake_url = window.URL.createObjectURL(file)
+			document.getElementById('pimg_' + uid).src = fake_url;
+			lista_archivos[uid] = file;
+			$('.veh_upload_upload_all').prop('disabled', false);
+			$('.body-images').append('<input type="hidden" id="fake_'+uid+'" name="veh_upload_file_fake[]" hidden="hidden" value="'+fake_url+'">');
+
+			$('.veh_upload_upload_info').html('Archivo agregado.');
+		}
+
+		function IsFileAlreadyOnList(file) {
+			var found = false;
+			Object.keys(lista_archivos).forEach(function(key) {
+				if(lista_archivos[key].name == file.name && lista_archivos[key].lastModified == file.lastModified) {
+					found = true;
+				}
+			});
+			return found;
+		}
+		$(window).on('focus', function(){
+			if(sessionStorage.getItem('selecting') == 'true'){
+				//var updiv = $('#'+sessionStorage.getItem('current_id'));
+				var updiv = $('.veh_upload_main');
+				setTimeout(function(){
+					if(updiv[0].files.length == 1) {
+						if(!IsFileAlreadyOnList(updiv[0].files[0])) {
+							AddToFileList(updiv[0].files[0]);
+						}
+						else
+						{
+							$('.veh_upload_upload_info').html('Ese archivo ya se encuentra en la lista.');
+						}
+					}
+					else if(updiv[0].files.length > 1)
+					{
+						var files = updiv[0].files;
+						_.each(files, function(file, key) {
+							if(!IsFileAlreadyOnList(file)) {
+								AddToFileList(file);
+							}
+						});
+					}
+					else {
+						$('.veh_upload_upload_info').html('Esperando acción.');
+					}
+				}, 500);
+				sessionStorage.setItem('selecting', 'false');
+			}
+		});
+
+		$(document).on('click', '.pbox_remove', function(e){
+			e.preventDefault();
+			var esto = $(this);
+			var uid = $(this).data('remove');
+			lista_archivos = _.omit(lista_archivos, uid);
+			$('#pbox_'+uid).animate({marginTop: -200}, 300, function(){
+				esto.parent().remove();
+				$('#fake_'+uid).remove();
+				$('#'+uid).remove();
+				$('.veh_upload_upload_info').html('Archivo quitado.');
+			});
+			if(_.isEmpty(lista_archivos)){
+				$('.veh_upload_upload_all').prop('disabled', true);
+			}
+		});
+
+		$(document).on('click', '.veh_upload_upload_all', function(){
+
+			$('.veh_upload_upload_all').prop('disabled', true);
+			$('.veh_upload_search_file').prop('disabled', true);
+			var data = new FormData();
+			Object.keys(lista_archivos).forEach(function(key) {
+				data.append(key, lista_archivos[key]);
+			});
+			data.append('vehicle-tipo', '0km');
+			data.append('vehicle-extra', uuidv4());
+			data.append('vehicle-marca', 'pag');
+			data.append('vehicle-modelo', '{{ pagina.titulo|trim|replace({' ':'-'})|e|lower}}');
+			data.append('vehicle-year', '201x');
+			data.append('vehicle-id', '{{pagina.id}}');
+
+			$.ajax({
+				type: 'POST',
+				url: "image-upload.php",
+				data: data,
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function(response){
+					response = JSON.parse(response);
+					console.log(response);
+					if(response.success == true) {
+						var dbfiles = new FormData();
+
+						var csrfName = document.getElementById('csrf_name').value;
+						var csrfValue = document.getElementById('csrf_value').value;
+						dbfiles.append('csrf_value', csrfValue);
+						dbfiles.append('csrf_name', csrfName);
+
+						var archivos = response.files;
+						dbfiles.append('archivos', archivos);
+
+						dbfiles.append('pagina_id', '{{pagina.id}}');
+						dbfiles.append('upload', '1');
+
+						var newurl = "{{path_for('paginas.fotos.crearpost')}}";
+						$.ajax({
+							type: 'POST',
+							url: newurl,
+							data: dbfiles,
+							cache: false,
+							contentType: false,
+							processData: false,
+							success: function(response){
+								response = JSON.parse(response);
+								console.log(response);
+								if(response.success == true) {
+									location.reload(true);
+								}
+							}
+						});
+					}
+					else {
+						$('.veh_upload_upload_info').css('color', 'red');
+						$('.veh_upload_upload_info').html('Ha ocurrido un error.');
+						if(response.err_desc == 1) {
+							alert('Solo se pueden cargar hasta 100MB distribuidos en un máximo de 20 fotos.');
+						}
+
+					}
+				},
+				error: function(data){
+					console.log("error");
+				}
+			});
+		});
+
+	});
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  )
+}
+</script>
+{% endblock %}

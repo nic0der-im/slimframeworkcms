@@ -1,0 +1,324 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block head %}
+	<meta property="og:site_name" content="Ciro Automotores">
+	<meta property="og:image" itemprop="image" content="{{base_url()}}/public/images/logo300x200.png">
+	<meta property="og:image:type" content="image/png">
+	<meta property="og:image:secure_url" itemprop="image" content="https:{{static_assets}}/public/images/logo300x200.png">
+	<meta property="og:image:width" content="300">
+	<meta property="og:image:height" content="200">
+	<meta property="og:type" content="article" />
+	<meta property="og:image:url" content="{{base_url()}}/public/images/logo300x200.png">
+	<meta property="og:title" content="Ciro Automotores 🚘🏃 - Encontrá autos usados en Salta y Jujuy al igual que autos 0 KM ✅" />
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+	<meta property="og:description" content="En Ciro Automotores te ofrecemos los mejores autos usados en Salta y Jujuy. Además contamos con autos 0 KM. ¡Te esperamos! 🔥" />
+	<meta name="description" content="Ciro Automotores 🚘🏃 tiene los mejores autos usados en Salta y también contamos con autos 0 kilómetros. !Hacé contacto ahora mismo! 🔥" />
+	<meta name="keywords" content="autos usados salta, autos usados en salta, autos 0 kilometros, autos 0 km" />
+	<link itemprop="thumbnailUrl" href="{{base_url()}}/public/images/logo300x200.png">
+	<span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject">
+		<link itemprop="url" href="{{base_url()}}/public/images/logo300x200.png">
+	</span>
+{% endblock %}
+{% block aditional_css %}
+
+	{% if production %}
+
+	<link rel="stylesheet" href="/dist/css/home.min.css" />
+	<link rel="stylesheet" href="/dist/css/searchbar.min.css" />
+	<link rel="stylesheet" href="/dist/css/filterbar.min.css" />
+	<link rel="stylesheet" href="/dist/css/vehicle-grid.min.css">
+	<link rel="stylesheet" href="/dist/css/vehicles.min.css">
+	<link rel="stylesheet" href="/dist/css/notifIt.min.css">
+
+	<link rel="stylesheet" type="text/css" href="dist/css/compra-tu-auto.css">
+
+	{% else %}
+
+	<link rel="stylesheet" href="/css/basic/sources/home.css" />
+	<link rel="stylesheet" href="/css/basic/sources/searchbar.css" />
+	<link rel="stylesheet" href="/css/basic/sources/filterbar.css" />
+	<link rel="stylesheet" href="/css/basic/sources/vehicle-grid.css">
+	<link rel="stylesheet" href="/css/vehiculos/sources/vehicles.css">
+	<link rel="stylesheet" href="/css/basic/sources/notifIt.css">
+
+	<link rel="stylesheet" type="text/css" href="css/vehiculos/sources/compra-tu-auto.css">
+
+	{% endif %}
+
+	{% for module in extra_modules %}
+		<!-- start {{ module.module }} css -->
+		{% for css in module.css %}
+		<link rel="stylesheet" href="{{css|raw}}" />
+		{% endfor %}
+		<!-- end {{ module.module }} css -->
+	{% endfor %}
+
+{% endblock %}
+{% block title %}✅ Autos Usados Salta | Autos 0 KM {% endblock %}
+
+{% block content %}
+	<div class="banner" id="cta_simulator">
+	  <div class="banner-background banner-halfscreen">
+	    <video src="videos/compra-tu-auto.mp4" autoplay="" muted="" loop="" preload="" poster="images/backvideo-poster.jpg"></video>
+	  </div>
+	  <div class="banner-overlay"></div>
+	  <div class="banner-content">
+	    <div class="container-fluid">
+	      <div class="col-lg-7 col-md-8 text-center mx-auto">
+	        <div class="content">
+	          <div class="h1 font-weight-light">Encontrá el vehículo de tus sueños</div>
+	          	<form class="sbr_form" id="searchbar" method="POST" action="{{path_for('publicaciones.buscar')}}">
+					<div class="form-group">
+						<input type="text" data-form="#searchbar" id="input_search_desktop" onClick="ga('send', 'event', 'pagina_home', 'buscador', 'menu');" class="form-control form-control-lg searchbartxt" autofocus name="sbrq" placeholder="Buscá autos, camionetas y más..." />
+					</div>
+					{{ csrf.field | raw }}
+				</form>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-3 col-filtros d-none d-lg-block">
+				{#<div class="card mb-4">
+					<div class="card-body navbar-filtros d-none d-lg-block">
+						<a onClick="ga('send', 'event', 'pagina_home', 'ebook', 'menu');" href="{{ path_for('criptomonedas') }}" data-toggle="modal" data-target="#modal_ebook"> <img src="/images/ebook.png" width="100%;" alt="Card image cap" style="border-radius: 8px;"></a>
+					</div>
+				</div>#}
+				<div class="card mb-4">
+					{% include 'guest_views/guest_partials/navbar_filtros.twig' %}
+				</div>
+				{% if vistos | length > 0 %}
+				<div class="card mb-4">
+					<div class="card-body navbar-filtros d-none d-lg-block">
+						<div class="category">
+							<div class="navbar-filtros-header">Ultimos que visté</div>
+							{% for item in vistos|slice(0, 5) %}
+							<div class="nav-link d-flex align-items-center justify-content-between">
+								<a class="" href="{{path_for('vehicle.ver', { 'titulo': item.titulo|trim|replace({' ':'-'})|e|lower, 'id': item.id })}}" >{{item.titulo}}
+								</a>
+								<span class="badge bg-info text-white">$ {{item.vehiculo.precio_venta | number_format(0, '.', '.')}}</span>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+				{% endif %}
+				{% if nuevos_usados | length > 0 %}
+				<div class="card mb-4">
+					<div class="card-body navbar-filtros d-none d-lg-block">
+						<div class="category">
+							<div class="navbar-filtros-header">Ultimos Usados</div>
+							{% for item in nuevos_usados %}
+							<div class="nav-link d-flex align-items-center justify-content-between">
+								<a class="" href="{{path_for('vehicle.ver', { 'titulo': item.titulo|trim|replace({' ':'-'})|e|lower, 'id': item.id })}}" >{{item.titulo}}
+								</a>
+								<span class="badge bg-info text-white">$ {{item.vehiculo.precio_venta | number_format(0, '.', '.')}}</span>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+				{% endif %}
+				{% if rank_semanal | length > 0 %}
+				<div class="card mb-4">
+					<div class="card-body navbar-filtros d-none d-lg-block">
+						<div class="category">
+							<div class="navbar-filtros-header">Rank Semanal</div>
+							{% for item in rank_semanal %}
+							<div class="nav-link d-flex align-items-center justify-content-between">
+								<a class="" href="{{path_for('vehicle.ver', { 'titulo': item.titulo|trim|replace({' ':'-'})|e|lower, 'id': item.id })}}" >{{item.titulo}}
+								</a>
+								<span class="badge bg-info text-white">$ {{item.vehiculo.precio_venta | number_format(0, '.', '.')}}</span>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+				{% endif %}
+			</div>
+			<div class="col-lg-9 col-vehicles">
+				<div class="row">
+					<div class="col-md-12">
+  						<a href="{{ path_for('criptomonedas') }}"> <img class="card-img-top" src="/images/campains/criptomonedas/criptomonedas.png" width="100%;" alt="Card image cap" style="border-radius: 8px;" onClick="ga('send', 'event', 'pagina_home', 'criptomonedas', 'publicaciones');"></a>
+  						<hr>
+					</div>
+				</div>
+				<div id="grid">
+					{% set off_start = pagina_numero == 1 ? 0 : (pagina_numero-1) * 9 %}
+					{% set off_end = pagina_numero == 1 ? 9 : ((pagina_numero-1) * 9) %}
+					{% for publicacion in publicaciones|slice(off_start,off_end) %}
+					<div class="card vehicle-card">
+						<div class="vehicle-mi">
+							<div class="vehicle-media">
+								<div class="carousel-inner">
+									{% if publicacion.vehiculo.getFotos | length > 0 %}
+										<img class="card-img-top" src="{{path_for('imagen',{'params':publicacion.vehiculo.getFotos[0].archivo},{'p':'small'})}}" alt="{{publicacion.titulo}}">
+										{#{% if publicacion.vehiculo.created_at > "now"|date_modify('-2 Week') %}
+											<img class="lazo" src="/images/2a.png">
+										{% elseif publicacion.rankSemana %}
+											<img class="lazo" src="/images/2b.png">
+										{% endif %}#}
+									{% else %}
+										<img class="card-img-top" src="{{path_for('imagen',{'params':'/asources/images/no-disponible.png'},{'p':'small'})}}" alt="Sin imagen para mostrar.">
+										<div class="overlayer">
+											<div class="w-100">
+												Vehículo sin imagen.<br>Por el momento...
+											</div>
+										</div>
+									{% endif %}
+								</div>
+							</div>
+							<button onClick="ga('send', 'event', 'pagina_home', 'whatsapp', 'publicaciones');" class="btn-sm btn-whatsapp btn-outline-success" data-href="https://api.whatsapp.com/send?phone=543874898080&text={% if auth.individuo %}Hola,%20mi%20nombre%20es%20{{auth.individuo.nombre|url_encode}}%20{{auth.individuo.apellido|url_encode}}{% else %}Hola{% endif %}.%20Tengo%20una%20consulta%20sobre%20esta%20publicación%20*{{publicacion.titulo|url_encode}}*.%0A{{base_url()|url_encode}}{{path_for('vehicle.ver', {	'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })|url_encode}}" data-toggle="popover-whatsapp">
+								<i class="fa fa-whatsapp"></i>
+							</button>
+							<div class="card-block vehicle-params">
+								<div class="vehicle-param vehicle-title">{{ publicacion.titulo }}</div>
+								<div class="vehicle-param vehicle-price">$ {{publicacion.vehiculo.precio_venta | number_format(0, '.', '.')}}</div>
+								<div class="vehicle-param vehicle-data">{{ publicacion.vehiculo.year }} {{ publicacion.vehiculo.getUsado.kilometraje ? '| ' ~ publicacion.vehiculo.getUsado.kilometraje ~ 'km' : ''}}</div>
+								<div class="vehicle-param vehicle-localidad">{{ publicacion.vehiculo.getLocalidad.nombre }}</div>
+							</div>
+						</div>
+						<div class="vehicle-view-pub">
+							<a href="{{path_for('vehicle.ver', { 'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}" class="btn btn-sm btn-primary btn-ver-publicacion pull-right" onClick="ga('send', 'event', 'pagina_home', 'btn_ver', 'publicaciones');">Ver publicación</a>
+						</div>
+					</div>
+
+
+
+					{% endfor %}
+				</div>
+
+				{% set pages = publicaciones|length %}
+				{% set pages = (pages / 9)|round(0, 'ceil') %}
+
+				{% if pages > 1 %}
+				<nav class="vehicle-paginator" id="vehicle-paginator" aria-label="pagination">
+					<ul class="pagination justify-content-center pagination-circle pg-blue mb-0">
+						{% if pagina_numero-1 >= 1 %}
+						<li class="page-item {% if pagina_numero-1 == 0 %}disabled{% endif %}">
+							<a class="page-link anterior" aria-label="Mirá más autos usados en Salta" title="Mirá más autos usados en Salta" href="{% if pagina_numero-1 == 1 or pagina_numero-1 == 0 %} {{path_for('home')}} {% else %} {{path_for('home.ver_pagina', { id: pagina_numero-1 })}} {% endif %}" onClick="ga('send', 'event', 'pagina_home', 'paginador', 'publicaciones');">
+								<span aria-hidden="true">&laquo;</span>
+								<span class="sr-only">Ir a la página anterior</span>
+							</a>
+
+						</li>
+						{% endif %}
+
+						{% for i in 1..pages %}
+							{% if loop.first %}
+								<li class="page-item pagina-{{i}} {% if loop.index == pagina_numero %}active{% endif %}"><a class="page-link" href="{{path_for('home')}}" onClick="ga('send', 'event', 'pagina_home', 'paginador', 'publicaciones');">{{i}}</a></li>
+							{% else %}
+								<li class="page-item pagina-{{i}} {% if loop.index == pagina_numero %}active{% endif %}"><a class="page-link" href="{{path_for('home.ver_pagina', { id: i })}}" onClick="ga('send', 'event', 'pagina_home', 'paginador', 'publicaciones');">{{i}}</a></li>
+							{% endif %}
+
+						{% endfor %}
+						{% if pagina_numero+1 <= pages %}
+						<li class="page-item {% if pagina_numero+1 > pages %}disabled{% endif %}">
+							<a class="page-link siguiente" aria-label="Mirá más autos usados en Salta" title="Mirá más autos usados en Salta" href="{{path_for('home.ver_pagina', { id: pagina_numero+1 })}}" onClick="ga('send', 'event', 'pagina_home', 'paginador', 'publicaciones');">
+								<span aria-hidden="true">&raquo;</span>
+								<span class="sr-only">Ir a la siguiente página</span>
+							</a>
+						</li>
+						{% endif %}
+					</ul>
+				</nav>
+				{% endif %}
+			</div>
+		</div>
+
+		{% if pagina_numero == 1 %}
+		<hr>
+		<div id="contadores" class="box-contadores">
+			<div class="row">
+				<div class='col-sm-6 col-md-3 box-contador'>
+					<span class="box-title">MÁS DE</span>
+					<span class="box-number" id='ventas'>0</span>
+					<span class="box-subtitle">AUTOS VENDIDOS HASTA EL MOMENTO</span>
+				</div>
+				<div class='col-sm-6 col-md-3 box-contador'>
+					<span class="box-title">MÁS DE</span>
+					<span class="box-number" id='ventasanio'>0</span>
+					<span class="box-subtitle">AUTOS VENDIDOS EN LO QUE VA DEL AÑO</span>
+				</div>
+				<div class='col-sm-6 col-md-3 box-contador'>
+					<span class="box-title">MÁS DE</span>
+					<span class="box-number" id='ventas0km'>0</span>
+					<span class="box-subtitle">0KM VENDIDOS HASTA EL MOMENTO</span>
+				</div>
+				<div class='col-sm-6 col-md-3 box-contador'>
+					<span class="box-title">MÁS DE</span>
+					<span class="box-number" id='suscriptores'>0</span>
+					<span class="box-subtitle">AMIGOS DE CIRO</span>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+	</div>
+
+	<div class="modal fade" id="modal_ebook" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLongTitle">¡Descargá ya el eBook!</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	      	<div class="row">
+	      		<div class="col-md-6">
+	        		<img src="/images/ebook.png" width="100%;" alt="Card image cap">
+	        	</div>
+	        	<div class="col-md-6">
+	        		Quiero recibir GRATIS este manual en mi correo electrónico AHORA.
+	        		<small>(prometemos no hacerte SPAM)*</small>
+	        		<hr>
+	        		<form action="{{ path_for('suscripcion') }}" method="post">
+						<div class="form-group">
+							<input type="email" class="form-control form-control-sm" placeholder="Correo electrónico" id="suscripcion_email" name="suscripcion_email" required="">
+						</div>
+						<div class="form-group pl-3">
+							<button onClick="ga('send', 'event', 'pagina_home', 'btn_suscribirme', 'footer');" type="submit" class="btn btn-info btn-sm float-right">Enviarme</button>
+						</div>
+						{{ csrf.field | raw }}
+					</form>
+	        	</div>
+	      	</div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+{% endblock %}
+{% block custom_js %}
+
+	{% if production %}
+
+		<script src="/dist/js/home.min.js"></script>
+		<script src="/dist/js/search.min.js"></script>
+		<script src="/dist/js/notifIt.min.js"></script>
+		<script src="/dist/js/jquery.visible.min.js"></script>
+		<script src="/dist/js/vehicle-grid.min.js"></script>
+
+	{% else %}
+
+		<script type="text/javascript" src="/js/easytimer.js"></script>
+		<script src="/js/pages/home.js"></script>
+		<script src="/js/pages/search.js"></script>
+		<script src="/js/notifIt.js"></script>
+		<script src="/js/jquery.visible.js"></script>
+		<script src="/js/pages/vehicle-grid.js"></script>
+
+	{% endif %}
+
+{% endblock %}
+
+{% block custom_modules %}
+	{% for module in extra_modules %}
+		<!-- start {{ module.module }} -->
+		{% include module.settings.view %}
+		<!-- end {{ module.module }} -->
+	{% endfor %}
+{% endblock %}

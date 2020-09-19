@@ -1,0 +1,725 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+  caption {
+    display: table-caption;
+    text-align: center;
+    font-size: 18px;
+  }
+</style>
+{% endblock %}
+{% block title %}Obligaciones{% endblock %}
+{% block header_title %}
+<div>
+	Obligacion de {{sucursal.sucursal}} ({{sucursal.descripcion}})
+
+</div>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	Caja
+</li>
+<li class="breadcrumb-item active">
+	<a href="{{path_for('obligacion.index')}}"> Obligaciones</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+	  <div class="card">
+	    <ul class="nav nav-tabs ui-sortable-handle">
+	      <li class="nav-item active">
+	        <a class="nav-link active" href="#sinvencer" data-toggle="tab" aria-expanded="false" role="tab">Obligaciones a vencer</a>
+	      </li>
+	      <li class="nav-item">
+	        <a class="nav-link" href="#vencidas" data-toggle="tab" aria-expanded="false" role="tab">Obligaciones vencidas</a>
+	      </li>
+	      <li class="nav-item">
+	        <a class="nav-link" href="#cumplidas" data-toggle="tab" aria-expanded="false" role="tab">Obligaciones cumplidas / anuladas</a>
+	      </li>
+	    </ul>
+	    <div class="tab-content p-0">
+	      <div class="tab-pane active" id="sinvencer" role="tabpanel">
+	        <div class="table-responsive">
+	          <table class="table table-hover" width="100%" id="chequeProximas">
+	            <caption>CHEQUES</caption>
+	            <thead>
+	              <tr>
+	                <th>Número cheque</th>
+	                <th>Banco</th>
+	                <th>Cruzado</th>
+	                <th>Emisor</th>
+	                <th>Receptor</th>
+	                <th>Importe</th>
+	                <th>Emisión</th>
+	                <th>Venc.</th>
+	                <th></th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              {% for index in chequeProximas %}
+	              <tr>
+	                <td>
+	                  {{index.movimiento.cheque_numero}}
+	                </td>
+	                <td>
+	                  {{ index.movimiento.banco.nombre }}
+	                </td>
+	                <td>
+	                  {{ index.cruzado == 0 ? 'NO':'SI' }}
+	                </td>
+	                <td>
+	                  {{ index.emisor }}
+	                </td>
+	                <td>
+	                  {{ index.receptor }}
+	                </td>
+	                <td align="right">
+	                  $&nbsp;{{ index.importe|number_format(2, ',', '.') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_inicio | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_aproxfin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  <div class="dropdown">
+	                    <a href="#" class="btn btn-info dropdown-toggle btn-sm" data-toggle="dropdown">
+	                      <span class="caret"></span>
+	                    </a>
+	                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ path_for('cheque.estado',{},{'id':index.id,'estado':2})}}" >Cobrar cheque</a>
+                        <a class="dropdown-item" href="{{ path_for('cheque.estado',{},{'id':index.id,'estado':3})}}" >Pagar cheque</a>
+                        <a class="dropdown-item" href="{{ path_for('cheque.estado',{},{'id':index.id,'estado':0})}}" >Anular cheque</a>
+                        <a class="dropdown-item" href="{{ path_for('comprobante.factura.cobrar',{'id':index.movimiento.comprobantes[0].factura_detalle.id_comprobante},{'recibo':index.movimiento.comprobantes[0].recibo_detalle.id_comprobante}) }}" >Ver Factura</a>
+                        <a class="dropdown-item" onclick="transferir({{index.id}});">Transferir</a>
+	                    </div>
+	                  </div>
+	                </td>
+	              </tr>
+	              {% endfor %}
+	            </tbody>
+	          </table>
+	          <table class="table table-hover" id="documentoProximas" width="100%">
+	            <caption>DOCUMENTOS</caption>
+	            <thead>
+	              <tr>
+	                <th>Emisor</th>
+	                <th>Receptor</th>
+	                <th>Concepto</th>
+	                <th>Importe</th>
+	                <th>Emisión</th>
+	                <th>Venc.</th>
+	                <th></th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              {% for index in documentoProximas %}
+	              <tr>
+	                <td>
+	                  {{ index.emisor }}
+	                </td>
+	                <td>
+	                  {{ index.receptor }}
+	                </td>
+	                <td>
+	                  {{ index.movimiento.descripcion }}
+	                </td>
+	                <td align="right">
+	                  $&nbsp;{{ index.importe|number_format(2, ',', '.') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_inicio | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_aproxfin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  <div class="dropdown">
+	                    <a href="#" class="btn btn-info dropdown-toggle btn-sm" data-toggle="dropdown">
+	                      <span class="caret"></span>
+	                    </a>
+	                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ path_for('documento.estado',{},{'id':index.id,'estado':2})}}" >Cobrar documento</a>
+                        <a class="dropdown-item" href="{{ path_for('documento.estado',{},{'id':index.id,'estado':3})}}" >Pagar documento</a>
+                        <a class="dropdown-item" href="{{ path_for('documento.estado',{},{'id':index.id,'estado':0})}}" >Anular documento</a>
+                        <a class="dropdown-item" href="{{ path_for('comprobante.factura.cobrar',{'id':index.movimiento.comprobantes[0].factura_detalle.id_comprobante},{'recibo':index.movimiento.comprobantes[0].recibo_detalle.id_comprobante}) }}" >Ver Factura</a>
+                  		</div>
+	                  </div>
+	                </td>
+	              </tr>
+	              {% endfor %}
+	            </tbody>
+	          </table>
+	        </div>
+	      </div>
+	      <div class="tab-pane fade " id="vencidas" role="tabpanel">
+	        <div class="table-responsive">
+	          <table class="table table-hover" width="100%" id="chequeVencidas" >
+	            <caption>CHEQUES</caption>
+	            <thead>
+	              <tr>
+	                <th>Número cheque</th>
+	                <th>Banco</th>
+	                <th>Cruzado</th>
+	                <th>Emisor</th>
+	                <th>Receptor</th>
+	                <th>Importe</th>
+	                <th>Emisión</th>
+	                <th>Venc.</th>
+	                <th></th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              {% for index in chequeVencidas %}
+	              <tr>
+	                <td>
+	                  {{index.movimiento.cheque_numero}}
+	                </td>
+	                <td>
+	                  {{ index.movimiento.banco.nombre }}
+	                </td>
+	                <td>
+	                  {{ index.cruzado == 0 ? 'NO':'SI' }}
+	                </td>
+	                <td>
+	                  {{ index.emisor }}
+	                </td>
+	                <td>
+	                  {{ index.receptor }}
+	                </td>
+	                <td align="right">
+	                  $&nbsp;{{ index.importe|number_format(2, ',', '.') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_inicio | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_aproxfin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  <div class="dropdown">
+	                    <a href="#" class="btn btn-info dropdown-toggle btn-sm" data-toggle="dropdown">
+	                      <span class="caret"></span>
+	                    </a>
+	                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ path_for('cheque.estado',{},{'id':index.id,'estado':2})}}" >Cobrar cheque</a>
+                        <a class="dropdown-item" href="{{ path_for('cheque.estado',{},{'id':index.id,'estado':3})}}" >Pagar cheque</a>
+                        <a class="dropdown-item" href="{{ path_for('cheque.estado',{},{'id':index.id,'estado':0})}}" >Anular cheque</a>
+                        <a class="dropdown-item" href="{{ path_for('comprobante.factura.cobrar',{'id':index.movimiento.comprobantes[0].factura_detalle.id_comprobante},{'recibo':index.movimiento.comprobantes[0].recibo_detalle.id_comprobante}) }}" >Ver Factura</a>
+                        <a class="dropdown-item" onclick="transferir({{index.id}});">Transferir</a>
+	                    </div>
+	                  </div>
+	                </td>
+	              </tr>
+	              {% endfor %}
+	            </tbody>
+	          </table>
+	          <table class="table table-hover" width="100%" id="documentoVencidas">
+	            <caption>DOCUMENTOS</caption>
+	            <thead>
+	              <tr>
+	                <th>Emisor</th>
+	                <th>Receptor</th>
+	                <th>Concepto</th>
+	                <th>Importe</th>
+	                <th>Emisión</th>
+	                <th>Venc.</th>
+	                <th></th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              {% for index in documentoVencidas %}
+	              <tr>
+	                <td>
+	                  {{ index.emisor }}
+	                </td>
+	                <td>
+	                  {{ index.receptor }}
+	                </td>
+	                <td>
+	                  {{ index.movimiento.descripcion }}
+	                </td>
+	                <td align="right">
+	                  $&nbsp;{{ index.importe|number_format(2, ',', '.') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_inicio | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_aproxfin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  <div class="dropdown">
+                      <a href="#" class="btn btn-info dropdown-toggle btn-sm" data-toggle="dropdown">
+	                      <span class="caret"></span>
+	                    </a>
+	                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ path_for('documento.estado',{},{'id':index.id,'estado':2})}}" >Cobrar documento</a>
+                        <a class="dropdown-item" href="{{ path_for('documento.estado',{},{'id':index.id,'estado':3})}}" >Pagar documento</a>
+                        <a class="dropdown-item" href="{{ path_for('documento.estado',{},{'id':index.id,'estado':0})}}" >Anular documento</a>
+                        <a class="dropdown-item" href="{{ path_for('comprobante.factura.cobrar',{'id':index.movimiento.comprobantes[0].factura_detalle.id_comprobante},{'recibo':index.movimiento.comprobantes[0].recibo_detalle.id_comprobante}) }}" >Ver Factura</a>
+	                    </div>
+	                  </div>
+	                </td>
+	              </tr>
+	              {% endfor %}
+	            </tbody>
+	          </table>
+	        </div>
+	      </div>
+	      <div class="tab-pane fade " id="cumplidas" role="tabpanel">
+	        <div class="table-responsive">
+	          <table class="table table-hover" width="100%" id="chequeCumplidas">
+	            <caption>CHEQUES CUMPLIDAS </caption>
+	            <thead>
+	              <tr>
+	                <th>Número cheque</th>
+	                <th>Banco</th>
+	                <th>Cruzado</th>
+	                <th>Emisor</th>
+	                <th>Receptor</th>
+	                <th>Importe</th>
+	                <th>Emisión</th>
+	                <th>Venc.</th>
+	                <th>Finalizo</th>
+	                <th>Responsable</th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              {% for index in chequeCumplidas %}
+	              <tr>
+	                <td>
+	                  {{index.movimiento.cheque_numero}}
+	                </td>
+	                <td>
+	                  {{ index.movimiento.banco.nombre }}
+	                </td>
+	                <td>
+	                  {{ index.cruzado == 0 ? 'NO':'SI' }}
+	                </td>
+	                <td>
+	                  {{ index.emisor }}
+	                </td>
+	                <td>
+	                  {{ index.receptor }}
+	                </td>
+	                <td align="right">
+	                  $&nbsp;{{ index.importe|number_format(2, ',', '.') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_inicio | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_aproxfin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_fin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.individuo.apellido }} {{index.individuo.nombre}}
+	                </td>
+	              </tr>
+	              {% endfor %}
+	            </tbody>
+	          </table>
+          </div>
+          <div class="table-responsive">
+	          <table class="table table-hover" width="100%" id="documentoCumplidas">
+	            <caption>DOCUMENTOS CUMPLIDOS</caption>
+	            <thead>
+	              <tr>
+	                <th>Emisor</th>
+	                <th>Receptor</th>
+	                <th>Concepto</th>
+	                <th>Importe</th>
+	                <th>Emisión</th>
+	                <th>Venc.</th>
+	                <th>Finalizo</th>
+	                <th>Responsable</th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              {% for index in documentoCumplidas %}
+	              <tr>
+	                <td>
+	                  {{ index.emisor }}
+	                </td>
+	                <td>
+	                  {{ index.receptor }}
+	                </td>
+	                <td>
+	                  {{ index.movimiento.descripcion }}
+	                </td>
+	                <td align="right">
+	                  $&nbsp;{{ index.importe|number_format(2, ',', '.') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_inicio | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_aproxfin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_fin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.individuo.apellido }} {{index.individuo.nombre}}
+	                </td>
+	              </tr>
+	              {% endfor %}
+	            </tbody>
+	          </table>
+          </div>
+          <div class="table-responsive">
+	          <table class="table table-hover" width="100%" id="chequeAnuladas">
+	            <caption>CHEQUES ANULADAS</caption>
+	            <thead>
+	              <tr>
+	                <th>Número cheque</th>
+	                <th>Banco</th>
+	                <th>Cruzado</th>
+	                <th>Emisor</th>
+	                <th>Receptor</th>
+	                <th>Importe</th>
+	                <th>Emisión</th>
+	                <th>Venc.</th>
+	                <th>Finalizo</th>
+	                <th>Responsable</th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              {% for index in chequeAnuladas %}
+	              <tr>
+	                <td>
+	                  {{index.movimiento.cheque_numero}}
+	                </td>
+	                <td>
+	                  {{ index.movimiento.banco.nombre }}
+	                </td>
+	                <td>
+	                  {{ index.cruzado == 0 ? 'NO':'SI' }}
+	                </td>
+	                <td>
+	                  {{ index.emisor }}
+	                </td>
+	                <td>
+	                  {{ index.receptor }}
+	                </td>
+	                <td align="right">
+	                  $&nbsp;{{ index.importe|number_format(2, ',', '.') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_inicio | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_aproxfin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_fin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.individuo.apellido }} {{index.individuo.nombre}}
+	                </td>
+	              </tr>
+	              {% endfor %}
+	            </tbody>
+	          </table>
+          </div>
+          <div class="table-responsive">
+	          <table class="table table-hover" width="100%" id="documentoAnuladas">
+	            <caption>DOCUMENTOS ANULADOS</caption>
+	            <thead>
+	              <tr>
+	                <th>Emisor</th>
+	                <th>Receptor</th>
+	                <th>Concepto</th>
+	                <th>Importe</th>
+	                <th>Emisión</th>
+	                <th>Venc.</th>
+	                <th>Finalizo</th>
+	                <th>Responsable</th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              {% for index in documentoAnuladas %}
+	              <tr>
+	                <td>
+	                  {{ index.emisor }}
+	                </td>
+	                <td>
+	                  {{ index.receptor }}
+	                </td>
+	                <td>
+	                  {{ index.movimiento.descripcion }}
+	                </td>
+	                <td align="right">
+	                  $&nbsp;{{ index.importe|number_format(2, ',', '.') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_inicio | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_aproxfin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.fecha_fin | date('d/m/Y') }}
+	                </td>
+	                <td>
+	                  {{ index.individuo.apellido }} {{index.individuo.nombre}}
+	                </td>
+	              </tr>
+	              {% endfor %}
+	            </tbody>
+	          </table>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+</div>
+<div class="modal fade" id="modalTransferir">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Seleccione la sucursal</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form class="row" method="POST" id="formTransferir">
+          <div class="col-lg-12">
+            <label for="id_sucursal">Listado de mis sucursales habilitadas para Destino</label>
+            <select class="form-control select2" name="id_sucursal" id="id_sucursal" required>
+              {% for index in sucursales %}
+              <option value="{{index.id}}">{{index.sucursal}} ({{index.descripcion}})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-lg-12" id="bloodhoundResponsable" >
+            <label for="responsable">Responsable del Traslado</label>
+            <input type="text" class="form-control typeahead" name="responsable" id="responsable" required>
+          </div>
+          <div class="col-lg-12" >
+            <label for="observaciones">Observaciones</label>
+            <input type="text" class="form-control" name="observaciones" id="observaciones">
+          </div>
+          {{ csrf.field | raw }}
+          <button type="submit" id="submitTransferir" class="d-none" ></button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" id="btnTransferir" >Transferir</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#btnCambiarSucursal').on('click',function(){
+    $('#formCambiarSucursal').submit();
+  });
+  var currentDate = new Date();
+  var day = currentDate.getDate();
+  var month = currentDate.getMonth() + 1;
+  var year = currentDate.getFullYear();
+
+  var d = day + "/" + month + "/" + year;
+  $.fn.dataTable.moment( 'DD/MM/YYYY' );
+
+  var lenguage = {
+        "sProcessing":     "Procesando...",
+        "sLengthMenu":     "Mostrar _MENU_ registros",
+        "sZeroRecords":    "No se encontraron resultados",
+        "sEmptyTable":     "Ningún dato disponible en esta tabla",
+        "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+        "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+        "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+        "sInfoPostFix":    "",
+        "sSearch":         "Buscar:",
+        "sUrl":            "",
+        "sInfoThousands":  ",",
+        "sLoadingRecords": "Cargando...",
+        "oPaginate": {
+            "sFirst":    "Primero",
+            "sLast":     "Último",
+            "sNext":     "Siguiente",
+            "sPrevious": "Anterior"
+        },
+        "oAria": {
+            "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+        }
+    };
+  $('#chequeProximas').DataTable( {
+    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+    'responsive': true,
+    'order':[[6,"desc"]],
+    "columnDefs": [
+              {
+                  "targets": [ 8 ],
+                  "searchable": false,
+                  "orderable": false
+              },
+              {
+                  targets: [ 5,6,7 ],
+                  width: "7%",
+              },
+          ],
+    "language": lenguage,
+  });
+
+  $('#documentoProximas').DataTable( {
+    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+    'responsive': true,
+    'order':[[5,"desc"]],
+    "columnDefs": [
+              {
+                  "targets": [ 6 ],
+                  "searchable": false,
+                  "orderable": false
+              },
+              {
+                  targets: [ 3,4,5 ],
+                  width: "7%",
+              },
+          ],
+    "language": lenguage
+  });
+
+
+  $('#chequeVencidas').DataTable( {
+    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+    'responsive': true,
+    'order':[[7,"desc"]],
+    "columnDefs": [
+              {
+                  "targets": [ 8 ],
+                  "searchable": false,
+                  "orderable": false
+              },
+              {
+                  targets: [ 5,6,7 ],
+                  width: "7%",
+              },
+          ],
+    "language": lenguage
+  });
+
+  $('#documentoVencidas').DataTable( {
+    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+    'responsive': true,
+    'order':[[5,"desc"]],
+    "columnDefs": [
+              {
+                  "targets": [ 6 ],
+                  "searchable": false,
+                  "orderable": false
+              },
+              {
+                  targets: [ 3,4,5 ],
+                  width: "7%",
+              },
+          ],
+    "language": lenguage
+  });
+
+  $('#chequeCumplidas').DataTable( {
+    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+    'responsive': true,
+    'order':[[7,"desc"]],
+    "columnDefs": [
+              {
+                  targets: [ 5,6,7 ],
+                  width: "7%",
+              },
+          ],
+    "language": lenguage
+  });
+
+  $('#documentoCumplidas').DataTable( {
+    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+    'responsive': true,
+    'order':[[5,"desc"]],
+    "columnDefs": [
+              {
+                  targets: [ 3,4,5 ],
+                  width: "7%",
+              },
+          ],
+    "language": lenguage
+  });
+
+  $('#chequeAnuladas').DataTable( {
+    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+    'responsive': true,
+    'order':[[7,"desc"]],
+    "columnDefs": [
+              {
+                  targets: [ 5,6,7 ],
+                  width: "7%",
+              },
+          ],
+    "language": lenguage
+  });
+
+  $('#documentoAnuladas').DataTable( {
+    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+    'responsive': true,
+    'order':[[5,"desc"]],
+    "columnDefs": [
+              {
+                  targets: [ 3,4,5 ],
+                  width: "7%",
+              },
+          ],
+    "language": lenguage
+  });
+
+  $('a[data-toggle="tab"]').on('click',function(){
+    $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+  });
+
+  $('#btnTransferir').on('click',function(){
+    $('#submitTransferir').trigger('click');
+  });
+
+   var responsable = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+      url: "{{path_for('comprobante.movimiento.responsables')}}?consulta=%QUERY",
+      wildcard: '%QUERY',
+    }
+  });
+
+  $('#bloodhoundResponsable .typeahead').typeahead({
+      minLength: 0,
+      highlight: true
+    },{
+    name: 'responsable',
+    display: 'responsable',
+    source: responsable,
+    templates: {
+      suggestion: function (response) {
+        return '<p>' + response.responsable +'</p>';
+      },
+      empty:'El responsable sera agregado.',
+      }
+  });
+});
+function transferir(id){
+  var route = "{{path_for('obligacion.transferir',{id:99})}}".replace('99',id);
+  $('#formTransferir').attr('action', route);
+  $('#modalTransferir').modal('show');
+};
+</script>
+{% endblock %}

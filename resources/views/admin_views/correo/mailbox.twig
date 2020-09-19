@@ -1,0 +1,530 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+	<style type="text/css">
+	.corre_visto {
+    background-color: #f9f9f9;
+	}
+	</style>
+{% endblock %}
+{% block title %} Correo{% endblock %}
+{% block header_title %} Correo {% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" >Correo</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+  <div class="col-md-3">
+    <a id="btnCorreoRedactar" class="btn bg-primary btn-block mb-3">Redactar</a>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Carpetas</h3>
+
+        <div class="card-tools">
+          <a class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+          </a>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <ul class="nav nav-pills flex-column">
+          <li class="nav-item {{ 'INBOX' in info.Mailbox ? 'active':'' }}" >
+          	<a class="nav-link" href="{{path_for('correo.folder.cambiar',{nombre:'INBOX'})}}"><i class="fa fa-inbox"></i> Bandeja
+          	{% if folders.INBOX.Unread %}
+            	<span class="badge bg-primary float-right">{{folders.INBOX.Unread}}</span>
+          	{% endif %}
+          	</a>
+          </li>
+          <li class="nav-item {{ 'Sent' in info.Mailbox ? 'active':'' }}" >
+          	<a class="nav-link" href="{{path_for('correo.folder.cambiar',{nombre:'Sent'})}}"><i class="fa fa-envelope-o"></i> Enviados</a>
+          </li>
+        	<li class="nav-item {{ 'Drafts' in info.Mailbox ? 'active':'' }}" >
+          	<a class="nav-link" href="{{path_for('correo.folder.cambiar',{nombre:'Drafts'})}}"><i class="fa fa-file-text-o"></i> Borrador</a>
+          </li>
+          <li class="nav-item {{ 'Junk' in info.Mailbox ? 'active':'' }}" >
+          	<a class="nav-link" href="{{path_for('correo.folder.cambiar',{nombre:'Junk'})}}"><i class="fa fa-filter"></i> Spam
+          	{% if folders.Junk.Unread %}
+          		<span class="label label-warning pull-right">{{folders.Junk.Unread}}</span>
+          	{% endif %}
+          	</a>
+          </li>
+          <li class="nav-item {{ 'Trash' in info.Mailbox ? 'active':'' }}" >
+          	<a class="nav-link" href="{{path_for('correo.folder.cambiar',{nombre:'Trash'})}}"><i class="fa fa-trash-o"></i> Papelera</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!--
+    <div class="box box-solid">
+      <div class="box-header with-border">
+        <h3 class="box-title">Labels</h3>
+
+        <div class="box-tools">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="box-body no-padding" style="">
+        <ul class="nav nav-pills nav-stacked">
+          <li><a href="#"><i class="fa fa-circle-o text-red"></i> Important</a></li>
+          <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> Promotions</a></li>
+          <li><a href="#"><i class="fa fa-circle-o text-light-blue"></i> Social</a></li>
+        </ul>
+      </div>
+    </div>
+  	-->
+  </div>
+  <div class="col-md-9" id="inbox">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">
+        	{{ 'INBOX' in info.Mailbox ? 'Bandeja':'' }}
+        	{{ 'Sent' in info.Mailbox ? 'Enviados':'' }}
+        	{{ 'Drafts' in info.Mailbox ? 'Borrador':'' }}
+        	{{ 'Junk' in info.Mailbox ? 'Spam':'' }}
+        	{{ 'Trash' in info.Mailbox ? 'Papelera':'' }}
+        </h3>
+        <!--
+        <div class="box-tools pull-right">
+          <div class="has-feedback">
+            <input type="text" class="form-control input-sm" placeholder="Search Mail">
+            <span class="glyphicon glyphicon-search form-control-feedback"></span>
+          </div>
+        </div>
+      	-->
+      </div>
+      <div class="card-body p-0">
+        <div class="mailbox-controls">
+
+        </div>
+        <div class="table-responsive mailbox-messages">
+          <table class="table table-hover" id="tablaCorreos" width="100%">
+          	<thead>
+          		<tr>
+          			<th></th>
+          			<th>Fav</th>
+          			<th>{{ 'Sent' in info.Mailbox ? 'Para':'De' }}</th>
+          			<th>Titulo</th>
+          			<th></th>
+          			<th>Hace</th>
+          		</tr>
+          	</thead>
+            <tbody>
+            <!--
+            <tr>
+              <td><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" style="position: absolute; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td>
+              <td class="mailbox-star"><a href="#"><i class="fa fa-star text-yellow"></i></a></td>
+              <td class="mailbox-name"><a href="read-mail.html">Alexander Pierce</a></td>
+              <td class="mailbox-subject"><b>AdminLTE 2.0 Issue</b> - Trying to find a solution to this problem...
+              </td>
+              <td class="mailbox-attachment"></td>
+              <td class="mailbox-date">5 mins ago</td>
+            </tr>
+          	-->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer p-0">
+        <div class="mailbox-controls">
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-9" id="reader">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">Lectura Correo</h3>
+
+        <div class="card-tools">
+          <a id="readerAtras" class="btn btn-card-tool" data-toggle="tooltip" title="" data-original-title="Previous"><i class="fa fa-chevron-left"></i></a>
+          <a id="readerAdelante" class="btn btn-card-tool" data-toggle="tooltip" title="" data-original-title="Next"><i class="fa fa-chevron-right"></i></a>
+        </div>
+      </div>
+      <div class="card-body no-padding">
+      	<input type="hidden" id="readMail" name="readMail">
+      	<input type="hidden" id="readNombre" name="readNombre">
+      	<input type="hidden" id="readFecha" name="readFecha">
+        <div class="mailbox-read-info">
+          <h3 id="readSubject">Message Subject Is Placed Here</h3>
+          <h5 id="readFrom" >From: help@example.com
+          </h5>
+        </div>
+        <div class="mailbox-read-message" disabled id="readBody">
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="pull-right">
+          <a class="btn btn-default" id="readReply"><i class="fa fa-reply"></i> Responder</a>
+          <a class="btn btn-default" id="readForward"><i class="fa fa-share"></i> Reenviar</a>
+        </div>
+        <a href="" class="btn btn-default" id="readDelete"><i class="fa fa-trash-o"></i> Eliminar</a>
+        <a class="btn btn-default" id="readCancel"><i class="fa fa-times"></i> Volver</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-9" id="write" >
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">Escribir</h3>
+      </div>
+      <div class="card-body">
+      	<form action="{{path_for('correo.enviar')}}" method="POST" id="formCorreo">
+      		<input type="hidden" id="action" name="action">
+	        <div class="form-group">
+	          <input class="form-control" placeholder="Para:" id="writeTo" name="writeTo" required>
+	        </div>
+	        <div class="form-group">
+	          <input class="form-control" placeholder="Subject:" id="writeSubject" name="writeSubject" required>
+	        </div>
+	        <div class="form-group">
+	            <textarea id="writeBody" name="writeBody" class="form-control" style="height: 300px; display: none;"></textarea>
+	        </div>
+	        <!--
+	        <div class="form-group">
+	          <div class="btn btn-default btn-file">
+	            <i class="fa fa-paperclip"></i> Attachment
+	            <input type="file" name="attachment">
+	          </div>
+	          <p class="help-block">Max. 32MB</p>
+	        </div>
+	      	-->
+				{{ csrf.field | raw }}
+        </form>
+      </div>
+      <div class="card-footer">
+        <div class="pull-right">
+          <!--<a class="btn btn-default" id="btnCorreoGuardar"><i class="fa fa-pencil"></i> Guardar</a>-->
+          <a class="btn btn-primary" id="btnCorreoEnviar"><i class="fa fa-envelope-o"></i> Enviar</a>
+        </div>
+        <a class="btn btn-default" id="writeCancel"><i class="fa fa-times"></i> Cancelar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script>
+	$(document).ready(function(){
+		var tablaCorreos = $('#tablaCorreos').DataTable( {
+			//order:[[4,'desc']],
+			filter:false,
+			processing: true,
+			serverSide: true,
+			ajax:{
+				url:"{{path_for('correo.getAll')}}",
+			},
+			columns: [
+					{
+	        	name:'id',
+	        	data: function(data,type,dataToSet){
+	        		return '';
+	        	},
+	        	orderable:false,
+	        },
+	        {
+	        	name: 'fav',
+	        	data: function(data,type,dataToSet){
+	        		return '';
+	        	},
+	        },
+	        {
+	        	name: 'From',
+	        	data: function(data,type,row){
+      				{% if 'Sent' in info.Mailbox %}
+      					var respuesta = data.to.replace(/ *\<[^>]*\> */g, "").trim();
+      					if( respuesta == null && respuesta.toString().isEmpty() ){
+      						respuesta = data.to;
+      					}
+		        		respuesta = '<td class="mailbox-name"><a onclick="readerEmail('+data.uid+')";>'+respuesta+'</a></td>';
+								return respuesta;
+      				{% else %}
+      					var respuesta = data.from.replace(/ *\<[^>]*\> */g, "");
+		        		respuesta = '<td class="mailbox-name"><a onclick="readerEmail('+data.uid+')";>'+respuesta+'</a></td>';
+								return respuesta;
+      				{% endif %}
+	        	},
+	        },
+	        {
+	        	name:'subject',
+	        	data: function(data,type,dataToSet){
+	        		return data.subject;
+	        	},
+	        },
+	        {
+	        	name:'opt',
+	        	data: function(data,type,dataToSet){
+	        		var respuesta = '';
+	        		if(data.answered>0){
+	        			respuesta = '<i class="fa fa-reply"></i>';
+	        		}
+	        		return respuesta;
+	        	},
+	        },
+	        {
+	        	name: 'date',
+	        	data: 'date',
+	        	render: function(data,type,row){
+	        		var momentDate = moment(data, 'ddd, DD MMM YYYY HH:mm:ss Z');
+	        		var minutos = moment().diff(momentDate,'minutes');
+	        		var respuesta = '';
+	        		if(minutos>60){
+	        			var horas = Math.floor(minutos / 60);
+	        			if(horas>24){
+	        				dias = Math.floor(horas / 24);
+	        				if(dias>30){
+	        					meses = Math.floor(dias / 30);
+	        					if(meses>2){
+	        						respuesta = meses + ' meses';
+	        					} else {
+	        						respuesta = momentDate.format('DD/MM/YYYY');
+        						}
+	        				} else {
+	        					respuesta = dias + ' dias';
+	        				}
+	        			} else {
+	        				respuesta = horas + ' horas';
+	        			}
+	        		} else {
+	        			respuesta = minutos + ' minutos';
+	        		}
+	        		return respuesta;
+	        	},
+	        },
+	    ],
+			columnDefs:[
+				{
+					targets:[0,4],
+					width:"3%",
+				},
+				{
+					targets:[0,1,2,3,4,5],
+					orderable: false,
+				}
+			],
+			createdRow: function (row, data, index) {
+	      if(data.seen>0){
+	        $(row).addClass('corre_visto');
+	      }
+	    },
+			"bLengthChange": false,
+			"language": {
+			    "sProcessing":     "Procesando...",
+			    "sLengthMenu":     "Mostrar _MENU_ registros",
+			    "sZeroRecords":    "No se encontraron resultados",
+			    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+			    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+			    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+			    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+			    "sInfoPostFix":    "",
+			    "sSearch":         "Buscar:",
+			    "sUrl":            "",
+			    "sInfoThousands":  ",",
+			    "sLoadingRecords": "Cargando...",
+			    "oPaginate": {
+			        "sFirst":    "Primero",
+			        "sLast":     "Último",
+			        "sNext":     "Siguiente",
+			        "sPrevious": "Anterior"
+			    },
+			    "oAria": {
+			        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+			        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+			    }
+			}
+		});
+
+		setInterval(function () {
+	      tablaCorreos.ajax.reload(null, true);
+		  }, 120000);
+
+		$('#reader').hide();
+		$('#write').hide();
+
+		$('#readReply').on('click',function(){
+			var email = $('#readMail').val();
+			var nombre = $('#readNombre').val();
+			var date = $('#readFecha').val();
+			var fecha = moment(date,'DD/MM/YYYY HH:mm:ss');
+			$('#writeTo').val(email);
+			$('#writeSubject').val('Re: '+$('#readSubject').html());
+			var body = '<p><br>'+
+    	'</p>'+
+    	'<br>'+
+    	'<div class="moz-cite-prefix">El '+fecha.format('DD/MM/YYYY')+' a las '+fecha.format('HH:mm')+', '+nombre+' escribió:<br>'+
+    	'<span dir="ltr">&lt;'+
+			'<a href="mailto:'+email+'" target="_blank">'+email+'</a>&gt;'+
+			'</span>:'+
+    	'<blockquote style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex" >'+
+      '<div dir="auto">'+$('#readBody').html()+'</div>'+
+    	'</blockquote>'+
+    	'</div>'+
+    	'<br>';
+			CKEDITOR.instances.writeBody.setData(body);
+			$('#reader').slideUp(null,function(){
+				$('#write').slideDown();
+			});
+
+		});
+
+		$('#readForward').on('click',function(){
+			var email = $('#readMail').val();
+			var nombre = $('#readNombre').val();
+			var date = $('#readFecha').val();
+			var fecha = moment(date,'DD/MM/YYYY HH:mm:ss');
+			var titulo = $('#readSubject').html();
+			$('#writeSubject').val('Fwd: '+titulo);
+			var body = '<p><br>'+
+    	'</p>'+
+    	'<br>'+
+    	'<div dir="ltr">---------- Forwarded message ---------<br>From: '+nombre+' &lt;'+
+			'<a href="mailto:'+email+'">'+email+'</a>&gt;'+
+			'<br>Date: '+fecha.format('DD/MM/YYYY')+' a las '+fecha.format('HH:mm')+
+			'<br>Subject: Re: '+titulo+
+			'<br>To: {{ auth.individuo.nombre }} {{ auth.individuo.apellido }} &lt;'+
+			'<a href="mailto:{{ auth.user.email }}">{{ auth.user.email }}</a>&gt;'+
+			'<br>'+
+			'</div>'+
+			'<br>'+
+      '<div dir="auto">'+$('#readBody').html()+'</div>'+
+    	'</div>'+
+    	'<br>';
+			CKEDITOR.instances.writeBody.setData(body);
+			$('#reader').slideUp(null,function(){
+				$('#write').slideDown();
+			});
+
+		});
+
+		$('#readCancel').on('click',function(){
+			$('#reader').slideUp(null,function(){
+				$('#inbox').slideDown();
+			});
+		});
+
+		$('#writeCancel').on('click',function(){
+			$('#write').slideUp(null,function(){
+				$('#inbox').slideDown();
+			});
+		});
+
+		CKEDITOR.replace( 'writeBody', {
+			height: 200,
+			toolbarGroups: [
+				{"name":"basicstyles","groups":["basicstyles"]},
+				{"name":"links","groups":["links"]},
+				{"name":"paragraph","groups":["list","blocks", "align"]},
+				{"name":"document","groups":["mode"]},
+				{"name":"insert","groups":["insert"]},
+				{"name":"styles","groups":["styles"]},
+				{"name":"about","groups":["about"]}
+			],
+			// Remove the redundant buttons from toolbar groups defined above.
+			removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar'
+		});
+
+		$('#btnCorreoRedactar').on('click',function(){
+			if( $('#reader').is(':visible') ) {
+				$('#reader').slideUp(null,function(){
+					$('#writeTo').val('');
+					$('#writeSubject').val('');
+					CKEDITOR.instances.writeBody.setData('');
+					$('#write').slideDown();
+				});
+			} else if ( $('#write').is(':visible') ){
+				$('#write').slideUp(null,function(){
+					$('#writeTo').val('');
+					$('#writeSubject').val('');
+					CKEDITOR.instances.writeBody.setData('');
+					$('#write').slideDown();
+				});
+			} else if ( $('#inbox').is(':visible') ){
+				$('#inbox').slideUp(null,function(){
+					$('#writeTo').val('');
+					$('#writeSubject').val('');
+					CKEDITOR.instances.writeBody.setData('');
+					$('#write').slideDown();
+				});
+			}
+		});
+
+		$('#btnCorreoEnviar').on('click',function(){
+			$('#formCorreo').submit();
+		});
+
+	});
+
+	function readerEmail(id){
+		$('#inbox').block({ message: null });
+		$.ajax({
+      type: "get",
+      url:  "{{ path_for('correo.get',{id:''}) }}"+id,
+      success: function(data,status){
+      	var fecha = moment(data.date,'YYYY-MM-DD HH:mm:ss');
+        $("#readSubject").html(data.subject);
+        var date = '<span class="mailbox-read-time pull-right" id="readDate">'+fecha.format('DD/MM/YYYY HH:mm:ss')+'</span>';
+        $('#readFecha').val(fecha.format('DD/MM/YYYY HH:mm:ss'));
+        $('#readMail').val(data.fromAddress);
+				$('#readNombre').val(data.fromName);
+      	{% if 'Sent' in info.Mailbox %}
+      	if(data.hasOwnProperty('to')){
+        	var emailTo = Object.keys(data.to)[0];
+        	var nameTo = '';
+        	if(data.to.emailTo !=null){
+        		nameTo = data.to.emailTo+' ';
+        	}
+        	$("#readFrom").html('De: '+data.fromName+' &lt;'+data.fromAddress+'&gt;<br>Para: '+nameTo+emailTo+' '+date);
+        } else {
+        	$("#readFrom").html('De: '+data.fromName+' &lt;'+data.fromAddress+'&gt; '+date);
+      	}
+      	{% else %}
+      	if(data.hasOwnProperty('replyTo')){
+      		var emailTo = Object.keys(data.replyTo)[0];
+      		if(!data.fromAddress.toString().includes(emailTo)){
+	        	var nameTo = '';
+	        	$('#readMail').val(emailTo);
+	        	if(data.to.emailTo !=null){
+	        		nameTo = data.to.emailTo+' ';
+							$('#readNombre').val(nameTo);
+	        	}
+	      		$("#readFrom").html('De: '+data.fromName+' &lt;'+data.fromAddress+'&gt;<br>Responder a: '+nameTo+emailTo+' '+date);
+	      	} else {
+      			$("#readFrom").html('De: '+data.fromName+' &lt;'+data.fromAddress+'&gt; '+date);
+	      	}
+      	} else {
+      		$("#readFrom").html('De: '+data.fromName+' &lt;'+data.fromAddress+'&gt; '+date);
+      	}
+      	{% endif %}
+        $("#readBody").html(data.textHtml);
+        $("#readDelete").attr("href", "{{path_for('correo.eliminar',{id:''})}}"+id);
+
+        atras = id - 1;
+        adelante = id + 1;
+      	$('#readerAtras').attr('onclick', 'readerEmail('+atras+')');
+      	$('#readerAdelante').attr('onclick', 'readerEmail('+adelante+')');
+        $('#inbox').slideUp(
+		      null,
+		      function(){
+		      	$('#inbox').unblock();
+      			$('#reader').slideDown();
+		      }
+		    );
+      },
+      error: function(xhr, ajaxOptions,e) {
+        $('#reader').slideUp(
+		      null,
+		      function(){
+      			$('#inbox').slideDown();
+		      }
+		    );
+      }
+    });
+
+	}
+</script>
+{% endblock %}

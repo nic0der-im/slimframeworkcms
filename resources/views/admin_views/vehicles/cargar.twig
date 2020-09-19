@@ -1,0 +1,900 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+input[type='number'] {
+  -moz-appearance:textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+</style>
+{% endblock %}
+{% block title %}
+	{% if old.id_vehiculo %}
+	Editar un vehículo usado
+	{% else %}
+	Cargar un vehículo usado
+	{% endif %}
+{% endblock %}
+{% block header_title %}
+	{% if old.id_vehiculo %}
+	Editar vehículo usado
+	{% else %}
+	Cargar un vehículo usado
+	{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item" >
+	<a href="{{path_for('vehicle.index')}}">Vehículos</a>
+</li>
+<li class="breadcrumb-item active" >
+	{% if old.id_vehiculo %}
+	Editar
+	{% else %}
+	Nuevo
+	{% endif %}
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  {% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	{% if old.id_vehiculo > 0 %}
+	<form name="veh_upload_basic_form" method="POST" action="{{path_for('vehicle.modifypost', {	'id': old.id_vehiculo })}}" id="formCargar">
+	{% else %}
+	<form name="veh_upload_basic_form" method="POST" action="{{path_for('vehicle.cargar')}}" id="formCargar" autocomplete="off">
+	{% endif %}
+		<input type="hidden" name="id_proveedor" id="id_proveedor" value="{{old.id_proveedor?old.id_proveedor:0}}">
+		<input type="hidden" name="id_carpeta" value="{{old.id_carpeta?old.id_carpeta:0}}">
+		<input type="hidden" name="id_cliente" value="{{old.id_cliente?old.id_cliente:0}}">
+		{% if return_to %}
+			<input type="hidden" name="return_to" value="{{return_to}}">
+		{% endif %}
+		<div class="col-lg-12">
+			<div class="row">
+				<div class="col-lg-8">
+					<div class="card card-info">
+						<div class="card-header">
+							<h3 class="card-title text-bold">Información básica del vehículo</h3>
+						</div>
+						<div class="card-body">
+							<div class="form-group">
+								<div class="row" >
+									<div class="col-md-12">
+										<div class="card-group" id="accordionVehiculo" role="tablist" aria-multiselectable="true">
+								    	<div class="card card-default btn-flat">
+						        		<div class="card-heading btn-colapsar-buscador" role="tab" id="headingOne">
+								        	<h4 class="card-title p-2">
+								        		<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordionVehiculo" href="#collapseVehiculo" aria-expanded="true" aria-controls="collapseOne">
+								          		<b>Buscador de vehículos en BASE DE DATOS RIO</b>
+								        		</a>
+								      		</h4>
+								        </div>
+								        <div id="collapseVehiculo" class="card-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+						            	<div class="row">
+						            		<div class="col-lg-12 col-md-offset-1">
+															<label for="id_precios_vehiculos">Asociado con vehículo ID:</label>
+															{{ old.id_precios_vehiculos }}
+															<div class="input-group">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text"><i class="material-icons">directions_car</i></span>
+              									</div>
+																<input type="text" class="form-control" name="id_precios_vehiculos" id="id_precios_vehiculos" value="{% if old.id_precios_vehiculos > 0 %}{{ old.id_precios_vehiculos}}{% endif %}" placeholder="NO VINCULADO" autocomplete="off">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text hidden input-ready"><i class="material-icons">check</i></span>
+              									</div>
+                                <br>
+															</div>
+														</div>
+					            			<div class="table-responsive">
+									            <table class="table table-striped table-condensed precios_tabla" width="100%">
+									              <thead>
+									                <th>ID</th>
+									                <th>Marca</th>
+									                <th>Modelo</th>
+									                <th>Año</th>
+									                <th>Precio:</th>
+									                <th></th>
+									              </thead>
+									              <tbody>
+									              </tbody>
+									            </table>
+									          </div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-4">
+										<label for="id_marca">Marca <small class="text-muted">(*)</small></label>
+										<select class="form-control select2" name="id_marca" id="veh_upload_marca" placeholder="Condición" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná la marca del vehículo.<br>Por ejemplo: <b>Ford</b>">
+											<option value="" selected="" disabled="">Marca</option>
+											{% for row in marcas %}
+												{% if row.id==old.id_marca %}
+													<option class="option" value="{{row.id}}" selected="true">
+														{{row.nombre}}
+													</option>
+												{% else %}
+													<option class="option" value="{{row.id}}">
+														{{row.nombre}}
+													</option>
+												{% endif %}
+											{% endfor %}
+										</select>
+									</div>
+									<div class="col-md-4{{ errors.modelo ? ' has-error' : ''}}">
+										<label for="modelo">Modelo <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="material-icons">directions_car</i></span>
+                      </div>
+											<input type="text" class="form-control" name="modelo" id="veh_upload_modelo" value="{{old.modelo}}" placeholder="Modelo" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el modelo del vehículo.<br>Por ejemplo: <b>Focus Titanium</b>" >
+										</div>
+										{% if errors.modelo %}
+											<i class="help-block no-margin">{{ errors.modelo | first }}</i>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.year ? ' has-error' : ''}}">
+										<label for="year">Año <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="material-icons">date_range</i></span>
+                      </div>
+											<input type="number" min="2005" max="{{ "now"|date("Y") }}" class="form-control" name="year" id="veh_upload_year" value="{{old.year}}" placeholder="Año" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el año del vehículo.<br>Por ejemplo: <b>2017</b>" >
+										</div>
+										<i class="help-block no-margin">Min. {{ "now"|date("Y")-12 }} - Máx. {{ "now"|date("Y") }}</i>
+									</div>
+								</div>
+
+
+								<div class="row">
+									<div class="col-md-4{{ errors.kilometraje ? ' has-error' : ''}}">
+										<label for="kilometraje">Kilometraje <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="material-icons fa-rotate-180">settings_input_svideo</i></span>
+                      </div>
+											<input type="number" class="form-control" name="kilometraje" id="veh_upload_kilometraje" value="{{old.kilometraje}}" placeholder="Kilometraje" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la cantidad de kilómetros del vehículo. Por ejemplo: <b>14500</b>" >
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">km</span>
+                      </div>
+										</div>
+										<i class="help-block no-margin">Solo números sin puntos ni comas. </i>
+										{% if errors.kilometraje %}
+											<span class="help-block">{{ errors.kilometraje | first }}</span>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.dominio ? ' has-error' : ''}}">
+										<label for="dominio">Dominio <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+                      </div>
+											<input type="text" class="form-control" name="dominio" id="veh_upload_dominio" value="{{old.dominio}}" placeholder="Dominio" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el dominio del vehículo. Por ejemplo: <b>CIR 001</b> o <b>AB 123 CD</b>" >
+										</div>
+										{% if errors.dominio %}
+											<span class="help-block">{{ errors.dominio | first }}</span>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.exowner ? ' has-error' : ''}}">
+										<label for="exowner">Cliente / Ex dueño <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="material-icons">person</i></span>
+                      </div>
+											<input type="text" class="form-control" name="exowner" id="veh_upload_exowner" value="{{old.exowner}}" placeholder="Cliente / Ex dueño" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Vinculá el vehículo a un cliente." >
+										</div>
+										{% if errors.exowner %}
+											<i class="help-block no-margin">{{ errors.exowner | first }}</i>
+										{% endif %}
+									</div>
+								</div>
+								<div class="row" >
+									<div class="col-md-12" >
+										<div class="card-group" id="accordionCliente" role="tablist" aria-multiselectable="true">
+									    <div class="card card-default btn-flat">
+								        <div class="card-heading" role="tab" id="headingOne">
+								        	<h4 class="card-title p-2">
+								        		<a class="collapsed " role="button" data-toggle="collapse" data-parent="#accordionCliente" href="#collapseCliente" aria-expanded="true" aria-controls="collapseOne">
+								          		<b>Datos adicionales del Cliente/Exdueño</b>
+								        		</a>
+								      		</h4>
+								        </div>
+								        <div id="collapseCliente" class="card-collapse {{old.id_cliente==0?'collapse':''}}" role="tabpanel" aria-labelledby="headingOne">
+							            <div class="row">
+														<div class="col-md-3">
+															<label for="id_tipo_documento">Tipo Documento <small class="text-muted">(*)</small></label>
+															<select class="form-control select2" id="cliente_tipo_documento" name="id_tipo_documento" style="width: 100%;" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Seleccioná el tipo de documento del cliente.<br>Por ejemplo: <b>DNI</b>" >
+							                	{% for item in tipoDocumento %}
+							                		{% if old.id_tipo_documento == item.id %}
+							                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+							                			{% else %}
+							                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+							                		{% endif %}
+							                	{% endfor %}
+							                </select>
+														</div>
+														<div class="col-md-5">
+															<label for="documento">Número de documento <small class="text-muted">(*)</small></label>
+															<div class="input-group">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+                                </div>
+																<input type="number" class="form-control" name="documento" id="cliente_documento" placeholder="Número de documento" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el número de documento del cliente.<br>Por ejemplo: <b>20645312</b>" value="{{old.documento}}">
+															</div>
+														</div>
+														<div class="col-md-4">
+															<label for="fecha_nacimiento">Fecha de nacimiento</label>
+															<div class="input-group">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                                </div>
+																<input type="text" class="form-control datepicker" name="fecha_nacimiento" id="cliente_fecha_nacimiento" placeholder="Fecha de nacimiento" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá la fecha de nacimiento del cliente.<br>Por ejemplo: <b>21/05/1970</b>" value="{{old.format_fecha_nacimiento}}">
+															</div>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-md-4">
+															<label class="control-label" for="telefono">Teléfono</label>
+															<div class="input-group">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text"><i class="fa fa-phone" aria-hidden="true"></i></span>
+                                </div>
+																<input type="text" class="form-control phoneFormatter" name="telefono" id="cliente_telefono" placeholder="Teléfono" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el teléfono del cliente.<br>Por ejemplo: <b>3874898080</b>" value="{{old.telefono}}">
+															</div>
+														</div>
+														<div class="col-md-4">
+															<label class="control-label" for="celular">Celular</label>
+															<div class="input-group">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text"><i class="fa fa-mobile-phone" aria-hidden="true"></i></span>
+                                </div>
+																<input type="text" class="form-control phoneFormatter" name="celular" id="cliente_celular" placeholder="Celular" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el numero de Celular del cliente.<br>Por ejemplo: <b>3874898080</b>" value="{{old.celular}}">
+															</div>
+														</div>
+														<div class="col-md-2">
+															<label for="sexo">Sexo</label>
+															<select class="form-control select2" id="sexo" name="sexo" >
+																<option value="1" {{ old.sexo == 1? 'selected':'' }} >Hombre</option>
+																<option value="0" {{ old.sexo == 0? 'selected':'' }} >Mujer</option>
+							                </select>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-md-8">
+															<label for="email">Dirección de correo electrónico <small class="text-muted">(*)</small> </label>
+															<div class="input-group">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                                </div>
+																<input type="email" class="form-control" name="email" id="cliente_email" placeholder="Dirección de correo electrónico" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el email del cliente.<br>Por ejemplo: <b>ciroparietti@gmail.com</b>" value="{{old.email}}">
+															</div>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-md-6">
+															<label for="domicilio">Calle</label>
+															<div class="input-group">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+                                </div>
+																<input type="text" class="form-control" name="domicilio" id="cliente_domicilio" placeholder="Domicilio" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el domicilio del cliente.<br>Por ejemplo: <b>España</b>" value="{{old.domicilio}}">
+															</div>
+														</div>
+														<div class="col-md-2">
+															<label for="numero">Numero</label>
+															<input type="text" class="form-control" name="numero" id="cliente_numero" placeholder="1129" autocomplete="off" value="{{old.numero}}">
+														</div>
+														<div class="col-md-2">
+															<label for="piso">Piso</label>
+															<input type="text" class="form-control" name="piso" id="cliente_piso" placeholder="Piso" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Si corresponde, ingresá el <br>dpto dondereside el cliente.<br>Por ejemplo: <b>5º B</b>" value="{{old.piso}}">
+														</div>
+														<div class="col-md-2">
+															<label for="piso">Dpto</label>
+															<input type="text" class="form-control" name="dpto" id="cliente_dpto" placeholder="Dpto" autocomplete="off" value="{{old.dpto}}">
+														</div>
+														<div class="col-md-12">
+															<label for="domicilio_observaciones">Observaciones sobre el domicilio</label>
+															<input type="text" class="form-control" name="domicilio_observaciones" id="nuevo_cliente_domicilio_observaciones" placeholder="Observaciones sobre el domicilio" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="¿Alguna observación sobre el domicilio?" value="{{old.domicilio_observaciones}}">
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-md-5">
+															<label for="id_provincia">Provincia</label>
+															<select class="form-control select2" id="cliente_provincia" name="id_provincia" style="width: 100%;" data-toggle="tooltip" data-placement="auto" title="Ingresá la provincia donde reside el cliente.<br>Por ejemplo: <b>Salta</b>" >
+							                	{% for item in provincias %}
+							                		{% if old.id_provincia == item.id %}
+							                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+							                			{% else %}
+							                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+							                		{% endif %}
+							                	{% endfor %}
+							                </select>
+														</div>
+														<div class="col-md-7">
+															<div class="form-group" id="bloodhoundCiudad">
+																<label class="control-label" for="localidad">Localidad </label>
+																<input type="text" class="form-control typeahead" name="localidad" id="cliente_localidad" placeholder="Localidad" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá la localidad donde reside el cliente.<br>Por ejemplo: <b>Ciudad de Salta</b>" value="{{old.localidad}}" >
+															</div>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-md-3">
+															<div class="form-group">
+																<label class="control-label" for="cp">Codigo Postal <small class="text-muted">(*)</small></label>
+																<input type="number" class="form-control" name="cp" id="cliente_cp" placeholder="CP" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el Codigo Postal.<br>Por ejemplo: <b>4400</b>" value="{{old.cp}}" >
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-4{{ errors.motor ? ' has-error' : ''}}">
+										<label for="motor">Motor <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="material-icons">local_gas_station</i></span>
+                      </div>
+											<input type="text" class="form-control" name="motor" id="veh_upload_motor" value="{{old.motor}}" placeholder="Motor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el motor del vehículo. Por ejemplo: <b>2.0</b>" >
+										</div>
+										{% if errors.motor %}
+											<span class="help-block">{{ errors.motor | first }}</span>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.id_tipo_motor ? ' has-error' : ''}}">
+										<label for="id_tipo_motor">Tipo de motor <small class="text-muted">(*)</small></label>
+										<select class="form-control select2" name="id_tipo_motor" id="veh_upload_tipomotor" placeholder="Tipo de motor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el tipo de motor del vehículo. Por ejemplo: <b>Nafta</b>" >
+											{% for row in motores %}
+												{% if row.id==old.id_tipo_motor %}
+													<option class="option" value="{{row.id}}" selected="true">
+														{{row.nombre}}
+													</option>
+												{% else %}
+													<option class="option" value="{{row.id}}">
+														{{row.nombre}}
+													</option>
+												{% endif%}
+											{% endfor %}
+										</select>
+										{% if errors.id_tipo_motor %}
+											<i class="help-block">Elija una opcion.</i>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.id_transmicion ? ' has-error' : ''}}">
+										<label for="id_transmision">Transmisión <small class="text-muted">(*)</small></label>
+										<select class="form-control select2" name="id_transmision" id="veh_upload_transmision" placeholder="Transmisión" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el tipo de transmisión del vehículo. Por ejemplo: <b>Manual</b>" >
+											{% for row in transmisiones %}
+												{% if row.id==old.id_transmision %}
+													<option class="option" value="{{row.id}}" selected="true">
+														{{row.nombre}}
+													</option>
+												{% else %}
+													<option class="option" value="{{row.id}}">
+														{{row.nombre}}
+													</option>
+												{% endif%}
+											{% endfor %}
+										</select>
+										{% if errors.id_transmision %}
+											<i class="help-block">Elija una opcion.</i>
+										{% endif %}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-4{{ errors.cantidad_puertas ? ' has-error' : ''}}">
+										<label for="cantidad_puertas">Cantidad de puertas <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-tablet"></i></span>
+                      </div>
+											<input type="text" class="form-control" name="cantidad_puertas" id="veh_upload_cantidadpuertas" value="{{old.cantidad_puertas}}" placeholder="Cantidad de puertas" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la cantidad de puertas.<br>Por ejemplo: <b>3</b>">
+										</div>
+										{% if errors.cantidad_puertas %}
+											<span class="help-block">{{ errors.cantidad_puertas | first }}</span>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.id_localidad ? ' has-error' : ''}}">
+										<label for="id_localidad">Localidad <small class="text-muted">(*)</small></label>
+										<select class="form-control select2" name="id_localidad" id="veh_upload_localidad" placeholder="Localidad" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la localidad del vehículo. Por ejemplo: <b>Salta</b>">
+											{% for row in localidades %}
+												{% if row.id==old.id_localidad %}
+													<option class="option" value="{{row.id}}" selected="true">
+														{{row.nombre}}
+													</option>
+												{% else %}
+													<option class="option" value="{{row.id}}">
+														{{row.nombre}}
+													</option>
+												{% endif %}
+											{% endfor %}
+										</select>
+										{% if errors.id_localidad %}
+											<i class="help-block">Elija una opcion.</i>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.id_ubicacion ? ' has-error' : ''}}">
+										<label for="id_ubicacion">Ubicación <small class="text-muted">(*)</small></label>
+										<select class="form-control select2" name="id_ubicacion" id="veh_upload_ubicacion" placeholder="Ubicación" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la ubicación del vehículo. Por ejemplo: <b>Depósito Salta</b>">
+											{% for row in ubicaciones %}
+												{% if row.id==old.id_ubicacion %}
+													<option class="option" value="{{row.id}}" selected="true">
+														{{row.nombre}}
+													</option>
+												{% else %}
+													<option class="option" value="{{row.id}}">
+														{{row.nombre}}
+													</option>
+												{% endif%}
+											{% endfor %}
+										</select>
+										{% if errors.id_ubicacion %}
+											<i class="help-block">Elija una opcion.</i>
+										{% endif %}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-4{{ errors.precio_revista ? ' has-error' : ''}}">
+										<label for="precio_revista">Precio de revista <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-dollar"></i></span>
+                      </div>
+											<input type="number" min="0" step="1" class="form-control" name="precio_revista" id="veh_upload_preciorevista" onkeypress='return event.charCode >= 48 && event.charCode <= 57' value="{{old.precio_revista}}" placeholder="Precio de revista" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el precio del vehículo que figura en la revista.<br>Por ejemplo: <b>96000</b>">
+										</div>
+										<i class="help-block no-margin">Solo números sin puntos ni comas. </i>
+										{% if errors.precio_revista %}
+											<i class="help-block">{{ errors.precio_revista | first }}</i>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.precio_toma ? ' has-error' : ''}}">
+										<label for="precio_toma">Precio de toma <small class="text-muted">(*) (**)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-dollar"></i></span>
+                      </div>
+											<input type="number" min="0" step="1" class="form-control" name="precio_toma" id="veh_upload_preciotoma" onkeypress='return event.charCode >= 48 && event.charCode <= 57' value="{{old.precio_toma}}" placeholder="Precio de toma" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el precio de toma del vehículo.<br>Por ejemplo: <b>96000</b>">
+										</div>
+										<i class="help-block no-margin">Solo números sin puntos ni comas. </i>
+										{% if errors.precio_toma %}
+											<i class="help-block">{{ errors.precio_toma | first }}</i>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.precio_reparacion_estimado ? ' has-error' : ''}}">
+										<label for="precio_reparacion_estimado">Precio de reparación <small class="text-muted">(*) (**)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-dollar"></i></span>
+                      </div>
+											<input type="number" min="0" step="1" class="form-control" name="precio_reparacion_estimado" id="veh_upload_precioreparacion" onkeypress='return event.charCode >= 48 && event.charCode <= 57' value="{{old.precio_reparacion_estimado}}" placeholder="Precio de reparación" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el precio de reparación del vehículo.<br>Por ejemplo: <b>96000</b>">
+										</div>
+										<i class="help-block no-margin">Solo números sin puntos ni comas. </i>
+										{% if errors.precio_reparacion_estimado %}
+											<i class="help-block">{{ errors.precio_reparacion_estimado | first }}</i>
+										{% endif %}
+									</div>
+								</div>
+								<div class="row">
+									{#<div class="col-md-4{{ errors.veh_upload_entregaminima ? ' has-error' : ''}}">
+										<label for="veh_upload_entregaminima">Entrega mínima</label>
+										<div class="input-group">
+											<span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+											<input type="number" min="0" step="1" class="form-control" name="veh_upload_entregaminima" id="veh_upload_entregaminima" onkeypress='return event.charCode >= 48 && event.charCode <= 57' value="{{old.veh_upload_entregaminima}}" placeholder="Entrega mínima" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá la entrega mínima del vehículo.<br>Por ejemplo: <b>96000</b>">
+										</div>
+										<i class="help-block no-margin">Solo números sin puntos ni comas. </i>
+										{% if errors.veh_upload_entregaminima %}
+											<i class="help-block">{{ errors.veh_upload_entregaminima | first }}</i>
+										{% endif %}
+									</div>#}
+									<div class="col-md-4{{ errors.precio_venta ? ' has-error' : ''}}">
+										<label for="precio_venta">Precio de contado</label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-dollar"></i></span>
+                      </div>
+											<input type="number" min="0" step="1" class="form-control" name="precio_venta" id="veh_upload_precioventa" onkeypress='return event.charCode >= 48 && event.charCode <= 57' value="{{old.precio_venta}}" placeholder="Precio de contado" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el precio de contado del vehículo.<br>Por ejemplo: <b>96000</b>" value="{{old.precio_venta}}">
+										</div>
+										<i class="help-block no-margin">Solo números sin puntos ni comas. </i>
+										{% if errors.precio_venta %}
+											<i class="help-block">{{ errors.precio_venta | first }}</i>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.precio_lista ? ' has-error' : ''}}">
+										<label for="precio_lista">Precio de lista</label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-dollar"></i></span>
+                      </div>
+											<input type="number" min="0" step="1" class="form-control" name="precio_lista" id="veh_upload_preciolista" onkeypress='return event.charCode >= 48 && event.charCode <= 57' value="{{old.precio_lista}}" placeholder="Precio de lista" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el precio de lista del vehículo.<br>Por ejemplo: <b>96000</b>" value="{{old.precio_lista}}">
+										</div>
+										<i class="help-block no-margin">Solo números sin puntos ni comas. </i>
+										{% if errors.precio_lista %}
+											<i class="help-block">{{ errors.precio_lista | first }}</i>
+										{% endif %}
+									</div>
+									<div class="col-md-4{{ errors.estado_vehiculo ? ' has-error' : ''}}">
+										<label for="estado_vehiculo">Estado del vehículo <small class="text-muted">(*)</small></label>
+										<select class="form-control select2" name="estado_vehiculo" id="veh_upload_estado" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el estado del vehículo.<br>Por ejemplo: <b>Consignación</b>">
+											{% for row in estados %}
+												{% if row.id==old.estado_vehiculo %}
+													<option class="option" value="{{row.id}}" selected="true">
+														{{row.nombre}}
+													</option>
+												{% else %}
+													<option class="option" value="{{row.id}}">
+														{{row.nombre}}
+													</option>
+												{% endif%}
+											{% endfor %}
+										</select>
+										{% if errors.estado_vehiculo %}
+											<i class="help-block">Elija una opcion.</i>
+										{% endif %}
+									</div>
+									<div class="col-md-8">
+										<div class="form-group" id="bloodhoundProveedor">
+											<label class="control-label" for="proveedor">Proveedor </label>
+											<input type="text" class="form-control typeahead" id="proveedor" name="proveedor" style="font-family:Arial, FontAwesome" placeholder="&#xF002; Razon Social o Documento" value="{{old.proveedor}}">
+										</div>
+									</div>
+									<div class="col-md-4">
+										<label for="color">Color</label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="material-icons">color_lens</i></span>
+                      </div>
+											<input type="text" class="form-control" name="color" id="veh_upload_color" placeholder="Color" autocomplete="off" value="{{old.color}}">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+        <div class="col-lg-4">
+					<div class="col-lg-12">
+						<div class="small-box bg-info">
+							<div class="inner">
+								<h4><i class="fa fa-question-circle"></i> ¿Sabías esto?</h4>
+								<p>Existe la posibilidad de añadir o modificar la información relacionada a un vehículo luego de cargarlo en el sistema. <small class="text-bg-muted">A excepción de (**).</small></p>
+							</div>
+							<p class="small-box-footer"><strong>#CiroAdminTips</strong></p>
+						</div>
+					</div>
+					<div class="col-lg-12">
+						<div class="card card-info">
+							<div class="card-header">
+								<h3 class="card-title text-bold">Información adicional del vehículo</h3>
+							</div>
+							<div class="card-body">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-12">
+											<label for="observaciones">Observaciones</label>
+											<textarea class="form-control" style="max-height: 200px;" name="observaciones" id="veh_upload_observaciones">{{old.observaciones}}</textarea>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-12">
+					<div class="card card-info">
+						<div class="card-header">
+							<h3 class="card-title text-bold">Fin del formulario</h3>
+						</div>
+						<div class="card-body">
+							{% if return_to %}
+							<a class="btn btn-warning btn-flat" href="{{return_to}}">VOLVER</a>
+							{% endif %}
+							{% if old.id_vehiculo > 0 %}
+							<a id="btnCargar" class="btn btn-primary btn-flat pull-right">Editar vehículo</a>
+              <a href="{{path_for('vehicle.formulario',{'id':old.id_vehiculo})}}" class="btn btn-warning btn-flat pull-right">Formularios</a>
+              <a href="{{path_for('vehicle.getCar',{'id':old.id_vehiculo})}}" class="btn btn-success btn-flat pull-right">Ver vehículo</a>
+							{% else %}
+							<a id="btnCargar" class="btn btn-primary btn-flat pull-right">Cargar vehículo</a>
+							<button class="btn btn-default btn-flat pull-left" type="reset">Limpiar campos</button>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		{{ csrf.field | raw }}
+	</form>
+</div>
+<div class="row">
+	<div class="col-sm-12 col-md-8">
+		<div class="col-sm-12 text-muted">
+			<small><b>(*)</b> Campos obligatorios.</small><br>
+			<small><b>(**)</b> Recomendamos verificar estos campos antes de cargar el vehículo ya que solo podrán ser editados por un administrador.</small>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script>
+$(document).ready(function(){
+	$('#veh_upload_marca').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#cliente_tipo_documento').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#sexo').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#id_tipo_responsable').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#cliente_provincia').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#veh_upload_tipomotor').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#veh_upload_transmision').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#veh_upload_localidad').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#veh_upload_ubicacion').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#veh_upload_estado').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  var ciudad = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.ciudad.consultar')}}?consulta=",
+	    wildcard: '%QUERY',
+	    replace: function (url, uriEncodedQuery) {
+        return url+uriEncodedQuery+"&id_provincia="+$('#cliente_provincia').val();
+      },
+	  }
+	});
+
+	$('#bloodhoundCiudad .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'localidad',
+	  display: 'nombre',
+	  source: ciudad,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.nombre +' ('+response.cp+')</p>';
+      },
+		  empty:'No existe la ciudad. Se procedera a crear uno nuevo para la provincia asignada.',
+		  }
+	}).on('typeahead:selected', function(event, selection) {
+		$('#cliente_cp').val(selection.cp);
+	});
+
+	$('#cliente_provincia').on('change',function(){
+		//Para que el typeahead pueda volver a cargar los datos cuando los campos esten vacios
+		//Primero se debe escribir algun caracter
+		//Segundo borrarlo, con esto se activara el trigger.
+		//La escritura como lectura son realizados en el objecto del input y el objeto del typeahead
+		$('#cliente_localidad').val('a').trigger('change');
+		$('#cliente_localidad').focus().typeahead('val','a').focus();
+		$('#cliente_localidad').val('').trigger('change');
+		$('#cliente_localidad').focus().typeahead('val','').focus();
+		$('#cliente_cp').val('');
+	});
+
+  var proveedor = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('proveedor.todos')}}?consulta=%QUERY",
+	    wildcard: '%QUERY'
+	  }
+	});
+
+	$('#bloodhoundProveedor .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'factura_proveedor',
+	  display: 'razon_social',
+	  source: proveedor,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.razon_social +'('+response.documento+')</p>';
+      },
+		  empty:'No existe el proveedor. Por favor cree uno nuevo.',
+		  }
+	}).on('typeahead:selected', function(event, selection) {
+		$('#id_proveedor').val(selection.id);
+	});
+
+	$('#proveedor').on('keydown',function(){
+		var key = event.keyCode || event.charCode;
+    if( key == 8 || key == 46 ){
+    	$('#id_proveedor').val(0);
+    }
+	});
+
+  $('#cliente_fecha_nacimiento').datepicker({
+		language:'es-ES',
+	  autoHide: true,
+	  autoPick: true,
+	  format: 'dd/mm/yyyy',
+	});
+
+	if($(".has-error:first :input").length > 0){
+		$('html, body').animate({ scrollTop: $(".has-error:first :input").offset().top - 50 }, 500);
+  	setTimeout(function() { $(".has-error:first :input").get(0).focus(); }, 100);
+  }
+
+	CKEDITOR.replace('veh_upload_observaciones', {
+		height: 75,
+		toolbar :
+		[
+			{ name: 'basicstyles', items : [ 'Bold','Italic' ] },
+			{ name: 'paragraph', items : [ 'NumberedList','BulletedList' ] }
+		]
+	});
+
+	$('#veh_upload_estado').change(function(){
+		if($(this).val() == 1) {
+			$('#veh_upload_ubicacion').prop('disabled', true);
+		}
+		else {
+			$('#veh_upload_ubicacion').prop('disabled', false);
+		}
+	});
+
+	$('#btnCargar').on('click',function(){
+		var dominio = $('#veh_upload_dominio').val();
+		const patente = /^([A-ZÑ]{3}\s\d{3}|[A-ZÑ]{2}\s\d{3}\s[A-ZÑ]{2})$/g;
+		if(!patente.test(dominio)){
+			$('#veh_upload_dominio').focus();
+			$('#veh_upload_dominio').closest('.col-md-4').addClass('has-error');
+			alert('Patente no valida');
+			return;
+		} else {
+			$('#veh_upload_dominio').closest('.col-md-4').removeClass('has-error');
+		}
+		$('#formCargar').submit();
+	});
+});
+
+
+
+</script>
+
+{% set modelo = old.modelo|split(' ') %}
+
+<script type="text/javascript">
+var colapsado = 0;
+
+$('.btn-colapsar-buscador').on('click',function(){
+	if(colapsado == 0)
+	{
+	    $('.precios_tabla').DataTable( {
+	      order:[[0,'desc']],
+	      processing: true,
+	      serverSide: true,
+	      ajax: { url: "{{path_for('precios.listado')}}" },
+	      columns: [
+	      {
+	        name: 'id',
+	        data: 'id'
+	      },
+	      {
+	        name: 'marca',
+	        data: 'nombremarca.nombre'
+	      },
+	      {
+	        name: 'nombre',
+	        data: 'nombre'
+	      },
+	      {
+	        name: 'anio',
+	        data: 'anio'
+	      },
+	      {
+	        name: 'precio',
+	        data: 'precio.precio'
+	      },
+	      {
+	        name: 'opciones',
+	        data: function(data,type,row)
+	        {
+	            respuesta = '';
+	          	var funcion = 'actualizar_veh(' + data.id + ', '+  data["precio"]["precio"] + ',\'' + data["nombre"] + '\');';
+	        	var historial = "{{ path_for('precios.historial', {'id':99}) }}".replace('99', data.id);
+	          	var boton = '<a class="btn btn-sm btn-flat btn-info pull-right" onclick="'+ funcion + '">Seleccionar</a><a target="_blank" class="btn btn-sm btn-flat btn-success pull-right" data-toggle="tooltip" data-container="body" data-html="true" title="Historial" href="'+historial+'"><span class="ion ion-social-usd"></span>  Historial</a>';
+	          	return boton;
+	        }
+	      }],
+	      {% if old.id_precios_vehiculos != 0 %}
+	      "oSearch": {"sSearch": "{{ old.id_precios_vehiculos }}"},
+	      {% else %}
+	      "oSearch": {"sSearch": "{{ modelo[0] }} {{ old.motor }} {{ old.year }}"},
+	      {% endif %}
+	      "bLengthChange": false,
+	      "bInfo": false,
+	      "language": {
+			    "sProcessing":     "Procesando...",
+			    "sLengthMenu":     "Mostrar _MENU_ registros",
+			    "sZeroRecords":    "No se encontraron resultados",
+			    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+			    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+			    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+			    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+			    "sInfoPostFix":    "",
+			    "sSearch":         "Buscar:",
+			    "sUrl":            "",
+			    "sInfoThousands":  ",",
+			    "sLoadingRecords": "Cargando...",
+			    "oPaginate": {
+			        "sFirst":    "Primero",
+			        "sLast":     "Último",
+			        "sNext":     "Siguiente",
+			        "sPrevious": "Anterior"
+			    },
+			}
+
+	  	});
+		colapsado = 1;
+	}
+});
+
+
+function actualizar_veh(id, precio, modelo)
+{
+  	$('#id_precios_vehiculos').attr('value', id);
+  	$('#veh_upload_preciorevista').attr('value', precio);
+  	$('#veh_upload_precioventa').attr('value', precio);
+  	$('#veh_upload_preciolista').attr('value', (precio+10000));
+  	$('#veh_upload_modelo').attr('value', modelo);
+
+	$.toast({
+  		heading: 'Base de datos',
+  		text: 'Se actualizaron los precios según el vehículo elegido en la base del Rio.',
+  		showHideTransition: 'slide',
+  		icon: 'success',
+  		position: 'bottom-right',
+	});
+  	return 1;
+}
+
+</script>
+{% endblock %}

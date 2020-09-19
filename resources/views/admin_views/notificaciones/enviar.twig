@@ -1,0 +1,40 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+{% endblock %}
+{% block title %}Sistema de notificaciones{% endblock %}
+{% block header_title %}Notificaciones{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	<a href="{{path_for('modulos.index')}}">Notificaciones</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row ">
+	<div class="col-lg-6">
+		<div class="card card-success">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Escriba un mensaje a continuación para enviar una notificación:</h3>
+			</div>
+			<div class="card-body">
+				<form class="form-signup" action="{{ path_for('notificaciones.enviar') }}" method="post">
+					<div class="form-group">
+						<label for="id_usuario" class="sr-only">ID Usuario</label>
+						<input type="text" id="id_usuario" name="id_usuario" class="form-control" placeholder="ID Usuario">
+					</div>
+					<div class="form-group">
+						<label for="noti_texto" class="sr-only">Notificacion</label>
+						<input type="text" id="noti_texto" name="noti_texto" class="form-control" placeholder="Notificacion">
+					</div>
+					<button type="submit" class="btn btn-primary btn-block">Enviar Notificación</button>
+					{{ csrf.field | raw}}
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+{% endblock %}

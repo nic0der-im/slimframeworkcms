@@ -1,0 +1,158 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link rel="stylesheet" href="{{ base_url() }}/asources/css/vehiculos.css">
+{% endblock %}
+{% block title %}Cargar un vehículo 0km{% endblock %}
+{% block header_title %}Cargar un vehículo 0km{% endblock %}
+{% block content %}
+	<div class="row vehicle-upload">
+		{% include 'admin_views/admin_partials/flash.twig' %}
+		<form name="veh_upload_basic_form" method="POST" action="{{path_for('vehicle.cargar0km')}}">
+			<input type="hidden" name="veh_upload_ubicacion" id="veh_upload_ubicacion" value="1">
+			<input type="hidden" name="veh_upload_localidad" id="veh_upload_localidad" value="1">
+			<input type="hidden" name="veh_upload_estado" id="veh_upload_estado" value="2">
+			<div class="col-md-12">
+				<div class="row">
+					<div class="col-md-4 col-sm-12 md-pull-right">
+						<div class="callout callout-info">
+							<h4><i class="fa fa-question-circle"></i> ¿Sabías esto?</h4>
+							<p>Existe la posibilidad de añadir o modificar la información relacionada a un vehículo luego de cargarlo en el sistema. <small class="text-bg-muted">A excepción de (**).</small></p>
+							<p class="text-bg-muted db-txtr"><strong>#CiroAdminTips</strong></p>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-8">
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Información básica del vehículo</h3>
+							</div>
+							<div class="box-body">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-4">
+											<label for="veh_upload_marca">Marca <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">label</i></span>
+												<select class="form-control" name="veh_upload_marca" id="veh_upload_marca" placeholder="Condición" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná la marca del vehículo.<br>Por ejemplo: <b>Ford</b>">
+													<option value="" selected="" disabled="">Marca</option>
+													{% for marca in marcas %}
+														<option value="{{ marca.id }}">{{marca.nombre}}</option>
+													{% endfor %}
+												</select>
+												<span class="input-group-addon hidden input-ready"><i class="material-icons">check</i></span>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_modelo">Modelo <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">directions_car</i></span>
+												<input type="text" class="form-control" name="veh_upload_modelo" id="veh_upload_modelo" placeholder="Modelo" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el modelo del vehículo.<br>Por ejemplo: <b>Focus Titanium</b>">
+												<span class="input-group-addon hidden input-ready"><i class="material-icons">check</i></span>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_year">Año <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">date_range</i></span>
+												<input type="number" min="2005" max="{{ "now"|date("Y") }}" class="form-control" name="veh_upload_year" id="veh_upload_year" placeholder="Año" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el año del vehículo.<br>Por ejemplo: <b>2017</b>">
+												<span class="input-group-addon hidden input-ready"><i class="material-icons">check</i></span>
+											</div>
+											<i class="help-block no-margin">Min. {{ "now"|date("Y")-12 }} - Máx. {{ "now"|date("Y") }}</i>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<label for="veh_upload_motor">Motor <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">local_gas_station</i></span>
+												<input type="text" class="form-control" name="veh_upload_motor" id="veh_upload_motor" placeholder="Motor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el motor del vehículo. Por ejemplo: <b>2.0</b>">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_tipomotor">Tipo de motor <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">local_gas_station</i></span>
+												<select class="form-control" name="veh_upload_tipomotor" id="veh_upload_tipomotor" placeholder="Tipo de motor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el tipo de motor del vehículo. Por ejemplo: <b>Nafta</b>">
+													<option selected="" disabled="">Tipo de motor</option>
+													{% for motor in motores %}
+														<option value="{{ motor.id }}">{{motor.nombre}}</option>
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_transmision">Transmisión <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-cog"></i></span>
+												<select class="form-control" name="veh_upload_transmision" id="veh_upload_transmision" placeholder="Transmisión" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el tipo de transmisión del vehículo. Por ejemplo: <b>Manual</b>">
+													<option selected="" disabled="">Transmisión</option>
+													{% for transmision in transmisiones %}
+														<option value="{{ transmision.id }}">{{transmision.nombre}}</option>
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<label for="veh_upload_cantidadpuertas">Cantidad de puertas <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-tablet"></i></span>
+												<input type="text" class="form-control" name="veh_upload_cantidadpuertas" id="veh_upload_cantidadpuertas" placeholder="Cantidad de puertas" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la cantidad de puertas.<br>Por ejemplo: <b>3</b>">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_entregaminima">Entrega mínima</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+												<input type="number" min="0" step="1" class="form-control" name="veh_upload_entregaminima" id="veh_upload_entregaminima" placeholder="Entrega mínima" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá la entrega mínima del vehículo.<br>Por ejemplo: <b>96000</b>">
+											</div>
+											<i class="help-block no-margin">Solo números sin puntos ni comas.</i>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_precioventa">Precio de venta</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+												<input type="number" min="0" step="1" class="form-control" name="veh_upload_precioventa" id="veh_upload_precioventa" placeholder="Precio de venta" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el precio de venta del vehículo.<br>Por ejemplo: <b>96000</b>">
+											</div>
+											<i class="help-block no-margin">Solo números sin puntos ni comas.</i>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-8">
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Fin del formulario</h3>
+							</div>
+							<div class="box-body">
+								<button class="btn btn-primary btn-flat pull-right" type="submit">Cargar vehículo</button>
+								<button class="btn btn-default btn-flat pull-left" type="reset">Limpiar campos</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-8 aclaracion-formulario">
+						<div class="row">
+							<div class="col-sm-12 text-muted">
+								<small><b>(*)</b> Campos obligatorios.</small><br>
+								<small><b>(**)</b> Recomendamos verificar estos campos antes de cargar el vehículo ya que solo podrán ser editados por un administrador.</small>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+{% endblock %}
+{% block custom_js %}
+	<script>
+		$(document).ready(function(){
+
+			$('#veh_upload_marca').focus();
+
+		});
+	</script>
+{% endblock %}

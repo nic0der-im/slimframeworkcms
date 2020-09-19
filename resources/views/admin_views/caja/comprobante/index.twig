@@ -1,0 +1,37 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+	<link rel="stylesheet" href="{{ base_url() }}/asources/css/vehiculos.css">	
+	<style type="text/css">
+
+	</style>
+{% endblock %}
+{% block title %}Obligaciones{% endblock %}
+{% block header_title %}
+<div>
+	Comprobante de {{sucursal.sucursal}} ({{sucursal.descripcion}})
+  <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalSucursal">
+    Cambiar Sucursal
+  </button>
+</div>
+{% endblock %}
+{% block breadcrumb %}
+	<li>
+		Caja
+	</li>
+	<li class="active">
+		<a href="{{path_for('obligacion.index')}}"> Obligaciones</a>
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+
+{% endblock %}
+{% block custom_js %}
+	
+<script type="text/javascript">
+$(document).ready(function() {
+});
+</script>
+{% endblock %}

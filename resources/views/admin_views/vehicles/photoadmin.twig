@@ -1,0 +1,279 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.bootstrap.min.css">
+{% endblock %}
+{% block title %}Gestión de fotos - {{ vehiculo.getMarca.nombre }} {{ vehiculo.modelo }} {{vehiculo.year}}{% endblock %}
+{% block header_title %}Gestión de fotos <small>{{ vehiculo.getMarca.nombre }} {{ vehiculo.modelo }} {{vehiculo.year}}</small>{% endblock %}
+{% block breadcrumb %}
+	<li class="breadcrumb-item">
+		<a href="{{path_for('vehicle.index')}}">Vehículos</a>
+	</li>
+	<li class="breadcrumb-item">
+		<a href="{{path_for('vehicle.getCar', {'id': vehiculo.id })}}">{{ vehiculo.getMarca.nombre }} {{ vehiculo.modelo }} {{vehiculo.year}}</a>
+	</li>
+	<li class="breadcrumb-item active">
+		<a href="{{path_for('vehicle.gestionarfotos', {'id': vehiculo.id })}}">Gestión de fotos</a>
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-4 col-sm-12">
+		<div class="small-box bg-info">
+			<div class="inner">
+				<h4>¿Sabías esto?</h4>
+				<p>Puedes hacer clic en una foto para verla en tamaño completo.</p>
+			</div>
+			<div class="icon">
+				<i class="fa fa-question-circle"></i>
+			</div>
+			<p class="small-box-footer"><strong>#CiroAdminTips</strong></p>
+		</div>
+	</div>
+	<div class="col-lg-4 col-sm-12">
+		<div class="small-box bg-warning">
+			<div class="inner">
+				<h4>Nuevo</h4>
+				<p>Al manter precionado la primera columna, puedes arrastrarla y cambiarla por otras filas. Pudiendo tener un nuevo orden en las fotos.</p>
+			</div>
+			<div class="icon">
+				<i class="fa fa-question-circle"></i> 
+			</div>
+			<p class="small-box-footer"><strong>#CiroAdminTips</strong></p>
+		</div>
+	</div>
+</div>
+<div class="card card-info">
+	<div class="card-header with-border">
+    <h3 class="card-title">Orden</h3>
+  </div>
+  <div class="card-body">
+  	<div class="table-responsive">
+      <table class="table table-striped table-bordered nowrap" id="tablaImagenes" width="100%">
+      	<thead>
+      		<tr>
+            <th></th>
+      			<th></th>
+            <th>Nro°</th>
+            <th>Imagen</th>
+            <th class="text-right"></th>
+        	</tr>
+      	</thead>
+        <tbody>
+        {% set i = 0 %}
+        {% for item in imagenes %}
+        {% set i = i + 1 %}
+        <tr>
+        	<td class="priority">
+	  				{{ i }}
+	  			</td>
+        	<td >
+          	{{ item.id }}
+          </td>
+          <td class="orden" >
+          	{{ item.orden }}
+          </td>
+          <td>
+          	<div class="col-lg-4 col-md-6 col-sm-12">
+							<div class="card card-default">
+								<div class="row">
+		            	<div class="col-sm-12">
+			            	<div class="card">
+											<div class="card-body p-0">
+												<img class="img-fluid vehicle-photo-img" src="{{path_for('imagen',{'params':item.archivo},{'p':'small'})}}" data-archivo="{{item.archivo}}" data-estado="{{item.estado}}" data-toggle="modal" data-target=".vehicle-photo-viewer">
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<label>Tipo de vista del vehiculo</label>
+						</div>
+						<div class="col-md-6" >
+							<select class="form-control select2" data-id="{{item.id}}" data-idvehiculo="{{item.id_vehiculo}}" style="width: 100%;">
+            		{% for opt in tiposImagen %}
+            			{% if opt.id == item.id_tipo_imagen %}
+          				<option value="{{opt.id}}" selected>{{opt.nombre}}</option>
+          			 {% else %}
+          			 	<option value="{{opt.id}}">{{opt.nombre}}</option>
+          				{% endif %}
+            		{% endfor %}
+            	</select>
+						</div>
+        	</td>
+          <td class="text-right">
+          	<div class="dropdown">
+							<button type="button" class="btn btn-primary btn-sm btn-flat dropdown-toggle " data-toggle="dropdown">
+								<span class="caret"></span>
+								<span class="sr-only">Toggle Dropdown</span>
+							</button>
+							<div class="dropdown-menu" role="menu">
+								<a class="dropdown-item" href="{{path_for('vehicle.gestionarfotos.eliminar', {	'id': item.id })}}" onclick="return confirm('¿Estas seguro que quieres eliminar esta foto? No hay vuelta atras capo.');">Eliminar foto</a>
+							</div>
+						</div>
+	  			</td>
+        </tr>
+    		{% endfor %}
+      </tbody>
+    	</table>
+    </div>
+  </div>
+  <div class="card-footer">
+  	<form method="POST" action="{{path_for('vehicle.gestionarfotos.orden',{'id':vehiculo.id})}}">
+  		<input type="hidden" name="orden" id="orden">
+      <button type="submit" id="submitGuardarOrden" class="hide"></button>
+			{{ csrf.field | raw }}
+    </form>
+    {% if imagenes %}
+    	<a id="btnGuardarOrden" class="btn btn-info pull-right">Guardar Orden</a>
+    {% endif %}
+  </div>
+</div>
+<div class="modal fade vehicle-photo-viewer" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="vehicle-photo-viewer-label"></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+			</div>
+			<div class="modal-body p-0">
+				<img class="img-fluid vehicle-photo-viewer-img" src="{{ base_url() }}{{imagen.archivo}}">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-success btn-flat pull-right">Aprobar</button>
+				<button type="button" class="btn btn-danger btn-flat">Rechazar</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.1/js/responsive.bootstrap.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.select2').select2({
+		minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+	$('.label-close').click(function(){
+		$('.vehicle-photo-viewer').modal('hide');
+	});
+	$('.vehicle-photo-img').click(function(){
+		$('.modal .vehicle-photo-viewer-img').attr('src', $(this).data('archivo'));
+		$('.vehicle-photo-viewer-label').removeClass('bg-red');
+		$('.vehicle-photo-viewer-label').removeClass('bg-green');
+		$('.vehicle-photo-viewer-label').removeClass('bg-aqua color-palette');
+		if($(this).data('estado') == 0) {
+			$('.vehicle-photo-viewer-label').html('Pendiente');
+			$('.vehicle-photo-viewer-label').addClass('bg-aqua color-palette');
+		}
+		else if($(this).data('estado') == 1) {
+			$('.vehicle-photo-viewer-label').html('Aprobada');
+			$('.vehicle-photo-viewer-label').addClass('bg-green');
+		}
+		else {
+			$('.vehicle-photo-viewer-label').html('Rechazada');
+			$('.vehicle-photo-viewer-label').addClass('bg-red');
+		}
+	});
+
+	var tabla = $('#tablaImagenes').DataTable( {
+    "bLengthChange": false,
+    rowReorder: {
+      selector: 'tr .orden',
+    },
+    searching: false,
+    paging: false,
+    "columnDefs": [
+        {
+          targets: [ 2,4 ],
+					width: "5%",
+        },
+        {
+        	targets:[1,2,3,4],
+        	orderable:false,
+        },
+        {
+        	targets:[0,1],
+        	visible:false,
+        },
+    ],
+    "language": {
+        "sProcessing":     "Procesando...",
+        "sLengthMenu":     "Mostrar _MENU_ registros",
+        "sZeroRecords":    "No se encontraron resultados",
+        "sEmptyTable":     "Ningún dato disponible en esta tabla",
+        "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+        "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+        "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+        "sInfoPostFix":    "",
+        "sSearch":         "Buscar:",
+        "sUrl":            "",
+        "sInfoThousands":  ",",
+        "sLoadingRecords": "Cargando...",
+        "oPaginate": {
+            "sFirst":    "Primero",
+            "sLast":     "Último",
+            "sNext":     "Siguiente",
+            "sPrevious": "Anterior"
+        },
+        "oAria": {
+            "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+        }
+    }
+  });
+
+  $('#tablaImagenes select').on("select2:select", function(e) {
+  	var id = $(this).data('id');
+  	var id_vehiculo = $(this).data('idvehiculo');
+  	console.log(id_vehiculo);
+		var route = "{{path_for('vehicle.gestionarfotos.tipo',{'id':9999, 'id_imagen':888888888})}}".replace('888888888',id).replace('9999',id_vehiculo);
+		$.ajax({
+      type: "get",
+      url: route + '?tipo='+$(this).val(),
+      success: function(data,status){
+
+        $.toast({
+          heading: 'Imagen',
+          text: 'El tipo de la imagen a sido cambiada',
+          showHideTransition: 'slide',
+          icon: 'success',
+          position: 'bottom-right',
+        });
+      },
+      error: function(xhr, ajaxOptions,e) {
+        $.toast({
+          heading: 'Imagen',
+          text: 'A ocurrido un problema en nuestro servidor. Intente mas tarde.',
+          showHideTransition: 'slide',
+          icon: 'error',
+          position: 'bottom-right',
+          hideAfter: false,
+        });
+      }
+    });
+	});
+
+  $('#btnGuardarOrden').on('click',function(){
+  	var data = $('#tablaImagenes').DataTable().rows().data();
+  	var orden = '';
+  	for(var i=0;i<data.length;i++){
+  		orden = orden + data[i][1] + ','+data[i][2]+';';
+  	}
+  	$('#orden').val(orden.slice(0,-1));
+		$('#submitGuardarOrden').trigger('click');
+  });
+
+});
+</script>
+{% endblock %}

@@ -1,0 +1,19 @@
+<div class="search-bar-box d-none d-lg-block">
+	<div class="container-fluid">
+		<div class="col-lg-6 float-left">
+			<div class="row">			
+				<h2>Encontrá el vehículo de tus sueños.</h2>
+
+				<form class="sbr_form" id="searchbar" method="POST" action="{{path_for('publicaciones.buscar')}}">
+					<div class="form-group">
+						<input type="text" data-form="#searchbar" id="input_search_desktop" onClick="ga('send', 'event', 'pagina_home', 'buscador', 'menu');" class="form-control form-control-lg searchbartxt" autofocus name="sbrq" placeholder="Buscá autos, camionetas y más..." />
+					</div>
+					{{ csrf.field | raw }}
+				</form>
+			</div>
+		</div>
+		<div class="col-lg-6 d-lg-block d-none float-right">
+			<img src="{{static_assets}}/images/auto.gif" class="search-bar-img" alt="Auto funcionando" >
+		</div>
+	</div>
+</div>

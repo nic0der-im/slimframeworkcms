@@ -1,0 +1,299 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Listado de modulos{% endblock %}
+{% block header_title %}Listado de modulos{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	<a href="{{path_for('modulos.index')}}">Modulos</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Árbol de funciones:</h3>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-lg-4">
+						{% if modulos|length > 0 %}
+						<div class="list-group" style="">
+							{% for modulo in modulos %}
+					        <a class="list-group-item clearfix">
+					          	<i class="fa {{ modulo.icono_modulo }}"></i> {{ modulo.nombre_modulo }}
+					          	<span class="pull-right">
+					            	<button type="button" class="btn btn-xs btn-default">
+					              		{{ modulo.orden_modulo }}
+					            	</button>
+					            	<button type="button" class="btn btn-xs btn-default" onclick="editarModulo({{modulo.id}},'{{modulo.nombre_modulo}}','{{modulo.enlace_modulo}}','{{modulo.icono_modulo}}',{{modulo.orden_modulo}});">
+					              		<i class="fa fa-cog"></i>
+					            	</button>
+					          	</span>
+					        </a>
+					        {% for enlace in modulo.getEnlaces %}
+								{% if enlace.tipo_enlace == 1 %}
+									<a class="list-group-item clearfix" style="padding-left:3em;">
+							          	{{ enlace.orden }}&nbsp;<i class="fa fa-angle-right"></i>&nbsp;&nbsp;{{ enlace.nombre }}
+							          	<span class="pull-right">
+							            	<button type="button" class="btn btn-xs btn-default" onclick="editarEnlace({{enlace.id}},{{enlace.id_modulo}},{{enlace.tipo_enlace}},'{{enlace.nombre}}','{{enlace.url_name}}',{{enlace.orden}});" >
+							              		<i class="fa fa-cog"></i>
+							            	</button>
+							          	</span>
+							        </a>
+								{% else %}
+									<a class="list-group-item clearfix" style="padding-left:3em;">
+							          	{{ enlace.orden }}&nbsp;<i class="fa fa-link"></i>&nbsp;&nbsp;{{ enlace.nombre }}
+							          	<span class="pull-right">
+							            	<button type="button" class="btn btn-xs btn-default" onclick="editarEnlace({{enlace.id}},{{enlace.id_modulo}},{{enlace.tipo_enlace}},'{{enlace.nombre}}','{{enlace.url_name}}',{{enlace.orden}});" >
+							              		<i class="fa fa-cog"></i>
+							            	</button>
+							          	</span>
+							        </a>
+								{% endif %}
+							{% endfor %}
+					    	{% endfor %}
+					    </div>
+						{% else %}
+							<h4 class="text-center text-bold">No hay a modulos disponibles.</h4>
+						{% endif %}
+					</div>
+					<div class="col-lg-6">
+						<div class="row">
+							<div class="col-lg-12 col-md-12">
+								<div class="card card-primary" id="divModulo">
+									<div class="card-header">
+										<h3 class="card-title text-bold">Modulo</h3>
+									</div>
+									<div class="card-body">
+										<form class="form-group" method="POST" id="formModulo" action="">
+											<input type="hidden" name="id_modulo" id="id_modulo" value="0">
+											<div class="row">
+												<div class="col-md-3">
+													<label for="nombre_modulo">Nombre <small class="text-muted">(*)</small></label>
+													<input type="text" class="form-control" name="nombre_modulo" id="nombre_modulo" autocomplete="off" required>
+												</div>
+												<div class="col-md-3">
+													<label for="enlace_modulo">Enlace <small class="text-muted">(*)</small></label>
+													<input type="text" class="form-control" name="enlace_modulo" id="enlace_modulo" autocomplete="off">
+												</div>
+												<div class="col-md-3">
+													<label for="icono_modulo">Icono <small class="text-muted">(*)</small></label>
+													<input type="text" class="form-control" name="icono_modulo" id="icono_modulo" autocomplete="off" required>
+												</div>
+												<div class="col-md-3">
+													<label for="orden_modulo">Orden</label>
+													<input type="number" class="form-control" name="orden_modulo" id="orden_modulo" autocomplete="off" >
+												</div>
+											</div>
+											{{ csrf.field | raw }}
+											<button type="submit" id="btnSubmitModulo" class="d-none" ></button>
+										</form>
+									</div>
+									<div class="card-footer" >
+										<a class="btn btn-default" id="btnModuloNuevo">Nuevo</a>
+										<a class="btn btn-success" id="btnModuloCrear" >Crear</a>
+										<a class="btn btn-warning" id="btnModuloEditar" >Editar</a>
+										<a class="btn btn-danger" id="btnModuloEliminar" >Eliminar</a>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-12 col-md-12">
+								<div class="card card-primary" id="divEnlace">
+									<div class="card-header">
+										<h3 class="card-title text-bold">Modulo Enlace</h3>
+									</div>
+									<div class="card-body">
+										<form class="form-group" method="POST" id="formEnlace" action="">
+											<input type="hidden" name="id_modulo_enlace" id="id_modulo_enlace" value="0">
+											<div class="row">
+												<div class="col-md-3">
+													<label for="id_modulo">Modulo <small class="text-muted">(*)</small></label>
+													<select class="form-control" name="id_modulo" id="enlace_id_modulo" required>
+														{% for modulo in modulos %}
+														<option value="{{modulo.id}}" >{{modulo.nombre_modulo}}</option>
+														{% endfor %}
+													</select>
+												</div>
+												<div class="col-md-3">
+													<label for="tipo_enlace">Tipo <small class="text-muted">(*)</small></label>
+													<select class="form-control" name="tipo_enlace" id="tipo_enlace">
+														<option value="1" >VISTA</option>
+														<option value="2" >FUNCION</option>
+													</select>
+												</div>
+												<div class="col-md-3">
+													<label for="nombre">Nombre <small class="text-muted">(*)</small></label>
+													<input type="text" class="form-control" name="nombre" id="nombre" autocomplete="off" required>
+												</div>
+												<div class="col-md-3">
+													<label for="url_name">URL <small class="text-muted">(*)</small></label>
+													<input type="text" class="form-control" name="url_name" id="url_name" autocomplete="off" required>
+												</div>
+												<div class="col-md-3">
+													<label for="orden">Orden</label>
+													<input type="number" class="form-control" name="orden" id="orden" autocomplete="off" >
+												</div>
+											</div>
+											{{ csrf.field | raw }}
+											<button type="submit" id="btnSubmitEnlace" class="d-none" ></button>
+										</form>
+									</div>
+									<div class="card-footer" >
+										<a class="btn btn-default" id="btnEnlaceNuevo">Nuevo</a>
+										<a class="btn btn-success" id="btnEnlaceCrear" >Crear</a>
+										<a class="btn btn-warning" id="btnEnlaceEditar" >Editar</a>
+										<a class="btn btn-danger" id="btnEnlaceEliminar" >Eliminar</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block custom_js %}
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#btnModuloEditar').hide();
+	$('#btnModuloEliminar').hide();
+	$('#btnModuloNuevo').on('click',function(){
+		$('#id_modulo').val(0);
+		$('#nombre_modulo').val('');
+		$('#enlace_modulo').val('');
+		$('#icono_modulo').val('');
+		$('#orden_modulo').val('');
+
+		$('#btnModuloEliminar').fadeOut();
+		$('#btnModuloEditar').fadeOut(null,function(){
+			$('#btnModuloCrear').fadeIn();
+		});
+	});
+
+	$('#btnModuloCrear').on('click',function(){
+		var form = "{{path_for('godmode.modulo.crear')}}";
+		$('#formModulo').attr('action', form);
+		$('#btnSubmitModulo').trigger('click');
+	});
+	$('#btnModuloEditar').on('click',function(){
+		var id = $('#id_modulo').val();
+		var form = "{{path_for('godmode.modulo.editar',{'id':99})}}".replace('99',id);
+		$('#formModulo').attr('action', form);
+		$('#btnSubmitModulo').trigger('click');
+	});
+	$('#btnModuloEliminar').on('click',function(){
+		bootbox.confirm({
+	    title: "Eliminar el Modulo?",
+	    message: "Desea eliminar el modulo? Los enlaces asociados no seran borrados pero tampoco no podran ser vistos. Esto quiere decir que seran virtualmente borrados.",
+	    buttons: {
+	      cancel: {
+	        label: '<i class="fa fa-times"></i> Cancelar'
+	      },
+	      confirm: {
+	        label: '<i class="ion ion-trash-a"></i> Confirmar'
+	      }
+	    },
+	    callback: function (result) {
+	      if(result){
+	      	var id = $('#id_modulo').val();
+					var form = "{{path_for('godmode.modulo.eliminar',{'id':99})}}".replace('99',id);
+					$('#formModulo').attr('action', form);
+					$('#btnSubmitModulo').trigger('click');
+	      }
+	    }
+	  });
+	});
+
+	$('#btnEnlaceEditar').hide();
+	$('#btnEnlaceEliminar').hide();
+	$('#btnEnlaceNuevo').on('click',function(){
+		$('#id_modulo_enlace').val(0);
+		$('#enlace_id_modulo').val(1);
+		$('#tipo_enlace').val(1);
+		$('#nombre').val('');
+		$('#url_name').val('');
+
+		$('#btnEnlaceEliminar').fadeOut();
+		$('#btnEnlaceEditar').fadeOut(null,function(){
+			$('#btnEnlaceCrear').fadeIn();
+		});
+	});
+
+	$('#btnEnlaceCrear').on('click',function(){
+		var form = "{{path_for('godmode.enlace.crear')}}";
+		$('#formEnlace').attr('action', form);
+		$('#btnSubmitEnlace').trigger('click');
+	});
+	$('#btnEnlaceEditar').on('click',function(){
+		var id = $('#id_modulo_enlace').val();
+		var form = "{{path_for('godmode.enlace.editar',{'id':99})}}".replace('99',id);
+		$('#formEnlace').attr('action', form);
+		$('#btnSubmitEnlace').trigger('click');
+	});
+	$('#btnEnlaceEliminar').on('click',function(){
+		bootbox.confirm({
+	    title: "Eliminar el Enlace?",
+	    message: "Desea eliminar el enlace?",
+	    buttons: {
+	      cancel: {
+	        label: '<i class="fa fa-times"></i> Cancelar'
+	      },
+	      confirm: {
+	        label: '<i class="ion ion-trash-a"></i> Confirmar'
+	      }
+	    },
+	    callback: function (result) {
+	      if(result){
+	      	var id = $('#id_modulo_enlace').val();
+					var form = "{{path_for('godmode.enlace.eliminar',{'id':99})}}".replace('99',id);
+					$('#formEnlace').attr('action', form);
+					$('#btnSubmitEnlace').trigger('click');
+	      }
+	    }
+	  });
+	});
+
+});
+function editarModulo(id,nombre_modulo,enlace_modulo,icono_modulo,orden_modulo){
+	$('html, body').animate({
+        scrollTop: $("#divModulo").offset().top
+    }, 1000);
+	$('#id_modulo').val(id);
+	$('#nombre_modulo').val(nombre_modulo);
+	$('#enlace_modulo').val(enlace_modulo);
+	$('#icono_modulo').val(icono_modulo);
+	$('#orden_modulo').val(orden_modulo);
+	$('#btnModuloCrear').fadeOut(null,function(){
+		$('#btnModuloEditar').fadeIn();
+		$('#btnModuloEliminar').fadeIn();
+	});
+}
+
+function editarEnlace(id,id_modulo,tipo_enlace,nombre,url_name,orden){
+	$('html, body').animate({
+        scrollTop: $("#divEnlace").offset().top
+    }, 1000);
+	$('#id_modulo_enlace').val(id);
+	$('#enlace_id_modulo').val(id_modulo);
+	$('#tipo_enlace').val(tipo_enlace);
+	$('#nombre').val(nombre);
+	$('#url_name').val(url_name);
+	$('#orden').val(orden);
+	$('#btnEnlaceCrear').fadeOut(null,function(){
+		$('#btnEnlaceEditar').fadeIn();
+		$('#btnEnlaceEliminar').fadeIn();
+	});
+}
+</script>
+{% endblock %}

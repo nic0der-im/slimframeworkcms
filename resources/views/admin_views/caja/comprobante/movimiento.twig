@@ -1,0 +1,1111 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+
+.nav-tabs-custom>.nav-tabs>li.active>a {
+	background-color: #3c8dbc;
+	transition: 0.15s all,border-color 0.5s ease;
+	color: white;
+	border-right-color: #3c8dbc;
+	border-left-color: #3c8dbc;
+}
+
+	input[type='number'] {
+  -moz-appearance:textfield;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+	    -webkit-appearance: none;
+	}
+</style>
+{% endblock %}
+{% block title %}Obligaciones{% endblock %}
+{% block header_title %}
+<div>
+	Movimiento para {{sucursal.sucursal}} ({{sucursal.descripcion}})
+</div>
+{% endblock %}
+{% block breadcrumb %}
+	{% if facturas %}
+	<li class="breadcrumb-item">
+		{% if facturas[0].tipo == 1 %}
+		<a href="{{path_for('comprobante.venta.tablero')}}">Facturas</a>
+		{% else %}
+		<a href="{{path_for('comprobante.compra.tablero')}}">Facturas</a>
+		{% endif %}
+	</li>
+	<li class="breadcrumb-item active">
+		Pagar
+	</li>
+	{% else %}
+	<li>
+		<a href="{{path_for('comprobante.movimiento.tablero')}}">Movimientos</a>
+	</li>
+	<li>
+		Nuevo
+	</li>
+	{% endif %}
+
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+{% if facturas %}
+<form class="form" id="formMovimiento" method="POST" action="{{path_for('comprobante.factura.cobrar',{'id':facturas[0].id})}}" autocomplete="off">
+{% else %}
+<form class="form" id="formMovimiento" method="POST" action="{{path_for('comprobante.movimiento.agregar')}}" autocomplete="off">
+{% endif %}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header bg-danger">
+				<h3 class="card-title">Nuevo Movimiento</h3>
+			</div>
+			<div class="card-body">
+					<input type="hidden" id="id_banco" name="id_banco">
+					<input type="hidden" id="id_tipo_movimiento" name="id_tipo_movimiento" value="1">
+					{% if facturas %}
+					<div class="row">
+          	<div class="col-md-12" >
+          		<div class="card card-warning" id="boxMovimiento" >
+								<div class="card-header">
+									<h3 class="card-title">
+										{% if facturas[0].tipo == 1 %}
+										Facturas de VENTA a generar PAGOS
+										{% else %}
+										Facturas de COMPRA a generar PAGOS
+										{% endif %}
+									</h3>
+								</div>
+								<div class="card-body p-0" >
+									<div class="table-responsive">
+										<table class="table table-hover" id="tablaFacturas" width="100%">
+											<thead>
+												<th>
+													ID
+												</th>
+												<th>
+													Tipo
+												</th>
+												<th>
+													Razon Social
+												</th>
+												<th>
+													Importe
+												</th>
+												<th>
+													Pagado
+												</th>
+												<th>
+													Restante
+												</th>
+													{% if facturas[0].tipo == 1 %}
+												<th style="width: 5%"></th>
+													{% endif %}
+											</thead>
+											<tbody>
+												{% for item in facturas %}
+												<tr>
+													<td>
+														{{item.id}}
+													</td>
+													<td>
+														{{item.tipoComprobante.nombre}}
+													</td>
+													<td>
+														{{item.razon_social}}
+													</td>
+													<td class="factura_total" style="text-align:right;">
+														$&nbsp;{{ (item.total-item.nota_credito)|number_format(2, ',', '.') }}
+													</td>
+													<td class="factura_pagado" style="text-align:right;">
+														$&nbsp;{{item.pagado|number_format(2, ',', '.') }}
+													</td>
+													<td class="factura_restante" style="text-align:right;">
+														$&nbsp;{{(item.total-item.pagado) |number_format(2, ',', '.') }}
+													</td>
+													{% if facturas[0].tipo == 1 %}
+													<td>
+														<a class="btn btn-sm btn-info" target="_blank" data-toggle="tooltip" data-container="body" data-html="true" title="Imprimir" href="{{ path_for('comprobante.imprimir',{'id':item.id}) }}"><span class="ion ion-printer"></span></a>
+													</td>
+													{% endif %}
+												</tr>
+													{#
+													{% set index = 1 %}
+													{% for detalle in item.detalles %}
+														<tr>
+															<td style="background-color: gray;"></td>
+															<td style="text-align: right;">
+															</td>
+															<td>
+																<i>Descripcion: {{detalle.descripcion}}</i> - Alicuota [{{detalle.tipoCondicionIva.nombre}}] $&nbsp;{{detalle.impuesto|round}}
+															</td>
+															<td style="text-align:right;">
+																$&nbsp;{{detalle.subtotal|number_format(2, ',', '.')}}
+															</td>
+															<td style="background-color: gray;" class="hidden">0</td>
+															<td style="background-color: gray;" class="hidden">0</td>
+														</tr>
+													{% endfor %}
+													#}
+												{% endfor %}
+											</tbody>
+										</table>
+			            </div>
+								</div>
+							</div>
+          	</div>
+          </div>
+        	{% endif %}
+          <div class="row" id="divGenerarMovimiento">
+          	<div class="col-md-12" >
+          		<div class="card card-success" id="boxMovimiento" >
+								<div class="card-header">
+									<h3 class="card-title">Forma de Pago</h3>
+								</div>
+								<div class="card-body p-1">
+									<div class="row">
+										<div class="col-md-12">
+									    <ul class="nav nav-tabs">
+									      <li class="nav-item active">
+									        <a class="nav-link active" id="tabContado" href="#contado" data-toggle="tab" aria-expanded="false" role="tab">Efectivo</a>
+									      </li>
+									      <li class="nav-item">
+									        <a class="nav-link" id="tabCheque" href="#cheque" data-toggle="tab" aria-expanded="false" role="tab">Cheque</a>
+									      </li>
+									      <li class="nav-item">
+									        <a class="nav-link" id="tabTarjeta" href="#tarjeta" data-toggle="tab" aria-expanded="false" role="tab">Tarjeta</a>
+									      </li>
+									      <li class="nav-item">
+									        <a class="nav-link" id="tabTributo" href="#tributo" data-toggle="tab" aria-expanded="false" role="tab">Tributo</a>
+									      </li>
+									      <li class="nav-item {{facturas[0].tipo == 1 ? '':'hidden'}}">
+									        <a class="nav-link" id="tabDocumento" href="#documento" data-toggle="tab" aria-expanded="false" role="tab">Documento</a>
+									      </li>
+									    	{% if facturas[0].id_tipo_comprobante in [1,6,11] and facturas[0].id_tipo_responsable != 5 %}
+								    		<li class="nav-item">
+									        <a class="nav-link" id="tabNota" href="#nota" data-toggle="tab" aria-expanded="false" role="tab">Nota de Credito</a>
+									      </li>
+								    		{% endif %}
+									    </ul>
+									    <div class="tab-content ">
+									      <div class="tab-pane active" id="contado" role="tabpanel">
+									      	<div class="row">
+									      		<div class="col-md-12">
+									      			<div class="form-group">
+										      			<label class="control-label" ></label>
+										      		</div>
+									      		</div>
+									      	</div>
+									      </div>
+									      <div class="tab-pane fade " id="cheque" role="tabpanel">
+									      	<div class="row">
+									      		<div class="col-md-3" >
+													  	<div class="form-group">
+						                    <label class="control-label" for="cheque_numero">Numero</label>
+					                      <input class="form-control" type="text" name="cheque_numero" id="cheque_numero" placeholder="Ej: 40034003535" >
+						                  </div>
+						                </div>
+						                <div class="col-md-9">
+						                  <div class="form-group">
+						                    <label class="control-label" for="cheque_banco">Banco</label>
+						                    <select class="form-control select2" type="text" name="cheque_banco" id="cheque_banco" placeholder="Ej: Santander Rio">
+						                      </select>
+						                  </div>
+						                </div>
+									      	</div>
+									      	<div class="row">
+									      		<div class="col-md-3" >
+															<div class="form-group">
+				                    		<label class="control-label" for="cheque_cuenta">Titular de la cuenta</label>
+					                    	<div class="input-group" >
+																	<div class="input-group-prepend">
+																		<span class="input-group-text" ><i class="ion ion-person"></i></span>
+																	</div>
+				                      		<input class="form-control" type="text" name="cheque_cuenta" id="cheque_cuenta" placeholder="Ej: Ricardo Lera" >
+					                    	</div>
+					                  	</div>
+					                	</div>
+						                <div class="col-md-3">
+								            	<div class="form-group">
+				                    		<label class="control-label" for="cheque_receptor">Receptor</label>
+						                    	<div class="input-group" >
+																		<div class="input-group-prepend">
+																			<span class="input-group-text" ><i class="ion ion-person"></i></span>
+																		</div>
+					                      		<input class="form-control" type="text" name="cheque_receptor" id="cheque_receptor" placeholder="Ej: Ricardo Lera" >
+					                    	</div>
+					                  	</div>
+						                </div>
+						                <div class="col-md-3">
+								              <div class="form-group">
+								                <label class="control-label" for="cheque_fecha">Fecha</label>
+								              	<input type="text" class="form-control datepicker" id="cheque_fecha" name="cheque_fecha" >
+								              </div>
+								            </div>
+								            <div class="col-md-3">
+								              <div class="control-label" class="form-group">
+								                <label for="cheque_fecha_vto">Vencimiento</label>
+								              	<input type="text" class="form-control datepicker" id="cheque_fecha_vto" name="cheque_fecha_vto" >
+								              </div>
+								            </div>
+									      	</div>
+									      </div>
+									      <div class="tab-pane fade " id="tarjeta" role="tabpanel">
+								      		<div class="row">
+								      			<div class="col-md-2" >
+									      			<div class="form-group">
+						                    <label class="control-label" for="tarjeta_tipo">Tipo</label>
+					                      <select class="form-control select2" type="text" name="tarjeta_tipo" id="tarjeta_tipo" style="width:100%;">
+					                      	<option value="0">CREDITO</option>
+					                      	<option value="1">DEBITO</option>
+					                      </select>
+						                  </div>
+								      			</div>
+								      			<div class="col-md-3" >
+													  	<div class="form-group">
+						                    <label class="control-label" for="tarjeta_numero">Numero de Tarjeta</label>
+						                    <div class="input-group" >
+																	<div class="input-group-prepend">
+																		<span class="input-group-text" ><i class="ion ion-card"></i></span>
+																	</div>
+						                      <input class="form-control" type="text" name="tarjeta_numero" id="tarjeta_numero" placeholder="Ej: 40034003535" >
+						                    </div>
+						                  </div>
+						                </div>
+						                <div class="col-md-5" >
+													  	<div class="form-group">
+						                    <label class="control-label" for="tarjeta_titular">Titular</label>
+						                    <div class="input-group" >
+																	<div class="input-group-prepend">
+																		<span class="input-group-text" ><i class="ion ion-person"></i></span>
+																	</div>
+						                      <input class="form-control" type="text" name="tarjeta_titular" id="tarjeta_titular" placeholder="Ej: Ricardo Lera" >
+						                    </div>
+						                  </div>
+						                </div>
+								      		</div>
+								      		<div class="row">
+								      			<div class="col-md-3" >
+															<div class="form-group">
+						                    <label class="control-label" for="tarjeta_cuotas">Cuotas</label>
+				                      	<select class="form-control select2" id="tarjeta_cuotas" name="tarjeta_cuotas">
+																	<option value="1">1 cuota</option>
+																	<option value="3">3 cuotas</option>
+																	<option value="6">6 cuotas</option>
+																	<option value="9">9 cuotas</option>
+																	<option value="12">12 cuotas</option>
+																	<option value="24">24 cuotas</option>
+																	<option value="36">36 cuotas</option>
+								              	</select>
+					                  	</div>
+						                </div>
+								      			<div class="col-md-3" >
+															<div class="form-group">
+					                    	<label class="control-label" for="tarjeta_adicional">Cobro Adicional</label>
+						                    <div class="input-group" >
+																	<div class="input-group-prepend">
+																		<span class="input-group-text" >$</span>
+																	</div>
+				                      		<input class="form-control numeric" type="number" name="tarjeta_adicional" id="tarjeta_adicional" placeholder="Ej: 100">
+						                  	</div>
+					                  	</div>
+						                </div>
+								      			<div class="col-md-3" >
+															<div class="form-group">
+						                    <label class="control-label" for="tarjeta_cupon">Cupon</label>
+				                      	<input class="form-control" type="text" name="tarjeta_cupon" id="tarjeta_cupon" >
+					                  	</div>
+						                </div>
+						                <div class="col-md-2">
+									            <div class="form-group">
+								                <label class="control-label" for="tarjeta_cupon_fecha">Fecha del Cupon</label>
+								              	<input type="text" class="form-control datepicker" id="tarjeta_cupon_fecha" name="tarjeta_cupon_fecha" >
+									            </div>
+										        </div>
+										    	</div>
+									      </div>
+									      <div class="tab-pane fade " id="tributo" role="tabpanel">
+									      	<div class="row">
+									      		<div class="col-md-3" >
+													  	<div class="form-group">
+						                    <label class="control-label" for="tributo_numero">Numero</label>
+					                      <input class="form-control" type="text" name="tributo_numero" id="tributo_numero" placeholder="Ej: 40034003535" >
+						                  </div>
+						                </div>
+						                <div class="col-md-3" >
+													  	<div class="form-group">
+						                    <label class="control-label" for="tributo_nombre">Nombre</label>
+					                      <input class="form-control" type="text" name="tributo_nombre" id="tributo_nombre" placeholder="Ej: " >
+						                  </div>
+						                </div>
+						                <div class="col-md-3">
+									            <div class="form-group">
+								                <label class="control-label" for="tributo_fecha">Fecha</label>
+								              	<input type="text" class="form-control datepicker" id="tributo_fecha" name="tributo_fecha" >
+									            </div>
+								        		</div>
+													</div>
+												</div>
+												<div class="tab-pane fade " id="documento" role="tabpanel">
+									      	<div class="row">
+									      		<div class="col-md-3" >
+															<div class="form-group">
+				                    		<label class="control-label" for="documento_emisor">Emisor</label>
+					                    	<div class="input-group" >
+																	<div class="input-group-prepend">
+																		<span class="input-group-text" ><i class="ion ion-person"></i></span>
+																	</div>
+				                      		<input class="form-control" type="text" name="documento_emisor" id="documento_emisor" placeholder="Ej: Apellido Nombre" >
+					                    	</div>
+					                  	</div>
+					                	</div>
+						                <div class="col-md-3">
+								            	<div class="form-group">
+				                    		<label class="control-label" for="documento_receptor">Receptor</label>
+					                    	<div class="input-group" >
+																	<div class="input-group-prepend">
+																		<span class="input-group-text" ><i class="ion ion-person"></i></span>
+																	</div>
+				                      		<input class="form-control" type="text" name="documento_receptor" id="documento_receptor" placeholder="Ej: Apellido Nombre" >
+					                    	</div>
+					                  	</div>
+						                </div>
+						                <div class="col-md-2">
+								              <div class="form-group">
+								                <label class="control-label" for="documento_fecha_emision">Fecha de Emision</label>
+								              	<input type="text" class="form-control datepicker" id="documento_fecha_emision" name="documento_fecha_emision" >
+								              </div>
+								            </div>
+								            <div class="col-md-2">
+								              <div class="control-label" class="form-group">
+								                <label for="documento_fecha_cobro">Cobro Estimado</label>
+								              	<input type="text" class="form-control datepicker" id="documento_fecha_cobro" name="documento_fecha_cobro" >
+								              </div>
+								            </div>
+								            <div class="col-md-2">
+								              <div class="control-label" class="form-group">
+								                <label for="documento_dias">Dias a Vencer</label>
+								              	<input type="text" class="form-control" id="documento_dias" name="documento_dias" value="0" readonly="">
+								              </div>
+								            </div>
+									      	</div>
+									      	<div class="row">
+									      		<div class="col-md-3">
+								              <div class="control-label" class="form-group">
+								                <label for="documento_cantidad">Cantidad a Generar</label>
+								              	<input type="number" class="form-control" id="documento_cantidad" name="documento_cantidad" value="1" >
+								              </div>
+								            </div>
+								            <div class="col-md-3">
+								              <div class="control-label" class="form-group">
+								                <label for="documento_monto">Monto por Documento</label>
+								              	<input type="number" class="form-control" id="documento_monto" name="documento_monto" value="0" step=".01" >
+								              </div>
+								            </div>
+								            <div class="col-md-3">
+								              <div class="control-label" class="form-group">
+								                <label for="documento_periodo">Periodo</label>
+								              	<select class="form-control select2" name="documento_periodo" id="documento_periodo" style="width:100%;">
+								              		<option value="1" >SEMANAL</option>
+								              		<option value="2" >MENSUAL</option>
+								              	</select>
+								              </div>
+								            </div>
+									      	</div>
+									      </div>
+									      <div class="tab-pane fade" id="nota" role="tabpanel">
+									      	<div class="row">
+									      		<div class="col-md-12">
+									      			<div class="form-group">
+										      			<label class="control-label" >
+										      				La notas credito se realizaran de acuerdo a la Factura actual. Y no generaran movimiento, con respecto a esta factura, el total sera reducido por las notas de credito asociadas. La factura nunca sera modificada.
+										      			</label>
+										      		</div>
+									      		</div>
+									      	</div>
+									      </div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-5" >
+									  	<div class="form-group">
+		                    <label class="control-label" for="movimiento_descripcion">Descripcion</label>
+		                    <input class="form-control" type="text" name="movimiento_descripcion" id="movimiento_descripcion" value="{{facturas[0].id}} - {{facturas[0].tipoComprobante.nombre}} - Total: $ {{facturas[0].total}}">
+			                </div>
+		                </div>
+							  		<div class="col-md-3" >
+											<div class="form-group">
+		                    <label class="control-label" for="movimiento_monto">Monto</label>
+		                    <div class="input-group" >
+													<div class="input-group-prepend">
+														<span class="input-group-text" >$</span>
+													</div>
+		                      <input class="form-control numeric" type="number" name="movimiento_monto" id="movimiento_monto" placeholder="Ej: 1000" required style="text-align:right;" step=".01">
+		                    </div>
+		                 	</div>
+		                </div>
+									</div>
+                	{% if not facturas %}
+                	<div class="col-md-2" >
+								  	<div class="form-group">
+	                    <label class="control-label" for="movimiento_tipo">Tipo</label>
+	                    <select class="form-control select2" type="text" name="movimiento_tipo" id="movimiento_tipo" style="width:100%;">
+	                    	<option value="0">INGRESO</option>
+	                    	<option value="1">EGRESO</option>
+				              </select>
+	                  </div>
+	                </div>
+                	{% endif %}
+								</div>
+								<div class="card-footer">
+						      <a class="btn btn-info pull-right" id="btnGenerarMovimiento">Generar Movimiento</a>
+						    </div>
+							</div>
+						</div>
+          </div>
+          {% if facturas %}
+          <div class="row">
+          	<div class="col-md-12" >
+          		<div class="card card-danger" id="boxMovimiento" >
+								<div class="card-header">
+									<h3 class="card-title">Recibos Generados</h3>
+								</div>
+								<div class="card-body p-0" >
+									<div class="table-responsive">
+										<table class="table table-hover" id="tablaRecibos" width="100%">
+											<thead>
+												<th>
+													ID
+												</th>
+												<th>
+													Creado
+												<th>
+													Descripcion
+												</th>
+												</th>
+												<th>
+													Monto
+												</th>
+												<th>
+													Pagado
+												</th>
+												<th>
+													Opciones
+												</th>
+											</thead>
+											<tbody>
+												{% for item in recibos %}
+													{% if recibo == item.id %}
+														<tr style="background-color: paleturquoise;">
+													{% else %}
+														{% if item.estado == 0 %}
+														<tr style="background-color: lightcoral;">
+														{% elseif item.id_tipo_comprobante in [3,8,13] %}
+														<tr style="background-color: goldenrod;">
+														{% endif %}
+													{% endif %}
+
+													<td>
+														{{item.id}}
+													</td>
+													<td>
+														{{item.created_at|date('d/m/Y H:m')}} por {{item.individuo.apellido|title}} {{item.individuo.nombre|title}}
+													</td>
+													<td>
+														{% if item.id_tipo_comprobante in [3,8,13] %}
+														NOTA DE CREDITO
+														{% else %}
+														{{item.detalles[0].facturas[0].movimiento.tipo.nombre|title}} <i> {{item.detalles[0].facturas[0].movimiento.caracteristica}}
+														{% endif %}
+													</td>
+													<td>
+														$&nbsp;{{item.total==0?item.impuesto|number_format(2, ',', '.'):item.total|number_format(2, ',', '.')}}
+													</td>
+													<td>
+														{% if item.id_tipo_comprobante in [3,8,13] %}
+														{{item.cae?'CON CAE':'SIN CAE'}}
+														{% else %}
+														{{item.detalles[0].facturas[0].movimiento.fecha_cobro?'SI':'NO'}}
+														{% endif %}
+													</td>
+													<td>
+														{% if item.id_tipo_comprobante not in [3,8,13] %}
+															{% if facturas[0].tipo == 1 and item.estado != 0 %}
+																<a class="btn btn-sm btn-info" target="_blank" data-toggle="tooltip" data-container="body" data-html="true" title="Imprimir" href="{{ path_for('comprobante.imprimir',{'id':item.id}) }}"><span class="ion ion-printer"></span></a>
+															{% endif %}
+															{% if item.estado == 1 and item.created_at|date('Y-m-d') == date()|date('Y-m-d') %}
+															<a class="btn btn-sm btn-danger" onclick="eliminar({{facturas[0].id}},{{item.id}});" data-toggle="tooltip" title="Eliminar">
+																<i class="ion ion-trash-a"></i>
+															</a>
+															{% elseif item.estado == 0 %}
+																ELIMINADO
+															{% endif %}
+															{% if not item.detalles[0].facturas[0].movimiento.fecha_cobro and item.estado == 1 %}
+															<a href="{{path_for('comprobante.factura.recibo.pagar',{'id_factura':facturas[0].id,'id_recibo':item.id})}}" class="btn btn-sm btn-danger" data-toggle="tooltip" title="Cobrar">
+																<i class="ion ion-cash"></i>
+															</a>
+															{% endif %}
+														{% endif %}
+													</td>
+												</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+			            </div>
+								</div>
+							</div>
+          	</div>
+          </div>
+        	{% endif %}
+        	{{ csrf.field | raw }}
+          <button type="submit" class="hide" id="submitMovimiento"></button>
+			</div>
+			<div class="card-footer">
+			{% if facturas %}
+				{% if facturas[0].cuentacorriente > 0 %}
+						<a class="btn btn-primary " href="{{path_for('cuenta.movimientos', {'id': facturas[0].cuentacorriente })}}">Ir a la cuenta corriente</a>
+				{% endif %}
+				{% if facturas[0].tipo == 1 %}
+						<a class="btn btn-info pull-right" href="{{path_for('comprobante.venta.tablero')}}">Volver Ventas</a>
+				{% else %}
+				<a class="btn btn-info pull-right" href="{{path_for('comprobante.compra.tablero')}}">Volver Compras</a>
+				{% endif %}
+			{% else %}
+				<a class="btn btn-primary pull-right" href="{{path_for('comprobante.movimiento.tablero')}}">Volver</a>
+			{% endif %}
+	    </div>
+		</div>
+	</div>
+</div>
+</form>
+
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	$('#tablaFacturas').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+        targets:[0,3,4,5],
+        width:"7%",
+      },
+      {
+      	targets:[1],
+      	width:"13%"
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+  $('#tablaRecibos').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+        targets:[0,3,4,5],
+        width:"7%",
+      },
+      {
+      	targets:[1],
+        width:"19%",
+      },
+      {
+      	targets:[3],
+        className: 'text-right',
+      },
+      {
+      	targets:[4,5],
+        className: 'text-center',
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Por favor genere un Movimiento",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+/*
+	$('.tabs').on('show.bs.tab', function (e) {
+	  if (e.relatedTarget === undefined) {
+	    $($(e.target).attr('href')).slideDown('slow');
+	  }
+	  else {
+	    $($(e.relatedTarget).attr('href')).slideUp({ duration: 'slow', queue: true,
+	      done: function() {
+	        $($(e.target).attr('href')).slideDown('slow');
+	      }
+	    });
+	  }
+	});
+*/
+	$('#tabContado').on('click',function(){
+		$('#id_tipo_movimiento').val(1);
+	});
+	$('#tabCheque').on('click',function(){
+		$('#id_tipo_movimiento').val(2);
+		{% if facturas[0].tipo == 1 %}
+		$.toast({
+      heading: 'Movimiento',
+      text: 'Atencion: Los CHEQUES generan OBLIGACIONES pendientes. Verifiquelos en la tabla de Obligaciones.',
+      showHideTransition: 'slide',
+      icon: 'warning',
+      position: 'bottom-right',
+    });
+    {% endif %}
+	});
+	$('#tabTarjeta').on('click',function(){
+		$('#id_tipo_movimiento').val(3);
+	});
+	$('#tabTributo').on('click',function(){
+		$('#id_tipo_movimiento').val(4);
+	});
+	$('#tabDocumento').on('click',function(){
+		$('#id_tipo_movimiento').val(5);
+		$.toast({
+      heading: 'Movimiento',
+      text: 'Atencion: Los DOCUMENTOS generan OBLIGACIONES pendientes. Verifiquelos en la tabla de Obligaciones.',
+      showHideTransition: 'slide',
+      icon: 'warning',
+      position: 'bottom-right',
+    });
+	});
+	$('#tabNota').on('click',function(){
+		$('#id_tipo_movimiento').val(6);
+	});
+
+	$("#cheque_banco").select2({
+		theme: "bootstrap",
+    width: '100%',
+    data:{{bancos|json_encode|raw}},
+    templateResult: resultado,
+    templateSelection: seleccion,
+    matcher: function(params, data) {
+        return matchStart(params, data);
+    },
+  });
+
+  $('#cheque_cobrado').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#tarjeta_tipo').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#movimiento_tipo').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#tarjeta_cuotas').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#documento_periodo').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('#cheque_fecha').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+  $('#cheque_fecha_vto').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+  $('#tarjeta_cupon_fecha').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+  $('#tributo_fecha').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+  $('#documento_fecha_emision').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+  $('#documento_fecha_cobro').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+  $('#tarjeta_tipo').on('select2:select',function(){
+  	var opt = Number(this.value);
+  	switch(opt){
+  		case 0: //CREDITO
+  			$('#tarjeta_numero').closest('div.form-group').find('label').text('Numero de Tarjeta');
+  			$('#tarjeta_cuotas').closest('div.form-group').fadeIn();
+  			break;
+  		case 1: //DEBITO
+  			$('#tarjeta_numero').closest('div.form-group').find('label').text('Numero de Cuenta');
+  			$('#tarjeta_cuotas').closest('div.form-group').fadeOut(null,function(){
+  				$('#tarjeta_cuotas').val(1).trigger('change.select2');
+  			});
+  			break;
+  	}
+  });
+
+  $('#cheque_fecha').on('pick.datepicker', function (e) {
+    var hasta = $('#cheque_fecha_vto').datepicker('getDate');
+    if (e.date <= hasta) {
+
+    } else {
+      $('#cheque_fecha').datepicker('setDate', hasta);
+    }
+  });
+  $('#cheque_fecha_vto').on('pick.datepicker', function (e) {
+    var desde = $('#cheque_fecha').datepicker('getDate');
+    if (e.date >= desde) {
+
+    } else {
+      $('#cheque_fecha_vto').datepicker('setDate', desde);
+    }
+  });
+
+  $('#documento_fecha_emision').on('pick.datepicker', function (e) {
+    var hasta = $('#documento_fecha_cobro').datepicker('getDate');
+    if (e.date <= hasta) {
+    	var dias = Math.round((hasta-e.date)/(1000*60*60*24));
+	  	$('#documento_dias').val(dias);
+    } else {
+      $('#documento_fecha_emision').datepicker('setDate', hasta);
+    }
+  });
+  $('#documento_fecha_cobro').on('pick.datepicker', function (e) {
+    var desde = $('#documento_fecha_emision').datepicker('getDate');
+    if (e.date >= desde) {
+    	var dias = Math.round((e.date-desde)/(1000*60*60*24));
+	  	$('#documento_dias').val(dias);
+    } else {
+      $('#documento_fecha_cobro').datepicker('setDate', desde);
+    }
+  });
+
+  $('#documento_cantidad').on('input',function(){
+  	if(this.value>0){
+  		var monto = $('#movimiento_monto').val();
+  		if(monto>0){
+  			monto = Number( (monto/this.value).toFixed(2) );
+  			$('#documento_monto').val(monto);
+  		}
+  	}
+  });
+
+  $('#documento_monto').on('input',function(){
+  	if(this.value>0){
+  		var cantidad = $('#documento_cantidad').val();
+  		if(cantidad>0){
+  			$('#movimiento_monto').val(cantidad*this.value);
+  		}
+  	}
+  });
+
+  $('#movimiento_monto').on('input',function(){
+  	if(this.value>0){
+  		var cantidad = $('#documento_cantidad').val();
+  		if(cantidad>0){
+  			var monto = Number( (this.value/cantidad).toFixed(2) );
+  			$('#documento_monto').val(monto);
+  		}
+  	}
+  });
+
+  $('#btnGenerarMovimiento').on('click',function(){
+  	var errores = false;
+  	{% if facturas %}
+  	var table = $('#tablaFacturas').DataTable();
+  	var importeTotal = 0;
+  	var pagadoTotal = 0;
+  	var filas = table.rows().data();
+  	for (var i = filas.length - 1; i >= 0; i--) {
+  		importeTotal += formatNumberFromCurrency(filas[i][3]);
+  		pagadoTotal += formatNumberFromCurrency(filas[i][4]);
+  	}
+
+  	if($('#movimiento_monto').val()>(importeTotal- pagadoTotal )){
+  		$.toast({
+        heading: 'Factura',
+        text: 'El monto a generar NO debe superar el importe restante a pagar.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+  		errores = true;
+  	}
+  	{% endif %}
+
+  	var documento = $('#tabDocumento').parent(' li.active ');
+  	if(documento.length > 0){
+  		var documento_cantidad = $('#documento_cantidad').val();
+  		if(documento_cantidad<=0){
+	  		$.toast({
+	        heading: 'Documento',
+	        text: 'La cantidad de Documentos a generar debe ser mayor o igual a 1 (UNO)',
+	        showHideTransition: 'slide',
+	        icon: 'warning',
+	        position: 'bottom-right',
+	      });
+	  		errores = true;
+	  	}
+  		var documento_monto = $('#documento_monto').val();
+  		if(documento_monto<=0){
+	  		$.toast({
+	        heading: 'Documento',
+	        text: 'El monto de los Documentos debe ser mayor que 0 (CERO)',
+	        showHideTransition: 'slide',
+	        icon: 'warning',
+	        position: 'bottom-right',
+	      });
+	  		errores = true;
+	  	}
+  	}
+
+  	if($('#cheque_cobrado').val()==0){
+  		var fecha = $('#cheque_fecha').datepicker('getDate');
+			var vto = $('#cheque_fecha_vto').datepicker('getDate');
+			if(fecha>vto){
+				$.toast({
+	        heading: 'Movimiento',
+	        text: 'La fecha de vencimiento no puede ser menor que la fecha del Cheque.',
+	        showHideTransition: 'slide',
+	        icon: 'warning',
+	        position: 'bottom-right',
+	      });
+  			errores = true;
+			}
+  	}
+
+  	if($('#movimiento_monto').val()<=0){
+  		$.toast({
+        heading: 'Movimiento',
+        text: 'El monto deber ser mayor que 0 (CERO).',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+  		errores = true;
+  	}
+
+  	if(errores){
+  		return null;
+  	}
+
+  	$('#submitMovimiento').trigger('click');
+  });
+
+  {% if facturas %}
+	setTimeout(function(){
+		var pagado = 0;
+		var restante = 0;
+		$('.factura_total').each(function(i, obj) {
+			pagado  += formatNumberFromCurrency($(this).closest('tr').find('.factura_pagado').html());
+			restante += formatNumberFromCurrency($(this).closest('tr').find('.factura_restante').html());
+		});
+		if(restante==0){
+			$('#divGenerarMovimiento').slideUp();
+		}
+		$('html, body').animate({
+        scrollTop: $("#tablaRecibos").offset().top
+    }, 750);
+	}, 500);
+  {% endif %}
+
+
+});
+
+function eliminar(id_factura,id_recibo){
+  var route = "{{path_for('comprobante.factura.recibo.eliminar',{'id_factura':99,'id_recibo':88})}}".replace('99',id_factura).replace('88',id_recibo);
+  bootbox.confirm({
+    title: "Eliminar el Recibo?",
+    message: "Desea eliminar el recibo y todas sus referencias en caso de que tenga? Los movimientos asociados tambien seran borrados.",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: '<i class="ion ion-trash-a"></i> Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result){
+        $.ajax({
+          type: "get",
+          url: route,
+          success: function(data,status){
+            var table = $('#tablaRecibos').DataTable();
+            var row = '';
+				  	var filas = table.rows().data();
+				  	var monto = 0;
+				  	for (var i = filas.length - 1; i >= 0; i--) {
+				  		if(Number(filas[i][0])==Number(id_recibo)){
+				  			row = i;
+				  			monto = formatNumberFromCurrency(filas[i][3]);
+				  			break;
+				  		}
+				  	}
+				  	table.row(row).remove().draw();
+						var pagado = 0;
+						var restante = 0;
+						$('.factura_total').each(function(i, obj) {
+							pagado  += formatNumberFromCurrency($(this).closest('tr').find('.factura_pagado').html());
+							restante += formatNumberFromCurrency($(this).closest('tr').find('.factura_restante').html());
+						});
+
+						$('.factura_total').each(function(i, obj) {
+							$(this).closest('tr').find('.factura_pagado').html(formatCurrency(pagado-monto));
+							$(this).closest('tr').find('.factura_restante').html(formatCurrency(restante+monto));
+						});
+
+						if(pagado-monto==0){
+							$('#divGenerarMovimiento').slideUp();
+						} else {
+							if ($('#divGenerarMovimiento').is(':visible')){
+								$('#divGenerarMovimiento').slideDown();
+							}
+
+						}
+
+            $.toast({
+              heading: 'Recibo',
+              text: data.message,
+              showHideTransition: 'slide',
+              icon: 'success',
+              position: 'bottom-right',
+            });
+          },
+          error: function(xhr, ajaxOptions,e) {
+            $.toast({
+              heading: 'Recibo',
+              text: xhr.responseJSON.message,
+              showHideTransition: 'slide',
+              icon: 'error',
+              position: 'bottom-right',
+              hideAfter: false,
+            });
+          }
+        });
+      }
+    }
+  });
+}
+
+function seleccion(opt){
+	$('#id_banco').val(opt.id);
+  return opt.nombre;
+};
+
+function resultado(opt) {
+  if (!opt.id) {
+    return opt.nombre;
+  }
+  var optimage = opt.imagen;
+  if(!optimage){
+    return opt.nombre;
+  } else {
+    var $opt = $(
+    '<p><img src="' + optimage + '" class="flag" width="42" onError="this.onerror=null;" />&nbsp;' + opt.nombre + '</p>'
+    );
+    return $opt;
+  }
+};
+function matchStart(params, data) {
+  params.term = params.term || '';
+  if (data.nombre.toUpperCase().indexOf(params.term.toUpperCase()) >= 0) {
+      return data;
+  }
+  return false;
+};
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+
+function formatNumberFromCurrency(total){
+	return Number(total.replace('.','').replace(',','.').replace(/[^0-9\.-]+/g,""));
+}
+
+</script>
+{% endblock %}

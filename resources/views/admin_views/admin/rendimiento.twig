@@ -1,0 +1,81 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+{% endblock %}
+{% block title %}Rendimiento y Caché{% endblock %}
+{% block header_title %}Rendimiento y Caché{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	<a href="{{path_for('godmode.rendimiento')}}">Rendimiento y Caché</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card card-success">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Administración caché Cloudflare:</h3>
+			</div>
+			<div class="card-body">
+				<div class="col-xs-6">
+					Última Actualización: {{ respuesta.result.modified_on }}
+					<br>
+					Segundos restantes en Cloudflare: {{ respuesta.result.time_remaining }}
+				</div>
+				<div class="col-xs-3">
+					{% if respuesta.result.value == "off" %}
+						<a href="{{ path_for('godmode.rendimiento.desarrollo.activar') }}" class="btn btn-block btn-social btn-success">
+			            	<i class="fa fa-gears"></i> Activar modo de desarrollo
+			            </a>
+			        {% else %}
+			        	<a href="{{ path_for('godmode.rendimiento.desarrollo.desactivar') }}" class="btn btn-block btn-social btn-warning">
+			            	<i class="fa fa-gears"></i> Desactivar modo de desarrollo
+			            </a>
+			        {% endif %}
+				</div>
+				<div class="col-xs-3">
+					<a href="{{ path_for('godmode.rendimiento.desarrollo.twig') }}" class="btn btn-block btn-erase btn-primary">
+		            	<i class="fa fa-gears"></i> Purgar caché de Cloudflare
+		            </a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<div class="card card-success">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Administración caché TWIG:</h3>
+			</div>
+			<div class="card-body">
+				<div class="col-xs-6">
+					MBs en plantillas de Twig:<br>
+					Cantidad de plantillas:
+				</div>
+				<div class="col-xs-3">
+					{% if cache_twig == 0 %}
+						<a href="{{ path_for('godmode.rendimiento.desarrollo.activar') }}" class="btn btn-block btn-social btn-success">
+			            	<i class="fa fa-gears"></i> Activar cache de TWIG
+			            </a>
+			        {% else %}
+			        	<a href="{{ path_for('godmode.rendimiento.desarrollo.desactivar') }}" class="btn btn-block btn-social btn-warning">
+			            	<i class="fa fa-gears"></i> Desactivar cache de TWIG
+			            </a>
+			        {% endif %}
+				</div>
+				<div class="col-xs-3">
+					<a href="{{ path_for('godmode.rendimiento.desarrollo.twig') }}" class="btn btn-block btn-erase btn-primary">
+		            	<i class="fa fa-gears"></i> Purgar caché de TWIG
+		            </a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+
+</script>
+{% endblock %}

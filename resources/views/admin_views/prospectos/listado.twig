@@ -1,0 +1,1677 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+	<link href="{{ base_url() }}/asources/css/prospectos.css" rel="stylesheet">
+	<link rel="manifest" href="{{ base_url() }}/push/manifest.json">
+
+	<style type="text/css">
+	.vehiculo_vendido{
+		background-color: ForestGreen;
+	}
+	.vehiculo_señado{
+		background-color: Gold;
+	}
+	.collapsing {
+    transition: height 0.6s !important;
+	}
+
+	.importe-alert {
+    background-color: red !important;
+    color: white;
+    font-weight: bold;
+    text-align: right;
+    font-size: large;
+    border-color: red;
+	}
+
+	input[type='number'] {
+    -moz-appearance:textfield;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+	}
+
+	table tbody tr td ul {
+		background-color: white !important;
+	}
+
+	table tbody tr td ul {
+  background-color: white !important;
+}
+
+.table thead th {
+  border-bottom: 0px solid #dee2e6 !important; 
+}
+
+.table thead th {
+    border-bottom: 0px solid #dee2e6 !important; 
+}
+.table thead th {
+    border-bottom: 0px solid #dee2e6 !important; 
+}
+.table td, .table th {
+    border-top: 0px solid #dee2e6 !important; 
+}
+.table td, .table th {
+    border-top: 0px solid #dee2e6 !important; 
+}
+
+	</style>
+{% endblock %}
+{% block title %}Listado de prospectos{% endblock %}
+{% block header_title %}Listado de prospectos{% endblock %}
+{% block breadcrumb %}
+{% endblock %}
+{% block content %}
+
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-12">
+	    <!-- Custom Tabs -->
+	    <div class="card">
+	      <div class="card-header d-flex p-0">
+	        <h3 class="card-title p-3">Listado general de prospectos por categoría:</h3>
+	        <ul class="nav nav-pills ml-auto p-2">
+	          	<li class="nav-item"><a class="nav-link {% if (index == 1) or (index == 0) %}active show{% endif %}" href="#tab_1" data-toggle="tab">Libres</a></li>
+	          	<li class="nav-item"><a class="nav-link {% if index == 2 %}active show{% endif %}" href="#tab_2" data-toggle="tab">Llamar más tarde</a></li>
+	          	<li class="nav-item"><a class="nav-link {% if index == 3 %}active show{% endif %}" href="#tab_3" data-toggle="tab">Citas Pactadas</a></li>
+	          	<li class="nav-item"><a class="nav-link {% if index == 4 %}active show{% endif %}" href="#tab_4" data-toggle="tab">Indecisos</a></li>
+	          	<li class="nav-item"><a class="nav-link {% if index == 5 %}active show{% endif %}" href="#tab_5" data-toggle="tab">Perdidos</a></li>
+	        </ul>
+	      </div><!-- /.card-header -->
+	      <div class="card-body">
+	        <div class="tab-content">
+	          <div class="tab-pane {% if (index == 1) or (index == 0) %}active show{% endif %}" id="tab_1">
+				<div class="table-responsive">
+					<table class="table table-hover table-striped table-condensed" id="tablaProspectos" width="100%">
+						<thead>
+							<th>Interesado</th>
+							<th>Localidad</th>
+							<th>Fecha y Hora</th>
+							<th>Ultimo Visto</th>
+							<th style="width: 15vw;">Observaciones</th>
+							<th></th>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+	          </div>
+	          <!-- /.tab-pane -->
+	          <div class="tab-pane {% if index == 2 %}active show{% endif %}" id="tab_2">
+	            {% if prospectos_tarde|length > 0 %}
+					<div class="table-responsive">
+						<table class="table table-striped table-condensed tabla2" id="tabla_mastarde" style=" margin-bottom: 0px;">
+							<thead>
+								<th>Nombre y apellido</th>
+								<th>Localidad</th>
+								<th>Fecha y hora</th>
+								<th>Llamar de nuevo</th>
+								<th style="width: 40vw;">Observaciones</th>
+								<th></th>
+							</thead>
+							<tbody>
+								{% for prospecto in prospectos_tarde %}
+								<tr data-id_prospecto="{{prospecto.id}}">
+									<td>{{prospecto.nombre}} {{prospecto.apellido}}</td>
+									<td>{{prospecto.localidad}}</td>
+									<td>{{prospecto.created_at|date('d/m/Y')}} {{prospecto.created_at|date('H:i')}}</td>
+									<td>{{prospecto.getHistorialNoProcesos|last.valor_estado|date('d/m/Y')}} {{prospecto.getHistorialNoProcesos|last.valor_estado|date('H:i')}}</td>
+									<td class="prospecto_observacion">{{prospecto.getHistorialNoProcesos|last.observaciones}}</td>
+									<td>
+										<a class="btn btn-sm btn-block btn-flat btn-success" onclick="llamar({{prospecto.id}},false);">Llamar</a>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% else %}
+					<h4 class="text-center text-bold">No tienes prospectos marcados para llamar más tarde.</h4>
+				{% endif %}
+	          </div>
+	          <!-- /.tab-pane -->
+	          <div class="tab-pane {% if index == 3 %}active show{% endif %}" id="tab_3">
+	           	{% if citas|length > 0 %}
+					<div class="table-responsive">
+						<table class="table table-striped table-condensed tabla3" id="tabla_citas" style=" margin-bottom: 0px;">
+							<thead>
+								<th>Nombre y apellido</th>
+								<th>Fecha</th>
+								<th>Hora de la cita</th>
+								<th>Teléfono</th>
+								<th style="width: 35vw;">Observaciones</th>
+								<th></th>
+							</thead>
+							<tbody>
+								{% for prospecto in citas %}
+								<tr data-id_prospecto="{{prospecto.id}}">
+									<td>{{prospecto.nombre}} {{prospecto.apellido}}</td>
+									<td>
+										{% if prospecto.getHistorialNoProcesos|last.valor_estado|date("d/m/Y") == "now"|date("d/m/Y") %}
+											<span class="badge">{{ prospecto.getHistorialNoProcesos|last.valor_estado|date("d/m/Y") }}</span>
+										{% else %}
+											{{ prospecto.getHistorialNoProcesos|last.valor_estado|date("d/m/Y") }}
+										{% endif %}
+									</td>
+
+									<td>{{prospecto.getHistorialNoProcesos|last.valor_estado|date('H:i')}}</td>
+									<td>{{prospecto.telefono}}</td>
+									<td class="prospecto_observacion">{{prospecto.getHistorialNoProcesos|last.observaciones}}</td>
+									<td>
+										<a href="{{path_for('prospectos.aprobar', {	'id': prospecto.id })}}" class="btn btn-flat btn-sm btn-success" data-toggle="tooltip" title="Completado"><i class="fa fa-check" aria-hidden="true"></i></a>
+										<a href="{{path_for('prospectos.eliminar', {	'id': prospecto.id })}}" class="btn btn-flat btn-sm btn-danger" data-toggle="tooltip" title="Perdido"><i class="fa fa-trash" aria-hidden="true"></i></a>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% else %}
+					<h4 class="text-center text-bold">No tienes citas pactadas para hoy.</h4>
+				{% endif %}
+	          </div>
+	          <div class="tab-pane {% if index == 4 %}active show{% endif %}" id="tab_4">
+	          	{% if prospectos_indecisos|length > 0 %}
+					<div class="table-responsive">
+						<table class="table table-striped table-condensed tabla123" id="tabla_indecisos" style=" margin-bottom: 0px;">
+							<thead>
+								<th>Nombre y apellido</th>
+								<th>Teléfono</th>
+								<th style="width: 40vw;">Observaciones</th>
+							</thead>
+							<tbody>
+								{% for prospecto in prospectos_viejos %}
+								<tr data-id_prospecto="{{prospecto.id}}">
+									<td>{{prospecto.nombre}} {{prospecto.apellido}}</td>
+									<td>{{prospecto.telefono}}</td>
+									<td class="prospecto_observacion">{{prospecto.getHistorialNoProcesos|last.observaciones}}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% else %}
+					<h4 class="text-center text-bold">No tienes prospectos indecisos todavía.</h4>
+				{% endif %}
+	          </div>
+	          <div class="tab-pane {% if index == 5 %}active show{% endif %}" id="tab_5">
+	          	{% if prospectos_viejos|length > 0 %}
+					<div class="table-responsive">
+						<table class="table table-striped table-condensed tabla4" id="tabla_perdidos" style=" margin-bottom: 0px;">
+							<thead>
+								<th>Nombre y apellido</th>
+								<th>Teléfono</th>
+								<th style="width: 40vw;">Observaciones</th>
+							</thead>
+							<tbody>
+								{% for prospecto in prospectos_viejos %}
+								<tr data-id_prospecto="{{prospecto.id}}">
+									<td>{{prospecto.nombre}} {{prospecto.apellido}}</td>
+									<td>{{prospecto.telefono}}</td>
+									<td class="prospecto_observacion">{{prospecto.getHistorialNoProcesos|last.observaciones}}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% else %}
+					<h4 class="text-center text-bold">No tienes prospectos viejos todavía.</h4>
+				{% endif %}
+	          </div>
+	          <!-- /.tab-pane -->
+	        </div>
+	        <!-- /.tab-content -->
+	      </div><!-- /.card-body -->
+	    </div>
+	    <!-- ./card -->
+	</div>
+</div>
+<div class="modal fade modal-prospecto" data-backdrop="static" data-keyboard="false" role="dialog" id="modalProspecto">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header bg-green">
+				<h4 class="modal-title"><i class="fa fa-phone"></i> Menú de llamadas</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body px-0">
+				<ul class="nav nav-tabs">
+					<li class="nav-item active mp-nt-fs" >
+						<a class="nav-link" href="#informacion_del_prospecto" data-toggle="tab" aria-expanded="true" data-toggle2="focus_tooltip" title="Si necesitas, puedes consultar nuevamente la información del prospecto haciendo clic aquí.">Información del prospecto</a>
+					</li>
+					<li class="nav-item disabled mp-nt-ss">
+						<a class="nav-link" href="#llamado" data-toggle="tab">Llamado</a>
+					</li>
+					<li class="nav-item disabled mp-nt-ts">
+						<a class="nav-link" href="#finalizado" data-toggle="tab">Prospecto finalizado</a>
+					</li>
+				</ul>
+				<div class="tab-content ">
+					<div class="tab-pane px-0 active" id="informacion_del_prospecto">
+						<div class="mp_prospecto_box mpfs_prospecto_box">
+							<div class="mpfs_prospecto_box_content">
+								<div class="mpfs_pb_imagen_box">
+									<img src="{{base_url}}/images/default-avatar.png">
+								</div>
+								<div class="mpfs_pb_nombre"></div>
+								<div class="mpfs_pb_localidad"></div>
+							</div>
+							<hr>
+							<div class="mpfs_pb_observaciones"></div>
+							<i>Prospectado por <span class="mpfs_pb_sniper"></span> el <span class="mpfs_pb_fecha"></span></i>
+							<div class="row" id="divSugeridos">
+								<hr>
+								<div class="col-xs-12" id="labelSugeridos">
+								</div>
+							</div>
+							<hr>
+							<div class="table-responsive">
+								<table class="table table-condensed table-striped" id="tablaProspectoHistorial" width="100%">
+									<caption>
+										<h3 class="text-center" colspan="6">Historial de llamados</h3>
+									</caption>
+									<thead>
+										<th>#</th>
+										<th>Fecha</th>
+										<th>Estado</th>
+										<th>Valor</th>
+										<th>Duración</th>
+										<th>Observaciones</th>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="action-buttons clear">
+							<hr class="no-margin mbn">
+							<a class="btn btn-warning btnEnviarRevision" data-id="0">Enviar a Revision</a>
+							<div class="btn btn-success btn-flat pull-right mp-fs-next">Siguiente paso</div>
+						</div>
+					</div>
+					<div class="tab-pane fade" id="llamado">
+						<form name="mp_prospecto" class="form_prospecto" method="POST" action="{{path_for('prospecto.update')}}">
+							<input hidden name="mpss_pb_time" id="mpss_pb_time">
+							<input hidden name="mpss_pb_id_prospecto" id="mpss_pb_id_prospecto">
+							<div class="mp_prospecto_box mpss_prospecto_box">
+								<div class="mpss_prospecto_box_content">
+									A continuación, llama al cliente y completa los siguientes campos:
+									<div class="mpss_pb_telefono"></div>
+									<hr>
+									<div class="mpss_pb_tiempo">
+										<span class="mpss_pb_tiempo_timer">00:00:00</span>
+									</div>
+									<div id="accordion" role="tablist" aria-multiselectable="true">
+										<div class="card ">
+											<div class="card-header" role="tab" id="headingOne">
+												<h4 class="card-title">
+													<a class="collapsed" role="button" data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+														<b>Listado de Vehiculos DISPONIBLES</b>
+													</a>
+												</h4>
+											</div>
+											<div id="collapseOne" class="card-collapse collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+												<div class="card-body p-0">
+													<table id="tablaVehiculos" class="table table-hover responsive" width="100%" >
+														<thead>
+															<tr>
+																<th>
+																</th>
+																<th>
+																	Dominio
+																</th>
+																<th>
+																	Marca
+																</th>
+																<th>
+																	Modelo
+																</th>
+																<th>
+																	Año
+																</th>
+																<th>
+																	Km
+																</th>
+																<th>
+																	Color
+																</th>
+																<th>
+																	Localidad
+																</th>
+																<th>
+																	Precio<br>Contado
+																</th>
+																<th>
+																	Precio<br>Lista
+																</th>
+																<th>
+																	Entrega<br>Minima
+																</th>
+																<th>
+																	Cil.
+																</th>
+																<th>
+																	Tipo Motor
+																</th>
+																<th>
+																	Trans.
+																</th>
+																<th>
+																	Cant. Puertas
+																</th>
+																<th>
+																	Ubicación
+																</th>
+																<th>
+																	Ex Dueño
+																</th>
+																<th>
+																	Estado
+																</th>
+															</tr>
+														</thead>
+														<tbody>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+										<div class="card ">
+											<div class="card-header" role="tab" id="headingTwo">
+												<h4 class="card-title">
+													<a class="collapsed" role="button" data-toggle="collapse" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo" id="panelSimular">
+														<b>Simulador Calculadora Prendario</b>
+													</a>
+												</h4>
+											</div>
+											<div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+												<div class="card-body">
+													<div class="row">
+														<div class="col-md-3">
+															<label for="presupuesto_financiar">Capital a Financiar</label>
+															<div class="input-group">
+																<div class="input-group-prepend">
+					                        <span class="input-group-text"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+					    									</div>
+																<input type="number" class="form-control presupuesto" name="presupuesto_financiar" id="presupuesto_financiar" autocomplete="off" value="0" style="text-align: right;">
+															</div>
+														</div>
+														<div class="col-md-3">
+															<label for="presupuesto_vehiculo_valor">Valor del Vehiculo</label>
+															<div class="input-group">
+																<div class="input-group-prepend">
+					                        <span class="input-group-text"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+					    									</div>
+																<input type="number" class="form-control presupuesto" name="presupuesto_vehiculo_valor" id="presupuesto_vehiculo_valor" autocomplete="off" value="0" style="text-align: right;">
+															</div>
+														</div>
+														<div class="col-md-3">
+															<label for="presupuesto_porcentaje">Porcentaje&nbsp;Financiado</label>
+															<input type="text" class="form-control" name="presupuesto_porcentaje" id="presupuesto_porcentaje" readonly value="0" style="text-align: right;">
+														</div>
+														<div class="col-md-2">
+															<label for="vehiculo_calidad">Calidad</label>
+															<div class="input-group">
+																<select class="form-control presupuesto select2" id="vehiculo_calidad" name="vehiculo_calidad" >
+																	<option value="USADO" >USADO</option>
+																	<option value="NUEVO" >NUEVO</option>
+																</select>
+															</div>
+														</div>
+													</div>
+													<div class="row pull-center" >
+														<div class="col-md-3">
+														</div>
+														<div class="col-md-3">
+															<label for="presupuesto_plazos">Plazos</label>
+															<select class="form-control presupuesto select2" id="presupuesto_plazos" name="presupuesto_plazos" style="width: 100%;" >
+																<option value="12" >Cuota 12</option>
+																<option value="24" >Cuota 24</option>
+																<option value="36" >Cuota 36</option>
+																<option value="48" >Cuota 48</option>
+															</select>
+														</div>
+														<div class="col-md-3">
+															<label for="presupuesto_tasa">Tasa Nominal Anual</label>
+															<input type="text" class="form-control" name="presupuesto_tasa" id="presupuesto_tasa" readonly style="text-align: right;">
+														</div>
+													</div>
+													<div class="row" >
+														<div class="col-md-12">
+															<div class="card-body row" >
+																<div class="col-md-6">
+																	<div class="form-group form-check-inline">
+																		<label for="presupuesto_capital_intereses" class="col-sm-4">Capital/ Intereses</label>
+																		<div class="col-sm-8">
+																			<input type="text" class="form-control" name="presupuesto_capital_intereses" id="presupuesto_capital_intereses" readonly style="text-align: right;">
+																		</div>
+																	</div>
+																</div>
+																<div class="col-md-6">
+																	<div class="form-group form-check-inline">
+																		<label for="presupuesto_iva" class="col-sm-4">IVA</label>
+																		<div class="col-sm-8">
+																			<input type="text" class="form-control" name="presupuesto_iva" id="presupuesto_iva" readonly style="text-align: right;">
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="row" >
+														<div class="col-md-12">
+															<div class="form-horizontal" >
+																<div class="box-body">
+																	<div class="form-group form-check-inline col-md-12">
+																		<label for="presupuesto_cuota" class="col-sm-3 control-label">Importe cuota Mensual</label>
+																		<div class="col-sm-8">
+																			<input type="text" class="form-control importe-alert" name="presupuesto_cuota" id="presupuesto_cuota" readonly >
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label>1) ¿El cliente atendió la llamada?</label>
+										<select class="form-control mpss_pb_llamada" name="mpss_pb_llamada">
+											<option disabled selected="" value="0"></option>
+											<option value="1">No</option>
+											<option value="2">Si</option>
+										</select>
+										<input hidden name="mpss_pb_llamada" class="mpss_pb_llamada_input">
+									</div>
+									<div class="form-group mpss_pb_llamada_box">
+										<label>2) Seleccioná una opción</label>
+										<select class="form-control mpss_pb_estado" name="mpss_pb_estado">
+											<option disabled selected="" value="0"></option>
+											<option value="1">Llamar más tarde</option>
+											<option value="2">Cita pactada</option>
+											<option value="3">Prospecto perdido</option>
+										</select>
+									</div>
+									<div class="form-group mpss_pb_mas_tarde_box mpss_pb_third">
+										<label>3) ¿A qué hora debes llamar al prospecto?</label>
+										<div class="row">
+											<div class="col-xs-6">
+												<input type="text" id="mpss_pb_hora_mas_tarde" name="mpss_pb_hora_estado" class="form-control timepicker mpss_pb_hora_mas_tarde">
+											</div>
+											<div class="col-xs-6">
+												<input type="date" id="mpss_pb_fecha_mas_tarde" name="mpss_pb_fecha_estado" class="form-control mpss_pb_hora_mas_tarde">
+											</div>
+										</div>
+									</div>
+									<div class="form-group mpss_pb_cita_pactada_box mpss_pb_third">
+										<label>3) ¿Cuándo visitará la agencia?</label>
+										<div class="row">
+											<div class="col-xs-6">
+												<input type="date" id="mpss_pb_cita_pactada" name="mpss_pb_valor_estado" class="form-control mpss_pb_cita_pactada">
+											</div>
+											<div class="col-xs-6">
+												<input type="text" id="mpss_pb_hora_cita_pactada" name="mpss_pb_valor_estado_2" class="timepicker form-control mpss_pb_cita_pactada">
+											</div>
+										</div>
+									</div>
+									<div class="form-group mpss_pb_third mpss_pb_observaciones">
+										<label>Observaciones</label>
+										<textarea class="fw-ta form-control mpss_pb_ta_observaciones" name="mpss_pb_ta_observaciones" required=""></textarea>
+									</div>
+									<div class="form-group mpss_pb_fourth">
+										<input class="btn btn-flat btn-danger btn-block mpss_pb_hangout" type="submit" value="Finalizar llamada">
+									</div>
+								</div>
+							</div>
+							{{ csrf.field | raw }}
+						</form>
+					</div>
+					<div class="tab-pane fade clear" id="finalizado">
+						<h3 class="text-bold no-margin">Terminaste.</h3>
+						Hemos actualizado el estado del prospecto en la base de datos.
+						<br>
+						<a class="btn btn-warning btnEnviarRevision" data-id="0">Enviar a Revision</a>
+						<button class="btn btn-flat btn-success pull-right mpts_listo">Listo</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade modal-cita" data-backdrop="static" data-keyboard="false" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header bg-green">
+				<h4 class="modal-title"><i class="fa fa-phone"></i> Menú de prospectos:</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="mp_prospecto_box mpfs_prospecto_box">
+					<div class="mpfs_prospecto_box_content">
+						<div class="mpfs_pb_imagen_box">
+							<img src="{{base_url}}/images/default-avatar.png">
+						</div>
+						<div class="mpfs_pb_nombre"></div>
+						<div class="mpfs_pb_localidad"></div>
+					</div>
+					<hr>
+					<div class="mpfs_pb_observaciones"></div>
+					<i>Prospectado por <span class="mpfs_pb_sniper"></span> el <span class="mpfs_pb_fecha"></span></i>
+					<hr>
+					<div class="table-responsive">
+						<table class="table table-condensed table-striped no-margin">
+							<thead>
+								<tr>
+									<th class="text-center" colspan="6">Historial de llamados</th>
+								</tr>
+								<th>#</th>
+								<th>Fecha</th>
+								<th>Estado</th>
+								<th>Descripción estado</th>
+								<th>Duración llamada</th>
+								<th>Observaciones</th>
+							</thead>
+							<tbody class="table_llamados">
+								<tr>
+									<td colspan="6">
+										No se han realizado llamados anteriormente.
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalRevision">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="modalRevisionTtulo">Se enviara al Snipper para Revisar</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+      	<form action="{{path_for('prospectos.revisar')}}" method="POST">
+      		<input type="hidden" name="revision_id_prospecto" id="revision_id_prospecto">
+	        <div class="row">
+	        	<div class="col-md-12" >
+		        	<div class="form-group" >
+		        		<label class="control-label" for="revision_descripcion">Indicar la razon del problema</label>
+		        		<input type="text" class="form-control" name="revision_descripcion" id="revision_descripcion" placeholder="Ej: El numero no esta bien escrito">
+		        	</div>
+		        </div>
+		        <div class="col-md-12">
+		        	<div class="form-group">
+		        		<label class="form-group" >Una vez enviado, el Prospecta dejara de aparecer en el listado actual, para ser revisado, verificado y puede que sea dado como Perdido o vuelva con los arreglos pedidos. </label>
+		        	</div>
+		        </div>
+	        </div>
+					{{ csrf.field | raw }}
+					<button type="submit" class="d-none" id="submitRevision"></button>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<a class="btn btn-primary pull-right " id="btnRevision">Enviar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+	<script src="asources/js/easytimer.min.js"></script>
+<script type="text/javascript">
+var tablaProspectos = '';
+$(document).ready(function(){
+
+	$("#tabla_mastarde").DataTable( {
+	  	lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+	    searching: true,
+	    info: true,
+	    ordering: false,
+	    columnDefs:[
+			{
+				targets:[0,1,2,3,4,5],
+				orderable: false,
+			}
+		],
+	    "language": {
+	      "sProcessing":     "Procesando...",
+	      "sLengthMenu":     "Mostrar _MENU_ registros",
+	      "sZeroRecords":    "No se encontraron resultados",
+	      "sEmptyTable":     "No se han realizado llamados anteriormente.",
+	      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+	      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+	      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+	      "sInfoPostFix":    "",
+	      "sSearch":         "Buscar:",
+	      "sUrl":            "",
+	      "sInfoThousands":  ",",
+	      "sLoadingRecords": "Cargando...",
+	      "oPaginate": {
+	        "sFirst":    "Primero",
+	        "sLast":     "Último",
+	        "sNext":     "Siguiente",
+	        "sPrevious": "Anterior"
+	      },
+	      "oAria": {
+	        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+	        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+	      }
+	    }
+	  });
+
+	$("#tabla_citas").DataTable( {
+	  	lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+	    searching: true,
+	    info: true,
+	    ordering: false,
+	    columnDefs:[
+			{
+				targets:[0,1,2,3,4,5],
+				orderable: false,
+			}
+		],
+	    "language": {
+	      "sProcessing":     "Procesando...",
+	      "sLengthMenu":     "Mostrar _MENU_ registros",
+	      "sZeroRecords":    "No se encontraron resultados",
+	      "sEmptyTable":     "No se han realizado llamados anteriormente.",
+	      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+	      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+	      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+	      "sInfoPostFix":    "",
+	      "sSearch":         "Buscar:",
+	      "sUrl":            "",
+	      "sInfoThousands":  ",",
+	      "sLoadingRecords": "Cargando...",
+	      "oPaginate": {
+	        "sFirst":    "Primero",
+	        "sLast":     "Último",
+	        "sNext":     "Siguiente",
+	        "sPrevious": "Anterior"
+	      },
+	      "oAria": {
+	        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+	        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+	      }
+	    }
+	  });
+
+	$("#tabla_indecisos").DataTable( {
+	  	lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+	    searching: true,
+	    info: true,
+	    ordering: false,
+	    columnDefs:[
+			{
+				targets:[0,1,2,3,4,5],
+				orderable: false,
+			}
+		],
+	    "language": {
+	      "sProcessing":     "Procesando...",
+	      "sLengthMenu":     "Mostrar _MENU_ registros",
+	      "sZeroRecords":    "No se encontraron resultados",
+	      "sEmptyTable":     "No se han realizado llamados anteriormente.",
+	      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+	      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+	      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+	      "sInfoPostFix":    "",
+	      "sSearch":         "Buscar:",
+	      "sUrl":            "",
+	      "sInfoThousands":  ",",
+	      "sLoadingRecords": "Cargando...",
+	      "oPaginate": {
+	        "sFirst":    "Primero",
+	        "sLast":     "Último",
+	        "sNext":     "Siguiente",
+	        "sPrevious": "Anterior"
+	      },
+	      "oAria": {
+	        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+	        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+	      }
+	    }
+	  });
+
+	$("#tabla_perdidos").DataTable( {
+	  	lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+	    searching: true,
+	    info: true,
+	    ordering: false,
+	    columnDefs:[
+			{
+				targets:[0],
+				orderable: false,
+			}
+		],
+	    "language": {
+	      "sProcessing":     "Procesando...",
+	      "sLengthMenu":     "Mostrar _MENU_ registros",
+	      "sZeroRecords":    "No se encontraron resultados",
+	      "sEmptyTable":     "No se han realizado llamados anteriormente.",
+	      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+	      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+	      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+	      "sInfoPostFix":    "",
+	      "sSearch":         "Buscar:",
+	      "sUrl":            "",
+	      "sInfoThousands":  ",",
+	      "sLoadingRecords": "Cargando...",
+	      "oPaginate": {
+	        "sFirst":    "Primero",
+	        "sLast":     "Último",
+	        "sNext":     "Siguiente",
+	        "sPrevious": "Anterior"
+	      },
+	      "oAria": {
+	        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+	        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+	      }
+	    }
+	  });
+
+	sessionStorage.setItem('cantclose', 0);
+
+	$('[data-toggle2="focus_tooltip"]').tooltip({
+		trigger: 'manual',
+		placement: 'top'
+	});
+
+	var timerInstance = new Timer();
+	Date.prototype.toDateInputValue = (function() {
+    var local = new Date(this);
+    local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+    return local.toJSON().slice(0,10);
+	});
+	document.getElementById('mpss_pb_cita_pactada').value = new Date().toDateInputValue();
+	document.getElementById('mpss_pb_fecha_mas_tarde').value = new Date().toDateInputValue();
+
+	$('.timepicker').timepicker({
+    minuteStep: 5,
+    appendWidgetTo: 'body',
+    showMeridian: false,
+  });
+
+	$('.mp-fs-next').click(function(){
+
+		sessionStorage.setItem('cantclose', 1);
+		$('.mp-nt-ss').hide().removeClass('disabled').fadeIn(300);
+		$('.mp-nt-ss a').click();
+		$('#informacion_del_prospecto .action-buttons').fadeOut();
+		$('.mp-nt-fs a').tooltip('show');
+		setTimeout(function(){
+			$('.mp-nt-fs a').tooltip('hide');
+		}, 3000);
+		timerInstance.start();
+		timerInstance.addEventListener('secondsUpdated', function (e) {
+			$('.mpss_pb_tiempo_timer').html(timerInstance.getTimeValues().toString());
+		});
+	});
+
+	$('.mpss_pb_llamada').on('change', function(e){
+		$('.mpss_pb_llamada_input').val($(this).val());
+		if($(this).val() == 1) {
+			if(confirm('¿Quieres llamar otra vez?.', 'si', 'no') == false) {
+				e.preventDefault();
+				$('.mpss_pb_third input').prop('disabled', true);
+				$('.mpss_pb_ta_observaciones').prop('disabled', true);
+
+				$(this).prop('disabled', true);
+				form.submit();
+			}
+			else {
+				$('.mpss_pb_llamada option:eq(0)').prop('selected', true);
+			}
+		}
+
+		if($(this).val() == 2) {
+			$('.mpss_pb_llamada_box').slideDown();
+			$(this).prop('disabled', true);
+		}
+	});
+
+	$('.mpss_pb_estado').on('change', function(e){
+		$('.mpss_pb_third').slideUp();
+
+		$('.mpss_pb_third input').prop('disabled', true);
+
+		if($(this).val() == 1) {
+			$('.mpss_pb_mas_tarde_box').slideDown();
+			$('.mpss_pb_mas_tarde_box input').prop('disabled', false);
+		}
+
+		if($(this).val() == 2) {
+			$('.mpss_pb_cita_pactada_box').slideDown();
+			$('.mpss_pb_cita_pactada_box input').prop('disabled', false);
+		}
+
+		$('.mpss_pb_observaciones').slideDown();
+		$('.mpss_pb_fourth').slideDown();
+	});
+
+	var form = $('.form_prospecto');
+	form.on('submit', function (e) {
+		e.preventDefault();
+		$('#mpss_pb_time').val(timerInstance.getTimeValues());
+		timerInstance.pause();
+		sessionStorage.setItem('cantclose', 0);
+
+		$.ajax({
+			url: form.attr('action'),
+			data: form.serialize(),
+			method: form.attr('method'),
+			cache: false,
+			dataType: 'json',
+			success: function( data ) {
+				console.log(form.serialize());
+				if(data.success == true) {
+					$('.form_prospecto select').prop('disabled', true);
+					$('.form_prospecto input').prop('disabled', true);
+					$('.form_prospecto textarea').prop('disabled', true);
+					$('.mp-nt-ts').removeClass('disabled');
+					$('.mp-nt-ts a').click();
+				}
+			},
+			complete: function (jqXHR) {
+				var csrfToken = jqXHR.getResponseHeader('X-CSRF-Token');
+				if (csrfToken) {
+					try {
+						csrfToken = $.parseJSON(csrfToken);
+						var csrfTokenKeys = Object.keys(csrfToken);
+						var hiddenFields = srb_form.find('input.csrf[type="hidden"]');
+						if (csrfTokenKeys.length === hiddenFields.length) {
+							hiddenFields.each(function(i) {
+								$(this).attr('name', csrfTokenKeys[i]);
+								$(this).val(csrfToken[csrfTokenKeys[i]]);
+							});
+						}
+					}
+					catch (e) {
+
+					}
+				}
+			}
+		});
+	});
+
+	/*
+		- Evita que el usuario pueda cerrar el menú de llamadas mientras
+		se encuentra realizando una llamada.
+		- Pregunta al usuario re realmente quiere cerrar el menú de llamadas.
+	*/
+	$('.modal-prospecto').on('hide.bs.modal', function(e){
+		// Si no está realizando una llamada.
+		if(sessionStorage.getItem('cantclose') == 0) {
+			if(confirm('¿Deseas cerrar el menú de llamadas?', 'si', 'no') == false) {
+				e.preventDefault();
+			}
+			else {
+				var id = $('#mpss_pb_id_prospecto').val();
+				$.ajax({
+					url:"{{path_for('prospectos.liberarme',{id:00})}}".replace('00',id),
+					method: 'GET',
+					cache: false,
+					dataType: 'json',
+					success: function(response) {
+						location.reload();
+					}
+				});
+			}
+		}
+		// Si está realizando una llamada.
+		else {
+			e.preventDefault();
+		}
+	});
+
+	$('.mpts_listo').on('click', function(){
+		location.reload();
+	});
+		/*
+		Enviar una advertencia cuando el usuario intenta cerrar o actualizar
+		la página mientras realiza una llamada.
+	*/
+	$(window).on('beforeunload', function (e) {
+		if(sessionStorage.getItem('cantclose') == 1) {
+			return false;
+		}
+	});
+
+	var enProceso = {{enProceso|raw}};
+	if(enProceso.length>0){
+		alert('Se encontro una llamada sin terminar.');
+		llamar(enProceso[0].id,false);
+	}
+
+  $('.sidebar-toggle').prop('title', 'Click para mostrar la barra lateral');
+	$.fn.dataTable.moment( 'DD/MM/YYYY HH:mm' );
+
+  $('#tablaProspectoHistorial').DataTable( {
+  	lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    searching: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+      	targets:[1,2,3],
+        width:"5%",
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "No se han realizado llamados anteriormente.",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+	tablaProspectos = $('#tablaProspectos').DataTable( {
+		searching: true,
+		paging: false,
+		info: false,
+		processing: true,
+		serverSide: true,
+		pageLength: 1,
+		ajax:{
+			url:"{{path_for('prospectos.listadoLibres')}}",
+			data: function(d){
+	        //d.length = 1;
+	      },
+		},
+		columns: [
+        {
+        	name:'nombre',
+        	data: function(data,type,dataToSet){
+        		return data.nombre +' '+data.apellido;
+        	},
+        },
+        {
+        	name:'localidad',
+        	data: 'localidad' ,
+        },
+        {
+        	name: 'created_at',
+        	data: function(data,type,row){
+        		var msg = '';
+        		var momentDate = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss');
+	          if(data.estado == 1){
+	          	var ultimo = data.ultimo_no_proceso;
+	          	momentDate = moment(ultimo.valor_estado,'YYYY-MM-DD HH:mm:ss');
+	            msg = '<span class="badge label-warning" data-toggle="tooltip" title="'+momentDate.format('DD/MM/YYYY HH:mm')+'">LLamar</span>';
+	          } else {
+        			msg = '<span class="badge label-success" data-toggle="tooltip" title="'+momentDate.format('DD/MM/YYYY HH:mm')+'">Nuevo</span>';
+	          }
+        		var minutos = moment().diff(momentDate,'minutes');
+        		var respuesta = '';
+        		if(minutos==0){
+        			respuesta = ' ahora';
+        		} else if(minutos>60){
+        			if(data.estado == 1){
+        				msg = '<span class="badge label-danger" data-toggle="tooltip" title="'+momentDate.format('DD/MM/YYYY HH:mm')+'">Llamar</span>';
+        			}
+        			var horas = Math.floor(minutos / 60);
+        			if(horas>24){
+        				dias = Math.floor(horas / 24);
+        				if(dias>30){
+        					meses = Math.floor(dias / 30);
+        					if(meses>2){
+        						respuesta = ' hace '+meses + ' meses';
+        					} else {
+        						respuesta = momentDate.format('DD/MM/YYYY');
+      						}
+        				} else {
+        					if(dias == 1){
+        						respuesta = ' ayer';
+        					}	else {
+        						respuesta = ' hace '+dias + ' dias';
+        					}
+        				}
+        			} else {
+        				if(horas == 1){
+        					respuesta = ' hace 1 hora';
+        				} else {
+        					respuesta = ' hace '+horas + ' horas';
+        				}
+        			}
+        		} else if(minutos>0) {
+        			if(data.estado == 1){
+        				msg = '<span class="badge label-danger" data-toggle="tooltip" title="'+momentDate.format('DD/MM/YYYY HH:mm')+'">Llamar</span>';
+        			}
+        			if( minutos < 1){
+        				respuesta = ' hace instantes';
+        			} else {
+        				respuesta = ' hace '+minutos + ' minutos';
+        			}
+        		} else {
+        			minutos = minutos * (-1);
+        			if(minutos>60){
+	        			var horas = Math.floor(minutos / 60);
+	        			if( horas > 24){
+	        				dias = Math.floor(horas / 24);
+	        				if(dias == 1){
+	        					respuesta = ' mañana';
+	        				} else {
+	        					respuesta = ' en '+dias+' dias';
+	        				}
+	        			} else if (horas == 1) {
+	        				respuesta = ' en 1 hora';
+	        			} else {
+	        				respuesta = ' en '+ horas + ' horas';
+	        			}
+	        		} else {
+	        			if(minutos < 5){
+	        				respuesta = ' en instante';
+	        			} else {
+	        				respuesta = ' en '+ minutos + ' minutos';
+	        			}
+	        		}
+        		}
+        		return msg+respuesta;
+	        },
+        },
+        {
+        	name:'id_vendedor',
+        	data: function(data,type,row){
+        		var respuesta = '';
+        		var ultimo = data.ultimo;
+        		if(ultimo!=null){
+        			respuesta = ultimo.individuo.apellido+' '+ultimo.individuo.nombre
+        		} else {
+        			respuesta = 'SIN VISTOS';
+        		}
+        		return respuesta;
+        	}
+        },
+        {
+        	name: 'observaciones',
+        	data: function(data,type,row){
+        		if(data.caracteristicas){
+							var labelSugeridos = '';
+							$.each(data.caracteristicas, function(index, value){
+								labelSugeridos = labelSugeridos + '&nbsp;<span class="badge label-info"> '+value.nombre+' </span>&nbsp;';
+							});
+							if(labelSugeridos.length>0){
+								labelSugeridos = '<b>Interes:</b> '+labelSugeridos;
+							}
+						}
+						return data.observaciones+'<br>'+labelSugeridos;
+        	}
+        },
+        {
+        	name: 'id',
+        	data: 'id',
+        	render: function(data,type,row){
+        		return '<a class="btn btn-sm btn-flat bg-success" onclick="transferirmeProspecto('+data+');" >Llamar</a>' ;
+        	},
+        },
+    ],
+		columnDefs:[
+			{
+				targets:[0,1,5],
+				width:"7%",
+			},
+			{
+				targets:[2,3],
+				width:"12%",
+			},
+			{
+				targets:[0,1,2,3,4,5],
+				orderable: false,
+			}
+		],
+		createdRow: function (row, data, index) {
+
+    },
+		"bLengthChange": false,
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	setInterval(function () {
+    tablaProspectos.ajax.reload(null, true);
+  }, 90000);
+
+  $('#btnRefrescar').on('click',function(){
+    tablaProspectos.ajax.reload(null, true);
+  });
+
+	var tablaVehiculos = $('#tablaVehiculos').DataTable( {
+		order:[[0,'desc']],
+    lengthMenu: [[5, 10], [5, 10]],
+    processing: true,
+    serverSide: true,
+    responsive: true,
+    info: false,
+    ajax:{
+      url:"{{path_for('vehicle.disponibles')}}",
+    },
+    columns: [
+      {
+        name: 'created_at',
+        data: 'created_at',
+      },
+      {
+        name: 'dominio',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+	      		var momentDate = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss');
+	    			respuesta = '<div class="" data-html="true" data-toggle="tooltip" title="Agregado el<br>'+momentDate.format('DD/MM/YYYY')+'">'+data.get_usado.dominio+'</div>';
+	      	}
+	      	return respuesta;
+        },
+      },
+      {
+        name: 'marca',
+        data: 'get_marca.nombre',
+      },
+      {
+        name: 'modelo',
+        data: 'modelo',
+      },
+      {
+        name: 'year',
+        data: 'year',
+      },
+      {
+        name: 'kilometraje',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.kilometraje;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'color',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.color;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'id_localidad',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_localidad!=null){
+        		respuesta = data.get_localidad.nombre;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'precio_venta',
+        data: 'precio_venta',
+        render: function(data,type,row){
+        	respuesta = '<label class="control-label precio_venta">'+formatCurrency(data)+'</label>';
+          return respuesta;
+        },
+      },
+      {
+        name: 'precio_lista',
+        data: 'precio_lista',
+        render: function(data,type,row){
+          return formatCurrency(data);
+        },
+      },
+      {
+        name: 'entrega_minima',
+        data: 'entrega_minima',
+        render: function(data,type,row){
+        	respuesta = '<a class="btn btn-info simular entrega_minima" data-toggle="tooltip" title="Calcular Presupuesto" >'+formatCurrency(data)+'</a>';
+          return respuesta;
+        },
+      },
+      {
+        name: 'motor',
+        data: 'motor',
+        render: function(data,type,row){
+          return (data).toFixed(1);
+        },
+      },
+      {
+        name: 'id_tipo_motor',
+        data: 'get_tipo_motor.nombre',
+      },
+      {
+        name: 'id_transmision',
+        data: 'get_transmision.nombre',
+      },
+      {
+        name: 'cantidad_puertas',
+        data: 'cantidad_puertas',
+      },
+      {
+        name: 'id_ubicacion',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_ubicacion!=null){
+        		respuesta = data.get_ubicacion.nombre;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'exowner',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.exowner;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+      	name: 'estado',
+      	data: function(data,type,row){
+      		var estadoLista = '<span class="badge label-info">'+data.get_estado_lista.nombre+'</span>';
+      		var publicado = (data.publicado)? '<span class="badge label-info">Publicado</span>': '<span class="badge label-danger">Sin publicar</span>';
+      		var vehiculo_estado = '';
+      		if(data.get_tipos_estado!=null){
+	      		if(data.id_estado == 1){
+	      			vehiculo_estado = '<span class="badge label-info">'+data.get_tipos_estado.nombre+'</span>';
+	      		} else if (data.id_estado == 2){
+	      			vehiculo_estado = '<span class="badge label-warning">'+data.get_tipos_estado.nombre+'</span>';
+	      		} else {
+	      			vehiculo_estado = '<span class="badge label-success">'+data.get_tipos_estado.nombre+'</span>';
+	      		}
+	      	}
+      		return estadoLista+'&nbsp;'+publicado+'&nbsp;'+vehiculo_estado;
+	      }
+      }
+    ],
+    columnDefs:[
+      {
+        targets:[1,2,3,4,5,6,7],
+        orderable: false,
+      },
+      {
+        targets: [0],
+        visible: false,
+      }
+    ],
+    createdRow: function (row, data, index) {
+      if(data.id_estado==2){
+        $(row).addClass('vehiculo_señado');
+      }
+    },
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	$('#modalProspecto').on('shown.bs.modal', function (e) {
+		var dataTable= $('#tablaVehiculos').DataTable();
+    dataTable.tables( {visible: true, api: true} ).columns.adjust();
+  });
+  $('.card-collapse').on('shown.bs.collapse', function (e) {
+  	$.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+	});
+
+	$('.presupuesto').on('change',function(){
+		calcularPresupuesto();
+	});
+
+	$('.presupuesto').on('input',function(){
+		calcularPresupuesto();
+	});
+
+	$('#presupuesto_plazos').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('#vehiculo_calidad').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('#tablaVehiculos tbody').on( 'click', 'a.simular', function () {
+      $('#panelSimular').trigger('click');
+      var entrega_minima = formatNumberFromCurrency($(this).parents('tr').find('.entrega_minima').html());
+      var precio_venta = formatNumberFromCurrency($(this).parents('tr').find('.precio_venta').html());
+      $('#presupuesto_financiar').val(entrega_minima);
+      $('#presupuesto_vehiculo_valor').val(precio_venta).trigger('input');
+  } );
+
+  $('.btnEnviarRevision').on('click',function(){
+  	var id = $(this).data('id');
+  	$('#modalRevisionTtulo').text('Se enviara al Snipper para Revisar con id: '+id);
+  	$('#revision_id_prospecto').val(id);
+  	$('#revision_descripcion').val('');
+  	$('#modalRevision').modal('show');
+  });
+
+  $('#btnRevision').on('click',function(){
+  	$('#submitRevision').trigger('click');
+  });
+});
+
+function transferirmeProspecto(id){
+	$('#mpss_pb_id_prospecto').val(id);
+	$.ajax({
+		url:"{{ path_for('prospectos.transferirme',{id:''}) }}"+id,
+		method: 'GET',
+		cache: false,
+		dataType: 'json',
+		success: function(response) {
+			$('#modalProspecto').modal('show');
+			$('.mpfs_pb_nombre').html(response.nombre + ' ' + response.apellido);
+			$('.mpfs_pb_observaciones').html(response.observaciones);
+			$('.mpfs_pb_sniper').html(response.get_sniper_nombre.nombre + ' ' + response.get_sniper_nombre.apellido);
+			$('.mpfs_pb_fecha').html(moment(response.created_at).format('DD/MM/YYYY [@] H:mm'));
+			$('.mpfs_pb_localidad').html(response.localidad);
+			$('.mpss_pb_telefono').html(response.telefono);
+			$('.btnEnviarRevision').data('id',response.id);
+
+			if(response.get_historial) {
+					var table = $('#tablaProspectoHistorial').DataTable();
+    			table.clear().draw();
+					for (var i = response.get_historial.length - 1; i >= 0; i--) {
+    				var item = response.get_historial[i];
+		        var title = ' data-toggle="tooltip" data-html="true" ';
+						if(item.individuo!=null){
+							title = title + 'title="Cambiado por:<br>'+item.individuo.apellido+' '+item.individuo.nombre+'"';
+						} else {
+							title = title + ' title="Cambiado por Desconocido" ';
+						}
+						var respuesta = '';
+        		switch(item.estado) {
+					    case 0:
+				        respuesta = '<span class="badge label-warning" '+title+'>Sin atender</span>';
+				        break;
+					    case 1:
+				        respuesta = '<span class="badge label-info" '+title+'>Llamar <br> más tarde</span>';
+				        break;
+			        case 2:
+				        respuesta = '<span class="badge label-primary" '+title+'>Cita pactada</span>';
+				        break;
+			        case 3:
+				        respuesta = '<span class="badge label-danger" '+title+'>Perdido</span>';
+				        break;
+			        case 4:
+				        respuesta = '<span class="badge label-success" '+title+'>Concretado</span>';
+				        break;
+			        case 5:
+			        case 6:
+				        respuesta = '<span class="badge label-default" '+title+'>Proceso</span>';
+				        break;
+			        case 7:
+			        	respuesta = '<span class="badge label-danger" '+title+'>Revision</span>';
+				        break;
+						}
+						table.row.add([
+							i+1,
+							moment(item.created_at).format('DD/M hh:mm'),
+		         	respuesta,
+		         	moment(item.valor_estado).format('DD/M hh:mm'),
+		         	item.duracion_llamada,
+		         	item.observaciones
+							])
+						.draw()
+					  .node();
+		    	}
+				}
+			$('#divSugeridos').hide();
+			if(response.caracteristicas){
+				var labelSugeridos = '';
+				var search = '';
+				$.each(response.caracteristicas, function(index, value){
+					labelSugeridos = labelSugeridos + '&nbsp;<span class="badge label-info"> '+value.nombre+' </span>&nbsp;';
+					search= search +' '+ value.nombre;
+				});
+				if(labelSugeridos.length>0){
+					$('#divSugeridos').show();
+					$('#labelSugeridos').html('<b>Etiquetas:</b> '+labelSugeridos);
+					$('#tablaVehiculos').DataTable().search( search.trim() ).draw();
+				}
+			}
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			console.log(XMLHttpRequest.status);
+			switch(XMLHttpRequest.status){
+				case 401:
+					$.toast({
+            heading: 'Prospecto',
+            text: 'Ya tienes un prospecto en uso, si no es asi comuniquese con el Administrador.',
+            showHideTransition: 'slide',
+            icon: 'warning',
+            position: 'bottom-right',
+            hideAfter: false,
+          });
+				break;
+				case 404:
+					$.toast({
+            heading: 'Prospecto',
+            text: 'El prospecto al cual intentas LLAMAR ya se encuentra ocupado por otra persona, intenté con otro.',
+            showHideTransition: 'slide',
+            icon: 'warning',
+            position: 'bottom-right',
+            hideAfter: false,
+          });
+				break;
+			}
+      tablaProspectos.ajax.reload(null, true);
+    }
+	});
+
+};
+
+function llamar(id,proceso = true){
+	$('#mpss_pb_id_prospecto').val(id);
+	var data = 'id_prospecto='+id;
+	if(proceso){
+		data = data +'&proceso=1';
+	}
+	$.ajax({
+		url: "{{path_for('prospecto.getInfo')}}",
+		data: data,
+		method: 'GET',
+		cache: false,
+		dataType: 'json',
+		success: function(response) {
+			$('#modalProspecto').modal('show');
+			$('.mpfs_pb_nombre').html(response.nombre + ' ' + response.apellido);
+			$('.mpfs_pb_observaciones').html(response.observaciones);
+			$('.mpfs_pb_sniper').html(response.get_sniper_nombre.nombre + ' ' + response.get_sniper_nombre.apellido);
+			$('.mpfs_pb_fecha').html(moment(response.created_at).format('DD/MM/YYYY [@] H:mm'));
+			$('.mpfs_pb_localidad').html(response.localidad);
+			$('.mpss_pb_telefono').html(response.telefono);
+			$('#btnEnviarRevision').data('id',response.id);
+
+			if(response.get_historial) {
+				var table = $('#tablaProspectoHistorial').DataTable();
+  			table.clear().draw();
+				for (var i = response.get_historial.length - 1; i >= 0; i--) {
+  				var item = response.get_historial[i];
+	        var title = ' data-toggle="tooltip" data-html="true" ';
+					if(item.individuo!=null){
+						title = title + 'title="Cambiado por:<br>'+item.individuo.apellido+' '+item.individuo.nombre+'"';
+					} else {
+						title = title + ' title="Cambiado por Desconocido" ';
+					}
+					var respuesta = '';
+      		switch(item.estado) {
+				    case 0:
+			        respuesta = '<span class="badge label-warning" '+title+'>Sin atender</span>';
+			        break;
+				    case 1:
+			        respuesta = '<span class="badge label-info" '+title+'>Llamar <br> más tarde</span>';
+			        break;
+		        case 2:
+			        respuesta = '<span class="badge label-primary" '+title+'>Cita pactada</span>';
+			        break;
+		        case 3:
+			        respuesta = '<span class="badge label-danger" '+title+'>Perdido</span>';
+			        break;
+		        case 4:
+			        respuesta = '<span class="badge label-success" '+title+'>Concretado</span>';
+			        break;
+		        case 5:
+		        case 6:
+			        respuesta = '<span class="badge label-default" '+title+'>Proceso</span>';
+			        break;
+		        case 7:
+			        	respuesta = '<span class="badge label-danger" '+title+'>Revision</span>';
+				        break;
+					}
+					table.row.add([
+						i+1,
+						moment(item.created_at).format('DD/M hh:mm'),
+	         	respuesta,
+	         	moment(item.valor_estado).format('DD/M hh:mm'),
+	         	item.duracion_llamada,
+	         	item.observaciones
+						])
+					.draw()
+				  .node();
+	    	}
+			}
+
+			$('#divSugeridos').hide();
+			if(response.caracteristicas){
+				var labelSugeridos = '';
+				var search = '';
+				$.each(response.caracteristicas, function(index, value){
+					labelSugeridos = labelSugeridos + '&nbsp;<span class="badge label-info"> '+value.nombre+' </span>&nbsp;';
+					search= search +' '+ value.nombre;
+				});
+				if(labelSugeridos.length>0){
+					$('#divSugeridos').show();
+					$('#labelSugeridos').html('<b>Etiquetas:</b> '+labelSugeridos);
+					$('#tablaVehiculos').DataTable().search( search.trim() ).draw();
+				}
+			}
+		}
+	});
+};
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+
+function formatNumberFromCurrency(total){
+	return Number(total.replace('.','').replace(',','.').replace(/[^0-9\.-]+/g,""));
+}
+
+function calcularPresupuesto(){
+	var capital_financiar = Number($('#presupuesto_financiar').val());
+	var precio_contado = Number($('#presupuesto_vehiculo_valor').val());
+	var plazos = Number($('#presupuesto_plazos').val());
+
+	if(precio_contado==0){
+		capital_financiar = 0;
+		precio_contado = 1; //para salvar la division por cero
+	}
+	var porcentaje = (capital_financiar / precio_contado)*10;
+	$('#presupuesto_porcentaje').val(percent(porcentaje));
+
+	var tna = 0.325;
+	if($('#vehiculo_calidad').val()=='USADO'){
+		tna = 0.325;
+	} else {
+		tna = 0.295;
+	}
+	$('#presupuesto_tasa').val(percent(tna));
+	var tasa = tna/12;
+	var capital_intereses = (tasa/(1-Math.pow((1+tasa),((-1)*plazos)) ) )*capital_financiar;
+	var iva = pagoint(tasa,1,plazos,(-1)*capital_financiar)*0.21;
+	var total = capital_intereses + iva;
+
+	$('#presupuesto_iva').val(formatCurrency(iva));
+	$('#presupuesto_capital_intereses').val(formatCurrency(capital_intereses));
+	$('#presupuesto_cuota').val(formatCurrency(total));
+}
+
+function pagoint(rate, per, pmt, pv) { //ipmt
+	var tmp = Math.pow(1 + rate, per);
+	return 0 - (pv * tmp * rate + pmt * (tmp - 1));
+}
+function percent(num){
+	return (num*10).toFixed(2)+"%";
+}
+
+</script>
+
+{% endblock %}

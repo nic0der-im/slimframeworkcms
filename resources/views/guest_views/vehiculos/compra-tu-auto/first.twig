@@ -1,0 +1,560 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block head %}
+<meta property="og:image" itemprop="image" content="{{base_url()}}/public/images/logo300x200.png">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="200">
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Ciro Automotores - Vendemos autos usados en Salta y Jujuy además de 0 KM" />
+<meta property="og:description" content="Ciro Automotores te ofrece los mejores autos usados en Salta y Jujuy. ¡Hacé contacto!" />
+{% endblock %}
+{% block aditional_css %}
+  {% if production %}
+    <link rel="stylesheet" type="text/css" href="css/vehiculos/sources/compra-tu-0km.css">
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="css/vehiculos/sources/compra-tu-0km.css">
+  {% endif %}
+
+  <style type="text/css">
+  .step1 {
+    display: none;
+  }
+  </style>
+
+{% endblock %}
+{% block title %}Comprá tu {{publicacion.titulo}} {% endblock %}
+{% block content %}
+<div class="box-compra" id="simulator">
+  <div class="container-fluid">       
+      <div class="row">      
+        <div class="col-lg-4">
+          <div class="card">
+            <img class="card-img-top" src="{{publicacion.vehiculo.getFotos[0].archivo}}" alt="{{publicacion.titulo}}">
+            <div class="card-body">
+              <div class="card-title h4 m-0">{{publicacion.titulo}}</div>             
+            </div>         
+          </div>
+          <small class="px-2 text-grey">* No incluye gastos de gestión ni envio. Sujeto a modificaciones posteriores.</small>
+        </div>
+        <div class="col-lg-8 mx-auto col-sm-12">          
+          <div class="card">
+            <div class="card-body">
+              <div class="h2 font-weight-light mb-2">¿Cómo lo querés pagar?</div>
+              <div class="tab-content w-100" id="pills-tabContent">
+                <div class="tab-pane fade show active dream-car" id="pills-dream-car" role="tabpanel" aria-labelledby="pills-dream-car-tab">
+                  
+                  <div class="list-group paymethods">
+                    <div class="list-group-item list-group-item-action" data-checkbox="check_efectivo">
+                      <div class="d-flex w-100 justify-content-between">
+                        <div class="paymethod">
+                          <img class="rounded-circle" src="https://cdn2.iconfinder.com/data/icons/business-271/141/16-512.png" alt="Card image cap">
+                          <div class="pm-info">
+                            <div class="pm-title">Efectivo</div>
+                            <div class="pm-descripcion">Pagá en efectivo y accedé a un increíble descuento del 10% en la compra de tu vehículo.</div>
+                            <span class="badge badge-pill badge-success font-weight-light">Opción preferida por nuestros compradores</span>
+                          </div>
+                          <div class="inputGroup">
+                            <input id="check_efectivo" v-model="check_efectivo" name="check_efectivo" type="checkbox"/>
+                            <label for="check_efectivo"></label>
+                          </div>
+                        </div>
+                      </div>                        
+                    </div>
+                    <div class="form_checkbox" v-if="check_efectivo">
+                      <div class="row">
+                        <div class="col-lg-6 mx-auto text-center">
+                          <div class="form-group mb-0">
+                            <label class="h5">¿Cuánto vas a entregar?</label>
+                            <div class="input-group">
+                              <div class="input-group-prepend">
+                                <div class="input-group-text"><i class="fa fa-dollar"></i></div>
+                              </div>
+                              <input type="number" class="form-control" v-model="efectivo" @change="Calcular()" @keyup="Calcular()" max="" id="efectivo_entrega" placeholder="100.000">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="list-group-item list-group-item-action" data-checkbox="check_usado">
+                      <div class="d-flex w-100 justify-content-between">
+                        <div class="paymethod">
+                          <img class="rounded-circle" src="images/if_car.png" alt="Card image cap">
+                          <div class="pm-info">
+                            <div class="pm-title">Entregar tu usado como parte de pago</div>
+                            <div class="pm-descripcion">Es simple: valuamos tu usado en nuestra concesionaria y el resto podés pagarlo en efectivo o financiarlo.</div>
+                          </div>
+                          <div class="inputGroup">
+                            <input id="check_usado" v-model="check_usado" name="check_usado" type="checkbox"/>
+                            <label for="check_usado"></label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form_checkbox" v-if="check_usado">
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <div class="h5 text-center">¿Qué vehículo tenés?</div>
+                        </div>
+                        <div class="col-lg-4">
+                          <div class="form-group">
+                            <div class="input-group">
+                              <div class="input-group-prepend">
+                                <div class="input-group-text">Marca</div>
+                              </div>
+                              <select class="form-control" v-model="marca_usado" @change="CambioMarca($event)">
+                                <option v-for="(marca, key) in marcas" v-bind:value="key">
+                                  <% marca.marca | capitalize %>
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-4">
+                          <div class="form-group">
+                            <div class="input-group">
+                              <div class="input-group-prepend">
+                                <div class="input-group-text">Modelo</div>
+                              </div>
+                              <select disabled class="form-control" id="i_modelo" v-model="modelo_usado" @change="CambioModelo($event)">
+                                <option v-for="(modelo, key) in modelos" v-bind:value="key">
+                                  <% modelo.name | capitalize %>
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-4">
+                          <div class="form-group">
+                            <div class="input-group">
+                              <div class="input-group-prepend">
+                                <div class="input-group-text">Año</div>
+                              </div>
+                              <select disabled class="form-control" id="i_year" v-model="year_usado" @change="CambioYear($event)">
+                                <option v-for="year in years" v-bind:value="year">
+                                  <% year | capitalize %>
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-12">
+                          <div class="form-group">
+                            <div class="input-group">
+                              <div class="input-group-prepend">
+                                <div class="input-group-text">Versión</div>
+                              </div>
+                              <select disabled class="form-control" id="i_version" v-model="version_usado" @change="CambioVersionUsado($event)" data-trigger="manual" data-container="body" data-toggle="popover" data-placement="top" title="No tenemos más información" data-html="true" data-content="Contactá a un asesor telefonicamente para coordinar una visita a nuestra agencia.<br><a target='_blank' href='https://api.whatsapp.com/send?phone=543874898080&text=Hola, quiero cotizar mi vehículo.' class='btn btn-outline-success btn-block btn-sm mt-3'>Enviar un WhatsApp</a>">
+                                <option v-for="(version, key) in versions" v-bind:value="key">
+                                  <% version.name %>
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-12" v-if="usado > 0">
+                          <div class="h5 m-0">Precio <u>aproximado</u> de toma: <span class="float-right"><% FormatMoney(usado) %></span></div>
+                          <small>Sujeto a verificaciones técnicas y estéticas del vehículo</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body py-0">
+              <div class="my-2 h5 font-weight-light mb-4">Ahora podés financiar tu crédito hasta en 60 cuotas para que tu sueño se haga realidad 😋</div>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th><% nombre_version %></th>
+                    <th class="text-right precio_venta"><% FormatMoney(precio_vehiculo) %></th>
+                  </tr>
+                  <transition name="fade">
+                    <tr class="text-success" v-if="check_efectivo">
+                      <td>Entrega en efectivo</td>
+                      <td class="text-right entrega_efectivo"><% FormatMoney(efectivo) %></td>
+                    </tr>
+                  </transition>
+                  <transition name="fade">
+                    <tr class="text-success" v-if="check_usado">
+                      <td>Recepción Usado</td>
+                      <td class="text-right recepcion_usado"><% FormatMoney(usado) %></td>
+                    </tr>                    
+                  </transition>
+                  <tr class="text-success" v-if="credito > 0">
+                    <td>Financación hasta en 60 cuotas</td>
+                    <td class="text-right resto_credito"><% FormatMoney(credito) %></td>  
+                  </tr>                  
+                </tbody>
+              </table>  
+            </div>
+            <div class="card-body">                            
+              <button type="button" class="btn btn-lg btn-success btn-block" disabled id="btn_comprar" data-toggle="modal" data-target="#contactoModal">Comprar mi <% nombre_version %></button>
+            </div>
+          </div>
+        </div>      
+      </div>
+  </div>
+  <div class="modal fade" id="contactoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class=" h5 modal-title text-center" id="exampleModalLabel">Estás a un paso de tu <% nombre_version %></div>
+        </div>
+        <div class="modal-body step0">
+          <form action="{{path_for('compratuauto.primerpaso', { 'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}" method="POST" name="consulta_0km">
+            {{csrf.field | raw}}
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="cta_nombre">Nombre</label>
+                <input type="text" class="form-control" required  name="cta_nombre" placeholder="Nombre">
+              </div>
+              <div class="form-group col-md-6">
+                <label for="cta_apellido">Apellido</label>
+                <input type="text" class="form-control" required  name="cta_apellido" placeholder="Apellido">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="cta_telefono">Teléfono</label>
+                <input type="tel" class="form-control" required name="cta_telefono" placeholder="Teléfono">
+              </div>
+              <div class="form-group col-md-6">
+                <label for="cta_ciudad">Ciudad</label>
+                <input type="text" class="form-control"required  name="cta_ciudad" placeholder="Ciudad">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success btn-block">Comprar mi <% nombre_version %></button>
+          </form>
+        </div>
+        <div class="step1">
+          <div class="col-sm-12">
+            <div class="alert alert-primary mt-2" role="alert">
+              ¡Listo! Un asesor comercial se contactará pronto para continuar con la compra de tu <% nombre_version %>.
+            </div>
+            <a href="{{path_for('home')}}" class="btn btn-block btn-outline-primary mb-2">Ver más vehiculos</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
+</div>
+{% endblock %}
+{% block custom_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/accounting.js/0.4.1/accounting.min.js"></script>
+{% if production %}
+  
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+{% else %}
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  
+{% endif %}
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+
+
+<script type="text/javascript">
+function ucwords(str,force){
+  str=force ? str.toLowerCase() : str;
+  return str.replace(/(^([a-zA-Z\p{M}]))|([ -][a-zA-Z\p{M}])/g,
+  function(firstLetter){
+  return firstLetter.toUpperCase();
+  });
+}
+
+var primera_id = parseInt('{{publicacion.vehiculo.id}}');
+
+
+var marcas = [{"marca":"ALFA ROMEO","codigo":"MLA6039","modelos":[]},{"marca":"AUDI","codigo":"MLA5782","modelos":[]},{"marca":"BMW","codigo":"MLA5783","modelos":[]},{"marca":"CHERY","codigo":"MLA42429","modelos":[]},{"marca":"CHEVROLET","codigo":"MLA3185","modelos":[]},{"marca":"CHRYSLER","codigo":"MLA4357","modelos":[]},{"marca":"CITROEN","codigo":"MLA5779","modelos":[]},{"marca":"DACIA","codigo":"MLA5779MLA5779","modelos":[]},{"marca":"DAEWOO","codigo":"MLA5680","modelos":[]},{"marca":"DAIHATSU","codigo":"MLA6619","modelos":[]},{"marca":"DODGE","codigo":"MLA6671","modelos":[]},{"marca":"FERRARI","codigo":"MLA97714","modelos":[]},{"marca":"FIAT","codigo":"MLA3174","modelos":[]},{"marca":"FORD","codigo":"MLA3180","modelos":[]},{"marca":"GALLOPER","codigo":"MLA3180MLA3180","modelos":[]},{"marca":"HEIBAO","codigo":"MLA3174MLA3174","modelos":[]},{"marca":"HONDA","codigo":"MLA5791","modelos":[]},{"marca":"HYUNDAI","codigo":"MLA5683","modelos":[]},{"marca":"ISUZU","codigo":"MLA6599","modelos":[]},{"marca":"JAGUAR","codigo":"MLA83415","modelos":[]},{"marca":"JEEP","codigo":"MLA6600","modelos":[]},{"marca":"KIA","codigo":"MLA7079","modelos":[]},{"marca":"LADA","codigo":"MLA7219","modelos":[]},{"marca":"LAND ROVER","codigo":"MLA8125","modelos":[]},{"marca":"LEXUS","codigo":"MLA8125MLA8125","modelos":[]},{"marca":"MASERATI","codigo":"MLA8125MLA8125I","modelos":[]},{"marca":"MAZDA","codigo":"MLA5681","modelos":[]},{"marca":"MERCEDES BENZ","codigo":"MLA6038","modelos":[]},{"marca":"MG","codigo":"MLA6038MLA6038","modelos":[]},{"marca":"MINI","codigo":"MLA8480","modelos":[]},{"marca":"MITSUBISHI","codigo":"MLA5743","modelos":[]},{"marca":"NISSAN","codigo":"MLA6173","modelos":[]},{"marca":"PEUGEOT","codigo":"MLA4100","modelos":[]},{"marca":"PORSCHE","codigo":"MLA8503","modelos":[]},{"marca":"PROTON","codigo":"MLA8503MLA8503","modelos":[]},{"marca":"RENAULT","codigo":"MLA3205","modelos":[]},{"marca":"ROVER","codigo":"MLA6041","modelos":[]},{"marca":"SAAB","codigo":"MLA6041MLA6041","modelos":[]},{"marca":"SEAT","codigo":"MLA6109","modelos":[]},{"marca":"SMART","codigo":"MLA6109MLA6109","modelos":[]},{"marca":"SSANGYONG","codigo":"MLA11927","modelos":[]},{"marca":"SUBARU","codigo":"MLA7078","modelos":[]},{"marca":"SUZUKI","codigo":"MLA6583","modelos":[]},{"marca":"TATA","codigo":"MLA11807","modelos":[]},{"marca":"TOYOTA","codigo":"MLA5753","modelos":[]},{"marca":"VOLKSWAGEN","codigo":"MLA3196","modelos":[]},{"marca":"VOLVO","codigo":"MLA7080","modelos":[]}];
+
+var app = new Vue({
+  el: '#simulator',
+  delimiters: ["<%","%>"],
+  data: {
+
+    marca_usado: '',
+    year_usado: '',
+    modelo_usado: '',
+    version_usado: null,
+    precio_usado: 0,
+
+    marcas: marcas,
+    modelos: {},
+    years: {},
+    versions: {},
+
+    check_efectivo: false,
+    check_usado: false,
+
+    id_vehiculo: primera_id,    
+    precio_vehiculo: parseInt('{{publicacion.vehiculo.precio_venta}}'),
+    usado: 0,
+    credito: 0,
+    efectivo: '',
+    
+    nombre_version: '{{publicacion.titulo}}',
+  },
+  filters: {
+    capitalize: function (value) {
+      if (!value) return ''
+      value = ucwords(value.toString().toLowerCase());
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    }
+  },
+  methods: {
+    /* Usados */
+    CambioMarca: function(event) {
+      var url_modelos = '{{base_url()}}/repeater.php?url=http://acara.mercadolibre.com.ar/async/' + this.marcas[this.marca_usado].codigo + '/models';
+      this.modelo_usado = '';
+      this.year_usado = '';
+      this.version_usado = null;
+      this.usado = 0;
+
+      axios.get(url_modelos, {crossdomain: true}).then((response) => {
+        this.modelos = response.data[2].models;
+        $('#i_modelo').prop('disabled', false);
+        $('#i_year').prop('disabled', true);
+        $('#i_version').prop('disabled', true);
+      }).catch( error => { console.log(error); });
+    },
+    CambioModelo: function(event) {
+      var url_year = '{{base_url()}}/repeater.php?url=http://acara.mercadolibre.com.ar/async/' + this.modelos[this.modelo_usado].id + '/years';
+      this.year_usado = '';
+      this.version_usado = null;
+      this.usado = 0;
+
+      axios.get(url_year, {crossdomain: true}).then((response) => {        
+        this.years = response.data[2].years;
+        $('#i_modelo').prop('disabled', false);      
+        $('#i_year').prop('disabled', false);
+        $('#i_version').prop('disabled', true);
+      }).catch( error => { console.log(error); });
+    },
+    CambioYear: function(event) {
+      var url_final = '{{base_url()}}/repeater.php?url=http://acara.mercadolibre.com.ar/async/' + this.modelos[this.modelo_usado].id + '/' + this.year_usado + '/version_prices';
+      this.version_usado = null;
+      this.usado = 0;
+      
+      axios.get(url_final, {crossdomain: true}).then((response) => {
+        if(response.data[2] == null) {          
+          $('#i_version').prop('disabled', true);
+          $('#i_version').popover('show');
+          setTimeout(function(){
+            $('#i_version').popover('hide');
+          }, 5000);
+        }
+        else {
+          $('#i_modelo').prop('disabled', false);      
+          $('#i_year').prop('disabled', false);
+          $('#i_version').prop('disabled', false);
+          this.versions = response.data[2].versions;
+        }
+      }).catch( error => { console.log(error); });
+
+
+    },
+    CambioVersionUsado: function(event) {     
+      this.usado = this.versions[this.version_usado].price * 0.90 ;
+    },
+
+    /* Operaciones */
+    FormatMoney: function(money) {
+      return accounting.formatMoney(money, "$ ", 2, ".", ",");
+    },
+    CambioVersion: function(event) {
+      this.Calcular();
+    },
+    Calcular: function() {      
+      this.saldo = this.precio_vehiculo;
+      this.saldo -= this.usado;
+      this.saldo -= this.efectivo;
+      this.credito = this.precio_vehiculo - this.usado - this.efectivo;
+      this.saldo -= this.credito;
+    }
+  },
+  created: function()
+  {    
+    $('#efectivo_entrega').attr('max', this.precio_vehiculo);   
+    
+  },
+  updated: function () {
+
+    if(!this.check_efectivo) {
+      this.efectivo = 0;
+    }
+
+    if(!this.check_usado) {
+      this.usado = 0;
+    }
+
+    this.saldo = this.precio_vehiculo;
+      this.saldo -= this.usado;
+      this.saldo -= this.efectivo;
+      this.credito = this.precio_vehiculo - this.usado - this.efectivo;
+      this.saldo -= this.credito;
+      
+
+      var s1 = false;
+      var s2 = false;
+      var s3 = false;
+      if(this.saldo == 0) {
+        s1 = true;        
+      }
+
+      if(this.check_usado){
+        if(this.version_usado != null) {
+          s2 = true;
+        }
+        else {
+          s2 = false;
+        }
+      }
+      else { s2 = true }
+
+      if(this.check_efectivo) {
+        if(this.efectivo > 0) {
+          s3 = true;
+        }
+        else {
+          s3 = false;
+        }
+      } else { s3 = true; }
+
+      if(s1 == true && s2 == true && s3 == true && (this.check_efectivo != false || this.check_usado != false)) {
+        $('#btn_comprar').prop('disabled', false);
+      }
+      else {
+        $('#btn_comprar').prop('disabled', true);
+      }
+
+  }
+});
+
+$(document).ready(function(){
+
+  $('form[name=consulta_0km]').submit(function(e){
+    e.preventDefault();
+  })
+
+
+  $('form[name=consulta_0km]').submit(function(e){
+
+    e.preventDefault();
+
+    var form = $(this);
+
+
+
+    var compra_data = {
+      check_efectivo: app.check_efectivo,
+      check_usado: app.check_usado,
+
+      id_version_compra: app.id_vehiculo,
+      precio_vehiculo: app.precio_vehiculo,
+      usado: app.usado,
+      credito: app.credito,
+      efectivo: app.efectivo,
+      nombre_version: app.nombre_version,
+
+    };
+
+    if(app.check_usado) {
+
+      compra_data.marca_usado = app.marcas[app.marca_usado].marca;
+      compra_data.modelo_usado = app.modelos[app.modelo_usado].name;
+      compra_data.year_usado = app.year_usado;
+      compra_data.version_usado = app.versions[app.version_usado].name;
+
+    }
+
+
+    console.log(compra_data);
+
+    var formData = new FormData();
+    formData.append('compra_data', JSON.stringify(compra_data));
+
+    formData.append('csrf_name', $('input[name=csrf_name]').val());
+    formData.append('csrf_value', $('input[name=csrf_value]').val());
+
+    formData.append('csrf_name', $('input[name=csrf_name]').val());
+    formData.append('csrf_value', $('input[name=csrf_value]').val());
+
+    formData.append('cta_nombre',$('input[name=cta_nombre]').val());
+    formData.append('cta_apellido',$('input[name=cta_apellido]').val());
+    formData.append('cta_telefono',$('input[name=cta_telefono]').val());
+    formData.append('cta_ciudad',$('input[name=cta_ciudad').val());
+    formData.append('url', "{{base_url()}}{{path_for('vehicle.ver', { 'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}");
+
+    $.ajax({
+      url: form.action,
+      data: formData,
+      method: 'POST',
+      processData: false,
+      contentType: false,
+      dataType: "json",
+      success: function(response) {
+        if(response.success) {
+          $('.step0').fadeOut(function() {
+            $('.step1').fadeIn();
+          });
+        }        
+      },
+      complete: function (jqXHR) {
+        var csrfToken = jqXHR.getResponseHeader('X-CSRF-Token');        
+        if (csrfToken) {
+          try {
+            csrfToken = $.parseJSON(csrfToken);
+            var csrfTokenKeys = Object.keys(csrfToken);
+            var hiddenFields = $('#simulator').find('input.csrf[type="hidden"]');
+            
+            if (csrfTokenKeys.length === hiddenFields.length) {
+              hiddenFields.each(function(i) {               
+                $('input[name="' + csrfTokenKeys[i] + '"').val(csrfToken[csrfTokenKeys[i]]);                
+              });
+            }
+            
+          }
+          catch (e) {
+
+          }
+        }
+      }
+    });
+
+  });
+
+  $('.list-group-item-action').click(function(){
+    $('#'+$(this).data('checkbox')).prop('checked', !$('#'+$(this).data('checkbox')).prop('checked'));
+    if($('#'+$(this).data('checkbox')).prop('checked')) {
+
+      $('[data-paymethod="' + $(this).data('checkbox') + '"]').slideDown();
+      if($(this).data('checkbox') == 'check_efectivo') {
+        app.check_efectivo = true;
+      }
+      else {
+        app.check_usado = true;
+      }
+    }
+    else {
+      $('[data-paymethod="' + $(this).data('checkbox') + '"]').slideUp();
+      if($(this).data('checkbox') == 'check_efectivo') {
+        app.check_efectivo = false;
+      }
+      else {
+        app.check_usado = false;
+        app.modelo_usado = '';
+        app.year_usado = '';
+        app.version_usado = null;
+        app.usado = 0;
+        $('#i_modelo').prop('disabled', true);
+        $('#i_year').prop('disabled', true);
+        $('#i_version').prop('disabled', true);
+      }      
+    }
+  });
+
+
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,382 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+input[type='number'] {
+    -moz-appearance:textfield;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+	}
+</style>
+{% endblock %}
+{% block title %}Perfil de Usuario{% endblock %}
+{% block header_title %}Perfil de Usuario{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" >
+  <a href="{{path_for('perfil.index')}}">Perfil de Usuario</a>
+</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+  {% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-3">
+      <!-- Profile Image -->
+      <div class="card card-primary card-outline">
+        <div class="card-body box-profile">
+          <div class="text-center">
+            <a href="" data-toggle="modal" data-target="#myModal">
+            	<img id="foto_perfil" class="profile-user-img img-responsive img-circle" {% if auth.empleado.fotoperfil == NULL %} src="{{base_url}}/images/default-avatar.png" {% else %} src="{{base_url}}/perfil/{{auth.empleado.fotoperfil}}" {% endif %} alt="User profile picture">
+  		      </a>
+          </div>
+        	<h3 class="profile-username text-center">{{ auth.individuo.nombre }} {{ auth.individuo.apellido }}</h3>
+        	<p class="text-muted text-center">{{ auth.empleado.puesto.nombre }}</p>
+        	<ul class="list-group list-group-unbordered">
+            <li class="list-group-item">
+              <b>Sucursal</b> <a class="pull-right">{{ auth.empleado.agencia.nombre }}</a>
+            </li>
+            <li class="list-group-item">
+              <b>Correo</b> <a class="pull-right">{{ auth.user.email }}</a>
+            </li>
+            <li class="list-group-item">
+              <b>Facebook</b> <a href="" class="pull-right">Conectar</a>
+            </li>
+        	</ul>
+        	<form class="form-signup" action="{{ path_for('auth.signin') }}" method="post">
+        		<div class="social-buttons">
+        			<a class="btn btn-sm  btn-block btn-primary btn-facebook btn-flat" href="#">
+        				<span class="fa fa-facebook"></span> Iniciar sesión con Facebook
+        			</a>
+        		</div>
+        	</form>
+        </div>
+      </div>
+  </div>
+  <div class="col-md-6">
+  	<div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">Datos Personales:</h3>
+      </div>
+      <form role="form" method="POST" action="{{path_for('perfil.datos')}}" autocomplete="off">
+      	<input type="hidden" name="id_localidad" id="id_localidad" value="{{auth.individuo.id_localidad}}">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6" >
+            	<label class="control-label" for="apellido"> Apellido</label>
+	            <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+                </div>
+                <input type="text" class="form-control" value="{{ auth.individuo.apellido }}" name="apellido">
+	            </div>
+	            {% if errors.apellido %}
+								<i class="help-block no-margin">{{ errors.apellido | first }}</i>
+							{% endif %}
+	          </div>
+	          <div class="col-md-6" >
+            	<label class="control-label" for="nombre"> Nombre</label>
+	            <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+                </div>
+                <input type="text" class="form-control" value="{{ auth.individuo.nombre }}" name="nombre">
+	            </div>
+	            {% if errors.nombre %}
+								<i class="help-block no-margin">{{ errors.nombre | first }}</i>
+							{% endif %}
+	          </div>
+	          <div class="col-md-12" >
+            	<label class="control-label" for="email"> Email</label>
+              <div class="input-group">
+                	<input type="email" class="form-control" placeholder="Ingresar dirección de correo personal" value="{{ auth.individuo.email }}" name="email">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">@</span>
+                  </div>
+              </div>
+              {% if errors.email %}
+								<i class="help-block no-margin">{{ errors.email | first }}</i>
+							{% endif %}
+            </div>
+            <div class="col-md-6">
+            	<label class="control-label" for="fecha_nacimiento"> Nacimiento</label>
+              <div class="input-group date">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                </div>
+                <input type="text" class="form-control pull-right datepicker" id="datepicker" placeholder="Ingrese su fecha de cumpleaños" name="fecha_nacimiento" value="{{auth.individuo.fecha_nacimiento|date('d/m/Y')}}">
+              </div>
+          	</div>
+          	<div class="col-md-6">
+            	<label class="control-label" for="telefono"> Telefono</label>
+	            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Teléfono celular personal" name="telefono" value="{{auth.individuo.telefono}}">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-phone" aria-hidden="true"></i></span>
+                </div>
+	            </div>
+	          </div>
+          	<div class="col-md-4">
+							<label for="id_tipo_documento">Tipo Documento <small class="text-muted">(*)</small></label>
+							<select class="form-control select2" id="cliente_tipo_documento" name="id_tipo_documento" style="width: 100%;" autocomplete="off" >
+              	{% for item in tipoDocumento %}
+              		{% if auth.individuo.id_tipo_documento == item.id %}
+                	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+              			{% else %}
+                	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+              		{% endif %}
+              	{% endfor %}
+              </select>
+						</div>
+						<div class="col-md-8">
+							<label for="documento">Número de documento <small class="text-muted">(*)</small></label>
+							<div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+                </div>
+								<input type="number" class="form-control" name="documento" id="cliente_documento" placeholder="Número de documento" autocomplete="off" value="{{auth.individuo.documento}}">
+							</div>
+							{% if errors.documento %}
+								<i class="help-block no-margin">{{ errors.documento | first }}</i>
+							{% endif %}
+						</div>
+	          <div class="col-md-12" >
+            	<label class="control-label" for="domicilio"> Domicilio</label>
+            	<input type="text" class="form-control" placeholder="Ingresar dirección personal" value="{{ auth.individuo.domicilio }}" name="domicilio">
+            </div>
+            <div class="col-md-12" >
+            	<label class="control-label" for="observaciones_domicilio"> Domicilio Observaciones</label>
+            	<input type="text" class="form-control" value="{{ auth.individuo.observaciones_domicilio }}" name="observaciones_domicilio">
+            </div>
+            <div class="col-md-6">
+							<label for="id_provincia">Provincia</label>
+							<select class="form-control select2" id="cliente_provincia" name="id_provincia" >
+              	{% for item in provincias %}
+              		{% if auth.individuo.id_provincia == item.id %}
+                	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+              			{% else %}
+                	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+              		{% endif %}
+              	{% endfor %}
+              </select>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group" id="bloodhoundCiudad">
+								<label class="control-label" for="localidad">Localidad </label>
+								<input type="text" class="form-control typeahead" name="localidad" id="cliente_localidad" placeholder="Localidad" autocomplete="off" value="{{auth.individuo.ciudad.nombre}}" >
+							</div>
+						</div>
+            <div class="col-md-12" >
+            	<label class="control-label" for="observaciones"> Observaciones</label>
+            	<input type="text" class="form-control" value="{{ auth.individuo.observaciones }}" name="observaciones">
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary pull-right">Guardar Datos</button>
+        </div>
+        {{ csrf.field | raw }}
+      </form>
+    </div>
+  </div>
+  <div class="col-md-3">
+		<div class="small-box bg-info">
+      <div class="inner">
+        <h4><i class="fa fa-question-circle"></i> ¿Sabías esto?</h4>
+				<p><i class="fa fa-fw fa-arrow-circle-right"></i> Puedes iniciar sesión mucho más rápido si asocias tu cuenta del sistema con tu Facebook.</p>
+				<p><i class="fa fa-fw fa-arrow-circle-right"></i> Puedes asociar tu correo personal para recibir notificaciones acerca del sistema.</p>
+				<p><i class="fa fa-fw fa-arrow-circle-right"></i> Para una mejor identificación en el sistema es recomendable tener una foto de perfil.</p>
+      </div>
+			<p class="small-box-footer"><strong>#CiroAdminTips</strong></p>
+		</div>
+	</div>
+	<div class="col-md-6">
+  	<div class="card card-primary card-outline">
+      <div class="card-header">
+        <h3 class="card-title">Cambiar contraseña:</h3>
+      </div>
+      <form method="POST" action="{{path_for('perfil.contraseña')}}" autocomplete="off">
+        <div class="card-body">
+        	<div class="col-md-12" >
+          	<label class="control-label" for="vieja"> Contraseña Actual</label>
+            <input type="password" class="form-control" name="vieja" autocomplete="off" >
+          </div>
+          <div class="col-md-12" >
+          	<label class="control-label" for="nueva"> Contraseña Nueva</label>
+            <input type="password" class="form-control" name="nueva" autocomplete="off" >
+          </div>
+          <div class="col-md-12" >
+          	<label class="control-label" for="re"> Vuelva a escribir la Contraseña Nueva</label>
+          	<input type="password" class="form-control" name="re" autocomplete="off" >
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary pull-right">Modificar Contraseña</button>
+        </div>
+        {{ csrf.field | raw }}
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+  	<form id="uploadimage" action="" method="post" enctype="multipart/form-data">
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+          <h4 class="modal-title">Cambiar foto de perfil</h4>
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      </div>
+	      <div class="modal-body">
+	      	<img id="previewing" style="width: 200px;" class="profile-user-img img-responsive" {% if auth.empleado.fotoperfil == NULL %} src="{{base_url}}/images/default-avatar.png" {% else %} src="{{base_url}}/perfil/{{auth.empleado.fotoperfil}}" {% endif %} alt="User profile picture">
+        	<br>
+	      	<div class="ocultar">
+				<input type="file" class="btn btn-default btn-block" name="file" id="file"/>
+			</div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+	        <input id="boton_subir" type="submit" class="btn btn-primary" value="Cambiar" class="submit" />
+	      </div>
+	    </div>
+	  </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+
+	<script type="text/javascript">
+	$(document).ready(function (e) {
+		$('#cliente_tipo_documento').select2({
+			minimumResultsForSearch: -1,
+			theme: "bootstrap",
+			width: '100%',
+		});
+		$('#cliente_provincia').select2({
+			theme: "bootstrap",
+			width: '100%',
+		});
+
+		$("#uploadimage").on('submit',(function(e) {
+		e.preventDefault();
+
+		var data = new FormData(this);
+		data.append('nombre-usuario', '{{ auth.individuo.nombre }}{{ auth.individuo.apellido }}');
+
+		$.ajax({
+			url: "imagen-perfil.php", // Url to which the request is send
+			type: "POST",             // Type of request to be send, called as method
+			data: data, // Data sent to server, a set of key/value pairs (i.e. form fields and values)
+			contentType: false,       // The content type used when sending data to the server.
+			cache: false,             // To unable request pages to be cached
+			processData:false,        // To send DOMDocument or non processed data file it is set to false
+			success: function(response)   // A function to be called if request succeeds
+			{
+				var jsonObject = JSON.parse(response);
+				console.log(jsonObject.dir);
+				if(jsonObject.dir != 0)
+				{
+					cambiarfotoperfil({{ auth.empleado.id }}, jsonObject.dir);
+					$('#boton_subir').hide();
+					$('.ocultar').html('<div style="text-align:center;" class="alert alert-info">¡La foto de perfil fue actualizada correctamente!</div>');
+					$('#foto_perfil').attr('src','{{ base_url() }}/perfil/'+jsonObject.dir);
+				}
+			}
+		});
+		}));
+
+		// Function to preview image after validation
+		$(function()
+		{
+			$("#file").change(function()
+			{
+				$("#message").empty(); // To remove the previous error message
+				var file = this.files[0];
+				var imagefile = file.type;
+				var match= ["image/jpeg","image/png","image/jpg"];
+				if(!((imagefile==match[0]) || (imagefile==match[1]) || (imagefile==match[2])))
+				{
+					$('#previewing').attr('src','noimage.png');
+					return false;
+				}
+				else
+				{
+					var reader = new FileReader();
+					reader.onload = imageIsLoaded;
+					reader.readAsDataURL(this.files[0]);
+				}
+			});
+		});
+		function imageIsLoaded(e)
+		{
+			$("#file").css("color","green");
+			$('#previewing').attr('src', e.target.result);
+		};
+
+		var ciudad = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.ciudad.consultar')}}?consulta=",
+	    wildcard: '%QUERY',
+	    replace: function (url, uriEncodedQuery) {
+        return url+uriEncodedQuery+"&id_provincia="+$('#cliente_provincia').val();
+      },
+	  }
+	});
+
+		$('#bloodhoundCiudad .typeahead').typeahead({
+			  minLength: 0,
+			  highlight: true
+			},{
+		  name: 'localidad',
+		  display: 'nombre',
+		  source: ciudad,
+		  templates: {
+		  	suggestion: function (response) {
+		      return '<p>' + response.nombre +' ('+response.cp+')</p>';
+		    },
+			  empty:'No existe la ciudad. Se procedera a crear uno nuevo para la provincia asignada.',
+			  }
+		}).on('typeahead:selected', function(event, selection) {
+			$('#id_localidad').val(selection.id);
+		});
+
+		$('#cliente_provincia').on('change',function(){
+			//Para que el typeahead pueda volver a cargar los datos cuando los campos esten vacios
+			//Primero se debe escribir algun caracter
+			//Segundo borrarlo, con esto se activara el trigger.
+			//La escritura como lectura son realizados en el objecto del input y el objeto del typeahead
+			$('#cliente_localidad').val('a').trigger('change');
+			$('#cliente_localidad').focus().typeahead('val','a').focus();
+			$('#cliente_localidad').val('').trigger('change');
+			$('#cliente_localidad').focus().typeahead('val','').focus();
+		});
+
+	});
+
+	function cambiarfotoperfil(id, foto) {
+		$.ajax({
+			url:"{{ base_url() }}/administracion/perfil/cambiarfoto/"+id+"/"+foto,
+			method: 'GET',
+			cache: false,
+		});
+		console.log("{{ base_url() }}/administracion/perfil/cambiarfoto/"+id+"/"+foto);
+		return 1;
+	}
+	  //Date picker
+    $('#datepicker').datepicker({
+      language:'es-ES',
+		  autoHide: true,
+		  autoPick: true,
+		  format: 'dd/mm/yyyy',
+    })
+	</script>
+{% endblock %}

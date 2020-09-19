@@ -1,0 +1,584 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+<style type="text/css">
+.amcharts-chart-div a {display:none !important;}
+</style>
+{% endblock %}
+{% block title %}Movimientos de Cuenta Corriente{% endblock %}
+{% block header_title %}
+<div>
+	{{ cuenta.nombre_cuenta }}
+</div>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+  <a href="{{path_for('cuenta.index')}}">Cuentas Corrientes</a>
+</li>
+<li class="breadcrumb-item active">
+	Comprobantes
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+
+<div class="row">
+  <div class="col-lg-3 col-md-6">
+    <!-- small box -->
+    <div class="small-box bg-primary">
+      <div class="inner">
+        <h3 class="">$&nbsp;{{ importe|number_format(2, ',', '.') }}</h3>
+
+        <p>&nbsp;Importes totales</p>
+        <div class="icon">
+          <i class="ion ion-stats-bars"></i>
+        </div>
+      </div>
+
+      <a href="#" class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-md-6">
+    <!-- small box -->
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3 class="">$&nbsp;{{ balance|number_format(2, ',', '.') }}</h3>
+
+        <p>&nbsp;Balance Cuenta</p>
+        <div class="icon">
+          <i class="ion ion-stats-bars"></i>
+        </div>
+      </div>
+
+      <a href="#" class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-md-6">
+    <!-- small box -->
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h3 class="">$&nbsp;{{ saldo|number_format(2, ',', '.') }}</h3>
+
+        <p>&nbsp;Saldo a cancelar</p>
+        <div class="icon">
+          <i class="ion ion-stats-bars"></i>
+        </div>
+      </div>
+
+      <a href="#" class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+   <!-- ./col -->
+  <div class="col-lg-3 col-md-6" style="height: 12em;">
+    <!-- small box -->
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>{{ comprobantes }}</h3>
+
+        <p>&nbsp;Comprobantes Generados</p>
+        <div class="icon">
+          <i class="ion ion-bag"></i>
+        </div>
+      </div>
+      <a href="" class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+</div>
+<div class="row" >
+  <div class="col-md-12" >
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          {% if cuenta.tipo_cuenta == 1 %}
+          Listado de Ingresos y Facturas Emitidas
+          {% elseif cuenta.tipo_cuenta == 2 %}
+          Listado de Egresos y Facturas Recibidas
+          {% endif %}
+        </h3>
+          <div class="card-tools">
+          <button type="button" class="btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span> Acciones
+          </button>
+          <div class="dropdown-menu">
+						{% if cuenta.tipo_cuenta == 1 %}
+						<a class="dropdown-item" href="{{path_for('cuenta.crearmovimiento', {'id': cuenta.id },{tipo_cuenta:1} )}}">Nueva Ingreso</a>
+						{% else %}
+						<a class="dropdown-item" href="{{path_for('cuenta.crearmovimiento', {'id': cuenta.id },{tipo_cuenta:2} )}}">Nueva Egreso</a>
+						{% endif %}
+             <a class="dropdown-item" href="{{path_for('cuenta.cerrar', {'id': cuenta.id } )}}" onclick="return confirm('¿Estas seguro que quieres cerrar esta cuenta corriente? Solo podrá volver a habilitarla un administrador.');">Cerrar Cuenta Corriente</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered" id="tablaFactura" width="100%">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Tipo</th>
+                <th>Fecha</th>
+                <th>Importe</th>
+                <th>FechaVto</th>
+                <th data-orderable="false"></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+      	</div>
+      </div>
+      <div class="card-footer">
+        {% if cuenta.id_carpeta>0 %}
+        <a class="btn btn-primary" href="{{path_for('carpeta', {  'id': cuenta.id_carpeta })}}">Ir a la Carpeta</a>
+        {% endif %}
+        <a class="btn btn-success pull-right" href="{{path_for('cuenta.index')}}">Ir a Tablero de Cuentas</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row" >
+  {% if cuenta.tipo_cuenta == 1 %}
+  <div class="col-md-6" >
+    <div class="card" >
+      <div class="card-header">
+        <h4>Datos del Actual Cliente Responsable</h4>
+      </div>
+      <div class="card-body">
+        <p>Razon Social: {{cuenta.cliente.apellido}} {{cuenta.cliente.nombre}}</p>
+        <p>{{cuenta.cliente.tipoDocumento.nombre}}: {{cuenta.cliente.documento}}</p>
+        <p>Nacimiento: {{cuenta.cliente.format_fecha_nacimiento}} ({{cuenta.cliente.edad}})</p>
+        <p>Domicilio: {{cuenta.cliente.domicilio}} {{cuenta.cliente.numero}}</p>
+        <p>{{cuenta.cliente.provincia.nombre}} - {{cuenta.cliente.localidad}} - {{cuenta.cliente.cp}}</p>
+      </div>
+      <div class="card-footer">
+        <a class="btn btn-warning pull-right" href="{{path_for('cliente.editar',{'id':cuenta.cliente.id},{'return_to':current_path_wb})}}">Editar Cliente</a>
+      </div>
+    </div>
+  </div>
+  {% elseif cuenta.tipo_cuenta == 2 %}
+  <div class="col-md-6" >
+    <div class="card" >
+      <div class="card-header">
+        <h4>Datos del Actual Proveedor Responsable</h4>
+      </div>
+      <div class="card-body">
+        <p>Razon Social: {{cuenta.proveedor.razon_social}}</p>
+        <p>{{cuenta.proveedor.tipoDocumento.nombre}}: {{cuenta.proveedor.documento}}</p>
+        <p>Domicilio: {{cuenta.proveedor.domicilio}} {{cuenta.proveedor.numero}}</p>
+        <p>{{cuenta.proveedor.provincia.nombre}} - {{cuenta.proveedor.localidad}} - {{cuenta.proveedor.cp}}</p>
+      </div>
+      <div class="card-footer">
+        <a class="btn btn-warning pull-right" href="{{path_for('proveedor.editar',{'id':cuenta.proveedor.id},{'return_to':current_path_wb})}}">Editar Proveedor</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% if cuenta.id_vehiculo > 0 %}
+  <div class="col-md-6" >
+    <div class="card" >
+      <div class="card-header">
+        <h4>Vehiculo en Tramite</h4>
+      </div>
+      <div class="card-body">
+        <p>Dominio: {{cuenta.vehiculo.getUsado.dominio}}</p>
+        <p>Marca: {{cuenta.vehiculo.getMarca.nombre}}</p>
+        <p>Modelo: {{cuenta.vehiculo.modelo}}</p>
+        <p>Precio Venta: $&nbsp;{{cuenta.vehiculo.precio_venta|number_format(2, ',', '.')}} </p>
+        <p>Entrega Minima: $&nbsp;{{cuenta.vehiculo.calculo_entrega_minima|number_format(2, ',', '.')}} </p>
+      </div>
+      <div class="card-footer">
+
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	
+  $.fn.dataTable.moment( 'DD/MM/YYYY' );
+
+  var tablaFactura = $('#tablaFactura').DataTable( {
+    order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    ajax:{
+      url:"{{path_for('cuenta.facturas.consultar', {'id': cuenta.id })}}",
+      data: function(d){
+        d.recibo = $('#recibo').val();
+      },
+    },
+    columns: [
+      {
+        name: 'id',
+        data: function(data,type,dataToSet){
+          var respuesta = data.id;
+          switch(data.tipo){
+            case 1:
+              respuesta += " <span class='badge label-success'>I</span>";
+              break;
+            case 2:
+              respuesta += " <span class='badge label-danger'>E</span>";
+              break;
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'id_tipo_comprobante',
+        data: function(data,type,dataToSet){
+          var respuesta = data.tipo_comprobante.nombre;
+          switch(data.id_tipo_comprobante){
+            case 3:
+            case 8:
+            case 13:
+              respuesta = '<label class="control-label">'+data.tipo_comprobante.nombre+'</label>';
+            break;
+            case 99:
+              if(data.detalles[0].facturas.length>0){
+                respuesta = '<label class="control-label">RECIBO PAGO</label>';
+              } else {
+                if(data.tipo==1){
+                  respuesta = "RECIBO POSITIVO";
+                } else {
+                  respuesta = "RECIBO NEGATIVO";
+                }
+              }
+            break;
+          }
+          if(data.cae!=null){
+            respuesta += '<br>CAE: '+data.cae;
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'fecha',
+        data: function(data,type,dataToSet){
+          var fecha = moment(data.fecha, 'YYYY-MM-DD').format('DD/MM/YYYY');
+          var creado = respuestaDiferenciaFecha(moment(data.created_at, 'YYYY-MM-DD HH:mm:ss'));
+          return '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Creado '+creado+'">'+fecha+'</label>';
+        },
+      },
+      {
+        name: 'total',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.pagado>0){
+            if(Number(data.pagado) >= Number(data.total)){
+              var last = data.detalles[0].recibos.length - 1;
+              var ultimo = data.detalles[0].recibos[last];
+              var pagado = 'Cancelado';
+              if(Number(data.pagado) > Number(data.total)){
+                pagado = 'Sobrepago';
+              }
+              respuesta = '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Cerrado<br>'+
+                respuestaDiferenciaFecha(moment(ultimo.updated_at, 'YYYY-MM-DD HH:mm:ss'))+'" >'+formatCurrency(data.total)+'<br><span class="badge label-danger">'+pagado+'</span></label>';
+            } else {
+              respuesta = '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Pagado '+formatCurrency(data.pagado)+'">'+formatCurrency(data.total)+'</label>';
+            }
+          } else if(data.id_tipo_comprobante==99 && data.detalles[0].facturas[0]) {
+            respuesta = '<label class="control-label" >'+formatCurrency(data.total)+'</label>';
+            if(data.detalles[0].facturas[0].movimiento.fecha_cobro){
+              respuesta+='<br><span class="badge label-danger">{{cuenta.tipo_cuenta==1?"Cobrado":"Pagado"}}</span>';
+            }
+          } else {
+            respuesta = formatCurrency(data.total);
+          }
+          return respuesta;
+        },
+        className: 'text-right',
+      },
+      {
+        name: 'fecha_vto',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.fecha_vto){
+            respuesta = moment(data.fecha_vto, 'YYYY-MM-DD').format('DD/MM/YYYY');
+          } else if( data.id_tipo_comprobante==99 ){
+            if(data.detalles[0].facturas[0].movimiento.fecha_cobro){
+              respuesta = moment(data.detalles[0].facturas[0].movimiento.fecha_cobro, 'YYYY-MM-DD').format('DD/MM/YYYY');
+            } else {
+              respuesta = moment(data.detalles[0].facturas[0].movimiento.cheque_vto, 'YYYY-MM-DD').format('DD/MM/YYYY');
+            }
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'opciones',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          var href = "{{ path_for('comprobante.imprimir',{'id':99}) }}".replace('/99','/'+data.id);
+          respuesta += '<a class="btn btn-sm btn-info" target="_blank" data-toggle="tooltip" data-container="body" data-html="true" title="Imprimir" href="'+href+'"><span class="ion ion-printer"></span></a>';
+          if(data.detalles[0].facturas.length ==0 && Number(data.pagado)<Number(data.total)){
+            href = "{{ path_for('comprobante.factura.cobrar.cc',{'id':99}) }}".replace('/99','/'+data.id);
+            respuesta += '<a class="btn btn-sm btn-warning" data-toggle="tooltip" data-container="body" data-html="true" title="Cancelar" href="'+href+'"><span class="ion ion-social-usd"></span></a>';
+          } else {
+            if( (data.id_tipo_comprobante==99
+              || data.id_tipo_comprobante==3
+              || data.id_tipo_comprobante==8
+              || data.id_tipo_comprobante==13 )
+              && data.detalles[0].facturas.length>0){
+                var id_factura = data.detalles[0].facturas[0].factura_detalle.comprobante.id;
+                var href = "{{ path_for('comprobante.factura.cobrar.cc',{'id':99},{'recibo':88}) }}".replace('/99','/'+id_factura).replace('=88','='+data.id);
+                respuesta += '<a class="btn btn-sm btn-primary" data-toggle="tooltip" data-container="body" data-html="true" title="Ver Factura" href="'+href+'"><span class="ion ion-android-list"></span></a>';
+            } else if( data.detalles[0].recibos.length>0 && Number(data.pagado)>=Number(data.total)) {
+              var href = "{{ path_for('comprobante.factura.cobrar.cc',{'id':99}) }}".replace('99',data.id);
+              respuesta += '<a class="btn btn-sm btn-primary" data-toggle="tooltip" data-container="body" data-html="true" title="Ver" href="'+href+'"><span class="ion ion-eye"></span></a>';
+            }
+
+          }
+          return respuesta;
+        },
+        className: 'text-center',
+      }
+    ],
+    columnDefs:[
+      {
+        targets:[5,4],
+        width:"10%",
+      },
+      {
+        targets:[0],
+        width:"7%",
+      },
+      {
+        targets:[5],
+        orderable: false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#recibo').select2({
+    minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('.filtrarTabla').on('change', function() {
+    tablaFactura.ajax.reload(null, true);
+  });
+
+  $('#btnMostrarError').on('click',function(){
+    $('#modalError').modal('show');
+  });
+
+});
+
+  AmCharts.makeChart( "graficoVenta", {
+    "type": "serial",
+    "theme": "light",
+    "dataProvider": {{graficoVenta|json_encode|raw}},
+    "categoryField": "id",
+    "autoMargins": false,
+    "marginLeft": 5,
+    "marginRight": 5,
+    "marginTop": 0,
+    "marginBottom": 5,
+    "graphs": [ {
+      "valueField": "total",
+      "showBalloon": false,
+      "lineColor": "#3286C6",
+      'lineThickness':4,
+      'lineAlpha':0.5,
+      "bullet": "round",
+    } ],
+    "valueAxes": [ {
+      "gridAlpha": 0,
+      "axisAlpha": 0
+    } ],
+    "categoryAxis": {
+      "gridAlpha": 0,
+      "axisAlpha": 0,
+      "startOnAxis": true
+    }
+  } );
+
+  AmCharts.makeChart( "graficoPago", {
+    "type": "serial",
+    "theme": "light",
+    "dataProvider": {{graficoPago|json_encode|raw}},
+    "categoryField": "id",
+    "autoMargins": false,
+    "marginLeft": 0,
+    "marginRight": 5,
+    "marginTop": 0,
+    "marginBottom": 0,
+    "graphs": [ {
+      "valueField": "total",
+      "showBalloon": false,
+      "lineColor": "#1B5038",
+      'lineThickness':4,
+      'lineAlpha':0.5,
+      "bullet": "round",
+    } ],
+    "valueAxes": [ {
+      "gridAlpha": 0,
+      "axisAlpha": 0
+    } ],
+    "categoryAxis": {
+      "gridAlpha": 0,
+      "axisAlpha": 0,
+      "startOnAxis": true
+    }
+  } );
+
+function eliminarRecibo(id_factura,id_recibo){
+  var route = "{{path_for('comprobante.factura.recibo.eliminar',{'id_factura':99,'id_recibo':88})}}".replace('99',id_factura).replace('88',id_recibo);
+  bootbox.confirm({
+    title: "Eliminar el Recibo?",
+    message: "Desea eliminar el recibo y todas sus referencias en caso de que tenga? Los movimientos asociados tambien seran borrados.",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: '<i class="ion ion-trash-a"></i> Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result){
+        $.ajax({
+          type: "get",
+          url: route,
+          success: function(data,status){
+            var table = $('#tablaFactura').DataTable();
+            table.ajax.reload(null, true);
+            var href = "{{ path_for('comprobante.factura.cobrar.cc',{'id':99}) }}".replace('99',id_factura);
+            var link = '<a class="btn btn-sm btn-danger" href="'+href+'">Factura '+id_factura+'</a>';
+            $.toast({
+              heading: 'Recibo',
+              text: data.message+'<br>Desea ver la '+link,
+              showHideTransition: 'slide',
+              icon: 'success',
+              position: 'bottom-right',
+            });
+          },
+          error: function(xhr, ajaxOptions,e) {
+            $.toast({
+              heading: 'Recibo',
+              text: xhr.responseJSON.message,
+              showHideTransition: 'slide',
+              icon: 'error',
+              position: 'bottom-right',
+              hideAfter: false,
+            });
+          }
+        });
+      }
+    }
+  });
+}
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+function respuestaDiferenciaFecha(momentDate){
+  var minutos = moment().diff(momentDate,'minutes');
+  var respuesta = '';
+  if (minutos == 0){
+    respuesta = ' ahora';
+  } else if(minutos>60){
+    var horas = Math.floor(minutos / 60);
+    if(horas>24){
+      dias = Math.floor(horas / 24);
+      if(dias>30){
+        meses = Math.floor(dias / 30);
+        if(meses>2){
+          respuesta = ' hace '+meses + ' meses';
+        } else {
+          respuesta = momentDate.format('DD/MM/YYYY');
+        }
+      } else {
+        if(horas == 1){
+          respuesta = ' ayer';
+        } else {
+          respuesta = ' hace '+dias + ' dias';
+        }
+      }
+    } else {
+      if(horas == 1){
+        respuesta = ' hace 1 hora';
+      } else {
+        respuesta = ' hace '+horas + ' horas';
+      }
+    }
+  } else if(minutos>0) {
+    if( minutos <5){
+      respuesta = ' hace instantes';
+    } else {
+      respuesta = ' hace '+minutos + ' minutos';
+    }
+  } else {
+    minutos = minutos * (-1);
+    if(minutos>60){
+      var horas = Math.floor(minutos / 60);
+      if( horas > 24){
+        dias = Math.floor(horas / 24);
+        if(dias == 1){
+          respuesta = ' mañana';
+        } else {
+          respuesta = ' en '+dias+' dias';
+        }
+      } else if (horas == 1) {
+        respuesta = ' en 1 hora';
+      } else {
+        respuesta = ' en '+ horas + ' horas';
+      }
+    } else {
+      if(minutos < 5){
+        respuesta = ' en instante';
+      } else {
+        respuesta = ' en '+ minutos + ' minutos';
+      }
+    }
+  }
+  return respuesta;
+}
+</script>
+{% endblock %}

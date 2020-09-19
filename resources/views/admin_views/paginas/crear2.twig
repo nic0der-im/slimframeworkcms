@@ -1,0 +1,146 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Crear página{% endblock %}
+{% block header_title %}Crear página{% endblock %}
+{% block breadcrumb %}<li><a href="{{path_for('paginas.index')}}">Páginas</a></li><li class="active"><a href="{{path_for('paginas.crear')}}">Crear página</a></li>{% endblock %}
+{% block content %}
+	<div class="row publicacion create">
+		<form name="page_0km_crear_form" method="POST" action="{{path_for('paginas.crearpost')}}">
+			<div class="col-sm-12">
+				<div class="row">					
+					<div class="col-sm-12">
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Descripción de la página:</h3>
+							</div>
+							<div class="box-body">
+								<div class="form-group">									
+									<div class="row">
+										<div class="col-sm-6">
+											<label for="page_0km_titulo">Titulo de la página:</label>
+											<input type="text" class="form-control" name="page_0km_titulo" id="page_0km_titulo" placeholder="Titulo de la página">
+										</div>
+										<div class="col-sm-6">
+											<label for="page_0km_titulo">Descripción de la página:</label>
+											<input type="text" class="form-control" name="page_0km_descripcion" id="page_0km_descripcion" placeholder="Descripción de la página">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Carrusel de presentación:</h3>
+							</div>
+							<div class="box-body">
+								<div class="form-group">			
+									<ul  class="nav nav-tabs">
+										<li class="active">
+							        <a  href="#1a" data-toggle="tab">Primer carrusel:</a>
+										</li>
+										<li><a href="#2a" data-toggle="tab">Segundo carrusel:</a>
+										</li>
+										<li><a href="#3a" data-toggle="tab">Tercer carrusel:</a>
+										</li>
+									</ul>
+									<br>
+									<div class="tab-content clearfix">
+									  <div class="tab-pane active" id="1a">
+						          <div class="row" style="text-align:center;">
+												<div class="col-sm-4">
+													<label for="page_0km_c1_imagen">Imagen (url):</label>
+													<input type="text" class="form-control" name="page_0km_c1_imagen" id="page_0km_c1_imagen" placeholder="Ingrese el link">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c1_titulo">Titulo</label>
+													<input type="text" class="form-control" name="page_0km_c1_titulo" id="page_0km_c1_titulo" placeholder="Titulo del carrusel">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c1_parrafo">Parrafo</label>
+													<input type="text" class="form-control" name="page_0km_c1_parrafo" id="page_0km_c1_parrafo" placeholder="Parrafo del carrusel">
+												</div>
+											</div>
+										</div>
+										<div class="tab-pane" id="2a">
+						         <div class="row" style="text-align:center;">
+												<div class="col-sm-4">
+													<label for="page_0km_c2_imagen">Imagen (url):</label>
+													<input type="text" class="form-control" name="page_0km_c2_imagen" id="page_0km_c2_imagen" placeholder="Ingrese el link">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c2_titulo">Titulo</label>
+													<input type="text" class="form-control" name="page_0km_c2_titulo" id="page_0km_c2_titulo" placeholder="Titulo del carrusel">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c2_parrafo">Parrafo</label>
+													<input type="text" class="form-control" name="page_0km_c2_parrafo" id="page_0km_c2_parrafo" placeholder="Parrafo del carrusel">
+												</div>
+											</div>
+										</div>
+						        <div class="tab-pane" id="3a">
+						          <div class="row" style="text-align:center;">
+												<div class="col-sm-4">
+													<label for="page_0km_c3_imagen">Imagen (url):</label>
+													<input type="text" class="form-control" name="page_0km_c3_imagen" id="page_0km_c3_imagen" placeholder="Ingrese el link">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c3_titulo">Titulo</label>
+													<input type="text" class="form-control" name="page_0km_c3_titulo" id="page_0km_c3_titulo" placeholder="Titulo del carrusel">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c3_parrafo">Parrafo</label>
+													<input type="text" class="form-control" name="page_0km_c3_parrafo" id="page_0km_c3_parrafo" placeholder="Parrafo del carrusel">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<button class="btn btn-primary btn-flat pull-right" type="submit">Crear página y agregar bloques</button>
+						<button class="btn btn-default btn-flat pull-left" type="reset">Limpiar campos</button>
+
+					</div>
+				</div>
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+{% endblock %}
+{% block custom_js %}
+	
+	<script type="text/javascript">
+	$(document).ready(function(){
+
+		CKEDITOR.replace('page_0km_crear', {
+	  	language: 'es',
+	  	height: '500px'
+		});
+
+		CKEDITOR.editorConfig = function( config ) {
+			config.toolbarGroups = [
+				{ name: 'document', groups: [ 'document', 'mode', 'doctools' ] },
+				{ name: 'styles', groups: [ 'styles' ] },
+				{ name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+				{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+				{ name: 'forms', groups: [ 'forms' ] },
+				'/',
+				{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+				{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+				{ name: 'links', groups: [ 'links' ] },
+				{ name: 'insert', groups: [ 'insert' ] },
+				{ name: 'colors', groups: [ 'colors' ] },
+				{ name: 'tools', groups: [ 'tools' ] },
+				{ name: 'others', groups: [ 'others' ] },
+				{ name: 'about', groups: [ 'about' ] }
+			];
+
+			config.removeButtons = 'Save,Print,Templates,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,NewPage,CreateDiv,Language,Flash,Smiley,SpecialChar,PageBreak,Iframe,Maximize,ShowBlocks,About,BGColor,Anchor';
+		};
+
+
+	});
+</script>
+{% endblock %}

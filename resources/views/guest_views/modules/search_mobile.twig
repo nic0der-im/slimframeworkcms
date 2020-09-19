@@ -1,0 +1,37 @@
+<div class="search_mobile">
+	<nav class="navbar p-0">		
+		<span class="btn-close-search_mobile">&times;</span>
+		<form method="POST" class="sbr_form" id="form_search_mobile" action="{{path_for('publicaciones.buscar')}}">
+			<input type="text" data-form="#form_search_mobile" id="input_search_mobile" onClick="ga('send', 'event', 'pagina_inicio', 'buscador', 'buscador');" class="form-control form-control-lg searchbartxt" autofocus name="sbrq" placeholder="Buscá autos, camionetas y más..." />			
+			{{ csrf.field | raw }}
+		</form>
+	</nav>
+</div>
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$(document).on('click', '.openMobileSearch', function() {
+		$( ".search_mobile" ).animate({
+			top: "-=105vh",
+		}, 300, function() {
+			$('body').css('position', 'fixed');
+			$('#input_search_mobile').focus();
+		});
+	});
+
+	$('.btn-close-search_mobile').click(function(){
+		$( ".search_mobile" ).animate({
+			top: "+=105vh",
+		}, 300, function() {
+			$('body').css('position', 'static');
+			$('#input_search_mobile').autocomplete("search", "");
+			$('#input_search_mobile').val('');
+			$('#form_search_mobile')[0].reset();
+		});
+	});
+
+});
+</script>

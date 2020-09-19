@@ -1,0 +1,65 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+{% endblock %}
+{% block title %}Generador de Keywords{% endblock %}
+{% block header_title %}Generador de Keywords{% endblock %}
+{% block breadcrumb %}
+	<li><a href="{{path_for('vehicle.index')}}">Vehículos</a></li>	
+{% endblock %}
+{% block content %}	
+<div class="row">
+	<div class="box box-success">
+		<div class="box-header with-border">
+			<h3 class="box-title text-bold">Lista general de los empleados de Ciro:</h3>
+		</div>
+		<div class="box-body">
+			<h5 style="background-color:#f7f7f7; text-align: center; padding: 7px 10px; margin-top: 0;">DATOS DEL VEHÍCULO:</h5>
+			<!-- /.col -->
+		    <div class="col-sm-6">
+		      <address>
+				<b>MODELO:</b> <input name="form" type="text" id="modelo_input" value="{{ params.vehiculo.modelo }}"><hr>
+				<b>VERSION:</b> <input name="form" type="text" id="version_input"><hr>
+				<b>CUERPO:</b> <input name="form" type="text" id="cuerpo_input"><hr>
+		      </address>
+		      <a class="btn btn-flat btn-block btn-success" onclick="generar();">Generar Keywords</a>
+		    </div>
+		    <hr>
+		    <div class="col-md-12" id="cuerpo">
+		    	
+		    </div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% set string = "" %}
+{% set salto = "<br>" %}
+{% for keyword in keywords %}
+	{% set linea = keyword.formato|replace({ 
+		'MARCA': params.vehiculo.marca, 
+		'MOTOR': params.vehiculo.motor,
+		'COMBUSTIBLE': params.vehiculo.tipo_motor,
+		'TRANSMISION': params.vehiculo.transmision,
+		'YEAR': params.vehiculo.year,
+		'X PUERTAS': params.vehiculo.cantidad_puertas ~ 'P' }) 
+	%}
+	{% set string = string ~ linea ~ salto %}
+{% endfor %}
+
+
+
+{% block custom_js %}
+<script type="text/javascript">
+function generar()
+{
+	var cuerpo = "{{ string | raw }}";
+	cuerpo = cuerpo.replace(/MODELO/g , document.getElementById("modelo_input").value);
+	cuerpo = cuerpo.replace(/VERSION/g , document.getElementById("version_input").value);
+	cuerpo = cuerpo.replace(/CUERPO/g, document.getElementById("cuerpo_input").value);
+
+	cuerpo = cuerpo.toLowerCase();
+	
+  	$("#cuerpo").html( cuerpo );
+}
+</script>
+{% endblock %}

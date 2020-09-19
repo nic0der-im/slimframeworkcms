@@ -1,0 +1,352 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link rel="stylesheet" href="{{ base_url() }}/asources/css/vehiculos.css">
+{% endblock %}
+{% block title %}Editar un vehículo usado{% endblock %}
+{% block header_title %}Editar un vehículo usado{% endblock %}
+{% block breadcrumb %}
+<li><a href="{{path_for('vehicle.index')}}">Vehículos</a></li><li><a href="{{path_for('vehicle.getCar', { 'id': params.vehiculo.id })}}">{{ params.vehiculo.marca }} {{ params.vehiculo.modelo }} {{params.vehiculo.year}}</a></li>
+{% endblock %}
+{% block content %}
+	<div class="row vehicle-upload">
+		{% include 'admin_views/admin_partials/flash.twig' %}
+		<form name="veh_upload_basic_form" method="POST" action="{{path_for('vehicle.modifypost', {	'id': params.vehiculo.id })}}" id="formEditar">
+			<div class="col-md-12">
+				<div class="row">
+					<div class="col-md-4 col-sm-12 md-pull-right">
+						<div class="callout callout-info">
+							<h4><i class="fa fa-question-circle"></i> ¿Sabías esto?</h4>
+							<p>Existe la posibilidad de añadir o modificar la información relacionada a un vehículo luego de editarlo en el sistema. <small class="text-bg-muted">A excepción de (**).</small></p>
+							<p class="text-bg-muted db-txtr"><strong>#CiroAdminTips</strong></p>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-8">
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Información básica del vehículo</h3>
+							</div>
+							<div class="box-body">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-4">
+											<label for="veh_upload_marca">Marca <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">label</i></span>
+												<select class="form-control" name="veh_upload_marca" id="veh_upload_marca" placeholder="Condición" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná la marca del vehículo.<br>Por ejemplo: <b>Ford</b>">
+													<option value="" selected="" disabled="">Marca</option>
+													{% for row in marcas %}
+														{% if row.id==vehiculo.id_marca %}
+															<option class="option" value="{{row.id}}" selected="true">
+																{{row.nombre}}
+															</option>
+														{% else %}
+															<option class="option" value="{{row.id}}">
+																{{row.nombre}}
+															</option>
+														{% endif%}
+													{% endfor %}
+												</select>
+												<span class="input-group-addon hidden input-ready"><i class="material-icons">check</i></span>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_modelo">Modelo <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">directions_car</i></span>
+												<input type="text" class="form-control" name="veh_upload_modelo" id="veh_upload_modelo" placeholder="Modelo" autocomplete="off" required data-toggle="tooltip" data-placement="auto"  value="{{params.vehiculo.modelo}}"  title="Ingresá el modelo del vehículo.<br>Por ejemplo: <b>Focus Titanium</b>">
+												<span class="input-group-addon hidden input-ready"><i class="material-icons">check</i></span>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_year">Año <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">date_range</i></span>
+												<input type="number" min="2005" max="{{ "now"|date("Y") }}" class="form-control" name="veh_upload_year" id="veh_upload_year" placeholder="Año" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{params.vehiculo.year}}" title="Ingresá el año del vehículo.<br>Por ejemplo: <b>2017</b>">
+												<span class="input-group-addon hidden input-ready"><i class="material-icons">check</i></span>
+											</div>
+											<i class="help-block no-margin">Min. {{ "now"|date("Y")-12 }} - Máx. {{ "now"|date("Y") }}</i>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<label for="veh_upload_kilometraje">Kilometraje <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons fa-rotate-180">settings_input_svideo</i></span>
+												<input type="number" class="form-control" name="veh_upload_kilometraje" id="veh_upload_kilometraje" placeholder="Kilometraje" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{params.vehiculo.km}}" title="Ingresá la cantidad de kilómetros del vehículo. Por ejemplo: <b>14500</b>">
+												<span class="input-group-addon">km</span>
+											</div>
+											<i class="help-block no-margin">Solo números sin puntos ni comas.</i>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_dominio">Dominio <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+												<input type="text" class="form-control" name="veh_upload_dominio" id="veh_upload_dominio" placeholder="Dominio" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{params.vehiculo.dominio}}" title="Ingresá el dominio del vehículo. Por ejemplo: <b>CIR 001</b> o <b>AB 123 CD</b>">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_exowner">Cliente / Ex dueño <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">person</i></span>
+												<input type="text" class="form-control" name="veh_upload_exowner" id="veh_upload_exowner" placeholder="Cliente / Ex dueño" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{usado.exowner}}" title="Vinculá el vehículo a un cliente.">
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<label for="veh_upload_motor">Motor <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">local_gas_station</i></span>
+												<input type="text" class="form-control" name="veh_upload_motor" id="veh_upload_motor" placeholder="Motor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{vehiculo.motor}}" title="Ingresá el motor del vehículo. Por ejemplo: <b>2.0</b>">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_tipomotor">Tipo de motor <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">local_gas_station</i></span>
+												<select class="form-control" name="veh_upload_tipomotor" id="veh_upload_tipomotor" placeholder="Tipo de motor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el tipo de motor del vehículo. Por ejemplo: <b>Nafta</b>">
+													<option selected="" disabled="">Tipo de motor</option>
+													{% for motor in motores %}
+														{% if motor.id == vehiculo.id_tipo_motor %}
+									    				<option value="{{ motor.id}}" selected="selected">{{motor.nombre}}</option>
+									    			{% else %}
+															<option value="{{ motor.id }}">{{motor.nombre}}</option>
+														{% endif %}
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_transmision">Transmisión <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-cog"></i></span>
+												<select class="form-control" name="veh_upload_transmision" id="veh_upload_transmision" placeholder="Transmisión" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el tipo de transmisión del vehículo. Por ejemplo: <b>Manual</b>">
+													<option selected="" disabled="">Transmisión</option>
+													{% for transmision in transmisiones %}
+														{% if transmision.id == vehiculo.id_transmision %}
+									    				<option value="{{ transmision.id}}" selected="selected">{{transmision.nombre}}</option>
+									    			{% else %}
+															<option value="{{ transmision.id }}">{{transmision.nombre}}</option>
+														{% endif %}
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<label for="veh_upload_cantidadpuertas">Cantidad de puertas <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-tablet"></i></span>
+												<input type="text" class="form-control" name="veh_upload_cantidadpuertas" id="veh_upload_cantidadpuertas" placeholder="Cantidad de puertas" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{vehiculo.cantidad_puertas}}" title="Ingresá la cantidad de puertas.<br>Por ejemplo: <b>3</b>">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_localidad">Localidad <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">room</i></span>
+												<select class="form-control" name="veh_upload_localidad" id="veh_upload_localidad" placeholder="Localidad" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la localidad del vehículo. Por ejemplo: <b>Salta</b>">
+													<option selected="" disabled="">Localidad</option>
+													{% for provincia in provincias %}
+														{% if provincia.getLocalidades is iterable and provincia.getLocalidades|length >= 1 %}
+															<optgroup label="{{provincia.nombre}}">
+																{% for localidad in provincia.getlocalidades %}
+																	{% if localidad.id == vehiculo.id_localidad %}
+												    				<option value="{{localidad.id}}" selected="selected">{{localidad.nombre}}</option>
+												    			{% else %}
+																		<option value="{{localidad.id}}">{{localidad.nombre}}</option>
+																	{% endif %}
+																{% endfor %}
+															</optgroup>
+															{% endif %}
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_ubicacion">Ubicación <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">room</i></span>
+												<select class="form-control" name="veh_upload_ubicacion" id="veh_upload_ubicacion" placeholder="Ubicación" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la ubicación del vehículo. Por ejemplo: <b>Depósito Salta</b>">
+													<option selected="" disabled="">Ubicación</option>
+													{% for ubicacion in ubicaciones %}
+														{% if ubicacion.id == vehiculo.id_ubicacion %}
+										    			<option value="{{ubicacion.id}}" selected="selected">{{ubicacion.nombre}}</option>
+										    		{% else %}
+															<option value="{{ubicacion.id}}">{{ubicacion.nombre}}</option>
+														{% endif %}
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<label for="veh_upload_preciorevista">Precio de revista <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+												<input type="number" min="0" step="1" class="form-control" name="veh_upload_preciorevista" id="veh_upload_preciorevista" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="Precio de revista" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{usado.precio_revista | round}}" title="Ingresá el precio del vehículo que figura en la revista.<br>Por ejemplo: <b>96000</b>">
+											</div>
+											<i class="help-block no-margin">Solo números sin puntos ni comas.</i>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_preciotoma">Precio de toma <small class="text-muted">(*) (**)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+												<input type="number" min="0" step="1" class="form-control" name="veh_upload_preciotoma" id="veh_upload_preciotoma" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="Precio de toma" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{usado.precio_toma | round}}" title="Ingresá el precio de toma del vehículo.<br>Por ejemplo: <b>96000</b>">
+											</div>
+											<i class="help-block no-margin">Solo números sin puntos ni comas.</i>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_precioreparacion">Precio de reparación <small class="text-muted">(*) (**)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+												<input type="number" min="0" step="1" class="form-control" name="veh_upload_precioreparacion" id="veh_upload_precioreparacion" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="Precio de reparación" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{usado.precio_reparacion_estimado | round}}" title="Ingresá el precio de reparación del vehículo.<br>Por ejemplo: <b>96000</b>">
+											</div>
+											<i class="help-block no-margin">Solo números sin puntos ni comas.</i>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<label for="veh_upload_entregaminima">Entrega mínima</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+												<input type="number" min="0" step="1" class="form-control" name="veh_upload_entregaminima" id="veh_upload_entregaminima" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="Entrega mínima" autocomplete="off" data-toggle="tooltip" data-placement="auto" value="{{vehiculo.entrega_minima | round}}" title="Ingresá la entrega mínima del vehículo.<br>Por ejemplo: <b>96000</b>">
+											</div>
+											<i class="help-block no-margin">Solo números sin puntos ni comas.</i>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_precioventa">Precio de contado</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+												<input type="number" min="0" step="1" class="form-control" name="veh_upload_precioventa" id="veh_upload_precioventa" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="Precio de contado" autocomplete="off" data-toggle="tooltip" data-placement="auto" value="{{vehiculo.precio_venta | round}}"  title="Ingresá el precio de contado del vehículo.<br>Por ejemplo: <b>96000</b>">
+											</div>
+											<i class="help-block no-margin">Solo números sin puntos ni comas.</i>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_precioventa">Precio de lista</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+												<input type="number" min="0" step="1" class="form-control" name="veh_upload_preciolista" id="veh_upload_preciolista" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="Precio de lista" autocomplete="off" data-toggle="tooltip" data-placement="auto" value="{{vehiculo.precio_lista | round}}"  title="Ingresá el precio de lista del vehículo.<br>Por ejemplo: <b>96000</b>">
+											</div>
+											<i class="help-block no-margin">Solo números sin puntos ni comas.</i>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_estado">Estado del vehículo <small class="text-muted">(*)</small></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-info-circle"></i></span>
+												<select class="form-control" name="veh_upload_estado" id="veh_upload_estado" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el estado del vehículo.<br>Por ejemplo: <b>Consignación</b>">
+													<option disabled selected>Estado del vehículo</option>
+													{% for estado in estados %}
+														{% if estado.id == vehiculo.estado_vehiculo %}
+										    			<option value="{{estado.id}}" selected="selected">{{estado.nombre}}</option>
+										    		{% else %}
+															<option value="{{estado.id}}">{{estado.nombre}}</option>
+														{% endif %}
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="veh_upload_color">Color </label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="material-icons">directions_car</i></span>
+												<input type="text" class="form-control" name="veh_upload_color" id="veh_upload_color" placeholder="Color" autocomplete="off" required data-toggle="tooltip" data-placement="auto"  value="{{usado.color}}"  title="Ingresá el color del vehículo.<br>Por ejemplo: <b>Azul marino</b>">
+												<span class="input-group-addon hidden input-ready"><i class="material-icons">check</i></span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-4">
+						<div class="box box-info md-no-mb">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Información adicional del vehículo</h3>
+							</div>
+							<div class="box-body">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-12">
+											<label for="veh_upload_observaciones">Observaciones</label>
+											<textarea class="form-control" style="max-height: 200px;" name="veh_upload_observaciones" id="veh_upload_observaciones">{{usado.observaciones}}</textarea>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="overlay" id="overmore">
+								<button class="btn btn-primary bg-blue btn-sm" style="margin: auto;" type="button" id="moreinfo">
+									Deseo cargar más información
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-8">
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Fin del formulario</h3>
+							</div>
+							<div class="box-body">
+								<input type="hidden" name="veh_id" id="veh_id" value="{{vehiculo.id}}">
+								<input type="hidden" name="veh_usado_id" id="veh_usado_id" value="{{usado.id_vehiculo}}">
+								<a class="btn btn-primary btn-flat pull-right" id="btnEditar">Guardar vehículo</a>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-8 aclaracion-formulario">
+						<div class="row">
+							<div class="col-sm-12 text-muted">
+								<small><b>(*)</b> Campos obligatorios.</small><br>
+								<small><b>(**)</b> Recomendamos verificar estos campos antes de cargar el vehículo ya que solo podrán ser editados por un administrador.</small>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+{% endblock %}
+{% block custom_js %}
+
+	<script>
+		$(document).ready(function(){
+
+			CKEDITOR.replace('veh_upload_observaciones', {
+				height: 75,
+				toolbar :
+				[
+					{ name: 'basicstyles', items : [ 'Bold','Italic' ] },
+					{ name: 'paragraph', items : [ 'NumberedList','BulletedList' ] }
+				]
+			});
+
+			$('#veh_upload_estado').change(function(){
+				if($(this).val() == 1) {
+					$('#veh_upload_ubicacion').prop('disabled', true);
+				}
+				else {
+					$('#veh_upload_ubicacion').prop('disabled', false);
+				}
+			});
+
+			$('#moreinfo').click(function(){
+				$(this).parent().addClass('overhidden');
+			});
+			$('#btnEditar').on('click',function(){
+				var dominio = $('#veh_upload_dominio').val();
+				const patente = /^([A-ZÑ]{3}\s\d{3}|[A-ZÑ]{2}\s\d{3}\s[A-ZÑ]{2})$/g;
+				if(!patente.test(dominio)){
+					$('#veh_upload_dominio').focus();
+					$('#veh_upload_dominio').closest('.col-md-4').addClass('has-error');
+					alert('Patente no valida');
+					return;
+				} else {
+					$('#veh_upload_dominio').closest('.col-md-4').removeClass('has-error');
+				}
+				$('#formEditar').submit();
+			});
+		});
+	</script>
+{% endblock %}

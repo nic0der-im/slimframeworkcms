@@ -1,0 +1,50 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block head %}
+	<meta property="og:image" itemprop="image" content="{{base_url()}}/public/images/logo300x200.png">
+	<meta property="og:image:width" content="300">
+	<meta property="og:image:height" content="200">
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="Ciro Automotores - ¡Hacé contacto hoy mismo! Tenemos autos usados en Salta y Jujuy además de autos 0 KM" />
+	<meta property="og:description" content="¡Hacé contacto con Ciro Automotores! Tenemos los mejores autos usados en Salta y Jujuy. ¡Te esperamos!" />
+	<meta name="description" content="{# 👁‍🗨 #} Ciro Automotores tiene los mejores autos usados en Salta y también contamos con autos 0 kilómetros. {# 🔥 #} !Hacé contacto ahora mismo! {# 🔥 #}" />
+	<meta name="keywords" content="autos usados salta, autos usados en salta, autos 0 km" />
+{% endblock %}
+{% block aditional_css %}
+
+	{% if production %}
+
+	<link rel="stylesheet" href="/dist/css/404.min.css"/>
+
+	{% else %}
+
+	<link rel="stylesheet" href="/css/404.css"/>
+
+	{% endif %}
+
+{% endblock %}
+{% block title %}Página no encontrada - Ciro Automotores{% endblock %}
+{% block content %}
+	<div class="search-bar-box">
+	<div class="container-fluid">
+		<div class="col-lg-6 float-left">
+			<div class="row">			
+				<h2 class="titulo404">Upss! El enlace solicitado ya no existe...</h2>
+				<h3>No te preocupes, en un momento serás redireccionado a la página principal.<br>Mientras tanto trabajamos para que no tengas de vuelta este problema, éxitos!</h3>
+			</div>
+		</div>
+		<div class="col-lg-6 d-lg-block d-none float-right">
+			<img src="{{static_assets}}/images/auto.gif" class="search-bar-img" alt="Auto funcionando" >
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+	<script type="text/javascript">
+	$(document).ready(function(){
+      setTimeout(function() {
+       window.location.href = "{{path_for('home')}}"
+      }, 7000);
+    }); 
+	</script>
+{% endblock %}

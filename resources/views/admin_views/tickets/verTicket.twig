@@ -1,0 +1,147 @@
+{% extends "admin_views/base.twig" %}
+{% block title %}Mis Tickets - {{ ticket.asunto }}{% endblock %}
+{% block header_title %}Ver el ticket{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('tickets.index')}}">Mis Tickets</a>
+</li>
+<li class="breadcrumb-item active">
+	<a href="{{path_for('tickets.ver', {'id': ticket.id })}}">{{ ticket.asunto }}</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="vendedor_view">
+  <div class="card">
+    <div class="card-heading">
+      <span class="pull-left" style="font-size:1.5em;">Asunto: <strong>{{ ticket.asunto }}</strong></span>
+      <span class="pull-right" style="font-size:1.5em;">
+        {% if 34 in auth.permisosEnlaces %}
+          <a href="{{ path_for('tickets.estado', {'id': ticket.id, 'estado': 1 }) }}" class="btn btn-flat btn-sm btn-warning"><i class="fa fa-hourglass-2" aria-hidden="true"></i> En proceso</a>
+          <a href="{{ path_for('tickets.estado', {'id': ticket.id, 'estado': 2 }) }}" class="btn btn-flat btn-sm btn-success"><i class="fa fa-hourglass-2" aria-hidden="true"></i> Terminado</a>
+        {% endif %}
+      </span>
+      <div style='clear:both'></div>
+      {% for puesto in puestos %}
+        {% if puesto.departamento|length > 0 %}
+          {% if puesto.id_puesto == ticket.destinatario %}
+          <i class="fa {{ puesto.icono }}"></i> {{ puesto.departamento }}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="card-body">
+    <ul class="timeline timeline-inverse">
+      <li class="time-label">
+        {% if ticket.estado == 0 %}
+          <span class="bg-warning">
+            Ticket Abierto
+          </span>
+        {% elseif ticket.estado == 1 %}
+          <span class="bg-warning">
+            En proceso
+          </span>
+        {% elseif ticket.estado == 2 %}
+          <span class="bg-success">
+            Terminado
+          </span>
+        {% endif %}
+      </li>
+      <li>
+        <i class="fa fa-ticket bg-primary"></i>
+
+        <div class="timeline-item">
+          <span class="time"><i class="fa fa-clock-o"></i> {{ticket.created_at|date('d/m/Y')}} a las {{ticket.created_at|date('H:i')}}</span>
+
+          <h3 class="timeline-header">
+          {% if 11 in auth.permisosEnlaces %}
+            <a href="{{path_for('empleados.editar', { 'id': ticket.id_usuario })}}">{{ individuo.nombre }} {{ individuo.apellido }} [{{ticket.id_usuario}}]</a>
+          {% else %}
+            {{ individuo.nombre }} {{ individuo.apellido }}
+          {% endif %}
+           ha emitido el siguiente ticket:
+          </h3>
+
+          <div class="timeline-body">{{ ticket.descripcion | raw }}</div>
+          <div class="timeline-footer">
+
+          </div>
+        </div>
+      </li>
+      {% set respuesta_id = 0 %}
+      {% for respuesta in ticket.respuestas %}
+        {% set respuesta_id = respuesta_id + 1 %}
+        <li>
+          {% if respuesta.id_usuario == ticket.id_usuario %}
+            <i class="fa fa-comments bg-primary"></i>
+          {% else %}
+            <i class="fa fa-comments bg-success"></i>
+          {% endif %}
+          <div class="timeline-item">
+            <span class="time"><i class="fa fa-clock-o"></i> {{respuesta.created_at|date('d/m/Y')}} a las {{respuesta.created_at|date('H:i')}}</span>
+
+            <h3 class="timeline-header">
+              {% if respuesta.id_usuario == ticket.id_usuario %}
+                Mi respuesta #{{respuesta_id}} @ {{ ticket.asunto }}
+              {% else %}
+                Respuesta #{{respuesta_id}} @ {{ ticket.asunto }}
+              {% endif %}
+            </h3>
+
+            <div class="timeline-body">
+              {{ respuesta.respuesta | raw }}
+            </div>
+            <div class="timeline-footer">
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+      {% if ticket.estado == 1 or ticket.estado == 0 %}
+        <li>
+          <span class="bg-blue">
+            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#myModal"><i class="fa fa-mail-reply" aria-hidden="true"></i> Responder</button>
+          </span>
+        </li>
+        <li>
+          <i class="fa fa-clock-o"></i>
+        </li>
+      {% elseif ticket.estado == 2 %}
+        <li class="time-label">
+          <span class="bg-green">
+            Ticket Cerrado - Problema solucionado
+          </span>
+        </li>
+        <li>
+          <i class="fa fa-check bg-green"></i>
+        </li>
+      {% endif %}
+    </ul>
+    </div>
+  </div>
+  <div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <form name="ticket-responder-form" method="POST" action="{{path_for('tickets.responder', {'id': ticket.id } )}}">
+      <!-- Modal content-->
+      <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">{{ ticket.asunto }}</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="respuesta_texto">Escriba su respuesta a continuación:</label><br>
+              <textarea id="respuesta_texto" style="min-width: 100%; max-width: 100%; min-height:200px; resize:none;" name="respuesta_texto"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-flat btn-sm btn-info pull-right" name="ticket_responder_boton" value="1"><i class="fa fa-mail-reply" aria-hidden="true"></i> Enviar respuesta</button>
+          </div>
+      </div>
+      {{ csrf.field | raw }}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

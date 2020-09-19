@@ -1,0 +1,43 @@
+<div class="container-fluid">
+	{% if flash.getMessage('primary') %}
+	<div class="alert alert-primary alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+		{{ flash.getMessage('primary') | first | raw }}
+	</div>
+	{% endif %}
+
+	{% if flash.getMessage('secondary') %}
+	<div class="alert alert-secondary alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+		{{ flash.getMessage('secondary') | first | raw }}
+	</div>
+	{% endif %}
+
+	{% if flash.getMessage('success') %}
+	<div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+		{{ flash.getMessage('success') | first | raw }}
+	</div>
+	{% endif %}
+
+	{% if flash.getMessage('info') %}
+	<div class="alert alert-info alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+		{{ flash.getMessage('info') | first | raw }}
+	</div>
+	{% endif %}
+
+	{% if flash.getMessage('warning') %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+		{{ flash.getMessage('warning') | first | raw }}
+	</div>
+	{% endif %}
+
+	{% if flash.getMessage('error') %}
+	<div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+		{{ flash.getMessage('error') | first | raw }}
+	</div>
+	{% endif %}
+</div>

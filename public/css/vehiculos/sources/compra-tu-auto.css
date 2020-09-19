@@ -1,0 +1,370 @@
+.banner {
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.banner-fullscreen {
+  min-height: 100vh;
+}
+
+.banner-background {
+  height: 400px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.banner-background video {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.banner-overlay {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  background-color: rgba(0,0,0,.7);
+  top: 0px;
+  filter: blur(0.3);
+}
+
+.banner-content {
+  position: absolute;
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  display: flex;
+  align-items: center;
+}
+
+.banner-content .content {
+  color: #fff;
+}
+
+.btn-outline-white {
+  border: 1px solid #fff;
+  margin-top: 1em;
+  border-radius: 3em;
+  font-size: 1.3em;
+  padding: 1em 2em;
+  font-weight: 500;
+  background-color: rgba(255,255,255,.6);
+  color: #222 !important;
+  transition: 300ms;
+}
+
+.btn-outline-white:hover {
+  background-color: rgba(255,255,255,.8);
+  transform: scale(1.1);
+  color: #111 !important;
+}
+
+#simulator {
+  /*height: 0px;
+  overflow: hidden;
+  margin: 0px;*/
+  padding-bottom: 1em;
+}
+
+#simulator .input-dream {
+  max-width: 300px;
+  margin: auto;
+}
+
+@media(min-width: 992px) {
+  #simulator .input-dream {
+    max-width: inherit;
+  }
+}
+
+.box-compra {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f0f0f0;
+  margin: 0px !important;
+  display: flex;
+  align-items: center;
+}
+
+.box-compra-body .card:not(.veh-card) .card-body {
+  padding: 2em;
+}
+
+.box-compra-nav-col .nav {
+  background-color: #007bff;
+  border: 0px;
+}
+
+
+.box-compra-body {  
+  min-height: all;
+}
+
+.card-img-top.vehicle-image {
+  height: auto;
+}
+
+.col-vehicles .vehicle-card:hover {
+  transform: none;
+  cursor: normal;
+  text-decoration: none;
+}
+
+@media(min-width: 992px) {
+  .box-compra-body {
+    min-height: 300px; 
+    padding-left: 0px;
+  }
+
+  .box-compra-nav-col {
+    padding-right: 0px;
+  }
+
+  .card-img-top.vehicle-image {
+    height: 200px;
+    object-fit: cover;
+  }
+
+}
+
+.next-step {
+  border-radius: 2em !important;
+}
+
+.box-compra-body .card-body {  
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  flex-basis: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.box-compra-nav-col .nav {
+  display: flex;
+  flex-direction: row !important;
+  flex-basis: 100%;
+  align-items: center;
+  height: 100%;
+  justify-content: center;
+}
+.box-compra-nav-col .nav .nav-item {
+  display: flex; 
+  position: relative;
+  align-items: center;
+  padding: 0px .5em;
+  justify-content: center;  
+}
+
+.box-compra-nav-col .nav .nav-item a.nav-link.ready {
+  text-decoration: line-through;
+  font-style: italic;
+}
+
+.box-compra-nav-col .nav .nav-item a.nav-link {  
+  font-weight: 100;
+  color: #fff;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+.nav-step {
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.box-compra-nav-col .nav .nav-item span {
+  flex-basis: 100%;
+}
+
+/*.box-compra-nav-col .nav .nav-item:before {
+  position: absolute;
+  content: "";
+  background-color: #fff;
+  font-size: 2em;
+  top: 10px;
+  left: -16px;
+  width: 32px;  
+  height: 32px;
+  border-radius: 32px;
+  box-shadow: 0px 0px 6px 0px #6c757d;
+}*/
+
+.box-compra-vehicle {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  color: #555;
+  padding: 1em;
+}
+
+.box-compra-vehicle .vehicle-info div {
+  font-weight: 500;  
+}
+
+.paymethods .paymethod {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.paymethods .paymethod .pm-title {
+  margin: 0px;
+  font-size: 1.2em;
+  line-height: 1;
+  margin-bottom: .3em;
+  color: #333;
+  font-weight: 400;
+  flex-basis: auto;
+}
+
+.paymethods .paymethod .pm-descripcion {
+  font-size: .8em;
+}
+
+.paymethods .paymethod .pm-info {
+  flex-basis: 100%;
+  text-align: center;
+  order: 3;
+  margin-top: .5em;
+}
+
+.paymethods .paymethod img {
+  flex-basis: 100%;
+  width: 100%;
+  max-width: 100px;
+  object-fit: cover;
+  margin: auto;
+  order: 1;
+}
+
+.paymethods .paymethod .inputGroup {
+  margin: auto;
+  order: 2;
+  flex-basis: 100%;
+  position: absolute;
+  top: 32px;
+  right: 32px;
+}
+
+@media (min-width: 576px) {
+
+}
+
+@media (min-width: 768px) {
+  .paymethods .paymethod .pm-info {
+    flex-basis: 70%;
+    text-align: left;
+  }
+
+  .paymethods .paymethod img {
+    flex-basis: 20%;
+    margin: 0px;
+  }
+
+  .paymethods .paymethod .inputGroup {
+    flex-basis: 10%;
+    position: relative;
+    order: 3;
+    top: 0px;
+    right: 0px;
+    margin: 0px;
+  }
+}
+
+
+
+
+
+
+.dream-car .step1 {
+  display: none;
+}
+
+
+.list-group-item-action {
+  cursor: pointer;
+}
+
+.inputGroup {
+  margin-right: 5px;
+}
+
+.inputGroup label {
+  height: 32px;
+  width: 32px;
+  margin-bottom: 0px;
+  display: block;
+  text-align: left;
+  color: #3C454C;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  transition: color 200ms ease-in;
+  overflow: hidden;
+}
+
+.inputGroup label:after {
+  width: 32px;
+  height: 32px;
+  content: '';
+  border: 2px solid #D1D7DC;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.414 11L4 12.414l5.414 5.414L20.828 6.414 19.414 5l-10 10z' fill='%23fff' fill-rule='nonzero'/%3E%3C/svg%3E ");
+  background-repeat: no-repeat;
+  background-position: 2px 3px;
+  border-radius: 50%;
+  z-index: 2;
+  position: absolute;
+  cursor: pointer;
+  transition: all 300ms;
+
+}
+
+.inputGroup input:checked ~ label {
+  color: #fff;
+}
+
+.inputGroup input:checked ~ label:before {
+  transform: translate(-50%, -50%) scale3d(56, 56, 1);
+  opacity: 1;
+}
+
+.inputGroup input:checked {
+  transform: scale(1.1);
+}
+.inputGroup input:checked ~ label:after {
+  background-color: #007bff;
+  border-color: #007bff;
+  transform: rotateY(360deg) ;
+}
+
+.inputGroup input {
+  width: 32px;
+  height: 32px;
+  order: 1;
+  z-index: 2;
+  position: absolute;
+  
+  cursor: pointer;
+  visibility: hidden;
+  transition: 300ms;
+}
+
+.form_checkbox {
+  background-color: #f8f9fa;
+  border: 1px solid rgba(0,0,0,.125);
+  padding: 1.125em;
+}

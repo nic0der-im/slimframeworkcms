@@ -1,0 +1,109 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Documentación y Manual de Usuario - Crear Manual{% endblock %}
+{% block header_title %}Documentación y Manual de Usuario - Crear Manual{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('ayuda.index')}}">Ayuda</a>
+</li>
+<li class="breadcrumb-item active">
+	<a href="{{path_for('ayuda.index')}}">Crear ayuda</a>
+</li>
+{% endblock %}
+{% block content %}
+<form name="veh_upload_basic_form" method="POST" action="{{path_for('ayuda.crearpost')}}">
+<div class="row">
+		<div class="col-sm-12">
+			<div class="row">
+				<div class="col-md-4 col-sm-12 md-pull-right">
+					<div class="small-box bg-info">
+						<h4><i class="fa fa-question-circle"></i> ¿Sabías esto?</h4>
+						<p>Los manuales se asignan automaticamente según los permisos de los usuarios al sistema, por lo que no será necesario realizar configuración adicional después de crearlos.</p>
+						<p class="text-bg-muted db-txtr"><strong>#CiroAdminTips</strong></p>
+					</div>
+				</div>
+				<div class="col-sm-12 col-md-8">
+					<div class="card card-info">
+						<div class="card-header">
+							<h3 class="card-title text-bold">Formulario de creación:</h3>
+						</div>
+						<div class="card-body">
+							<div class="form-group">
+								<div class="row">
+									<div class="col-sm-6">
+										<label for="manual_titulo">Titulo de la documentación</label>
+										<input type="text" class="form-control" name="manual_titulo" id="manual_titulo" placeholder="Titulo de la publicación" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la documentación.">
+									</div>
+									<div class="col-sm-6">
+										<label for="manual_titulo">Seleccione la categoria de la ayuda</label>
+										<select class="form-control" name="manual_categoria" id="manual_categoria">
+										{% for modulo in modulos %}
+									    	<option value="{{modulo.id}}">{{modulo.nombre_modulo}}</option>
+										{% endfor %}
+									</select>
+									</div>
+								</div>
+								<br>
+								<div class="row">
+									<div class="col-sm-12">
+										<label for="manual_titulo">Descripción de la documentación</label>
+										<input type="text" class="form-control" name="manual_descripcion" id="manual_descripcion" placeholder="Descripción de la publicación" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la documentación.">
+									</div>
+								</div>
+								<br>
+								<div class="row">
+									<div class="col-sm-12">
+										<label for="manual_contenido">Contenido de la documentación</label>
+										<textarea class="form-control"  name="manual_contenido" id="manual_contenido" placeholder="Contenido de la documentación" autocomplete="off" required data-toggle="tooltip" data-placement="auto"></textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-12 col-md-8">
+					<div class="card card-info">
+						<div class="card-header">
+							<h3 class="card-title text-bold">Fin del formulario</h3>
+						</div>
+						<div class="card-body">
+							<button class="btn btn-primary btn-flat pull-right" type="submit">Crear documentación</button>
+							<button class="btn btn-default btn-flat pull-left" type="reset">Limpiar campos</button>
+						</div>
+					</div>
+				</div><wbr>
+			</div>
+		</div>
+		{{ csrf.field | raw }}
+	</div>
+</form>
+{% endblock %}
+{% block custom_js %}
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+		var editor = CKEDITOR.replace( 'manual_contenido', {
+			height: 230,
+			toolbarGroups: [
+				{"name":"basicstyles","groups":["basicstyles"]},
+				{"name":"links","groups":["links"]},
+				{"name":"paragraph","groups":["list","blocks", "align"]},
+				{"name":"document","groups":["mode"]},
+				{"name":"insert","groups":["insert"]},
+				{"name":"styles","groups":["styles"]},
+				{"name":"about","groups":["about"]}
+			],
+			// Remove the redundant buttons from toolbar groups defined above.
+			filebrowserBrowseUrl : '{{base_url()}}/ckfinder/ckfinder.html',
+		    filebrowserImageBrowseUrl : '{{base_url()}}/ckfinder/ckfinder.html?type=Images',
+		    filebrowserFlashBrowseUrl : '{{base_url()}}/ckfinder/ckfinder.html?type=Flash',
+		    filebrowserUploadUrl : '{{base_url()}}/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files',
+		    filebrowserImageUploadUrl : '{{base_url()}}/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images',
+		    filebrowserFlashUploadUrl : '{{base_url()}}/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Flash'
+		});
+		CKFinder.setupCKEditor( editor, '../' );
+	});
+	</script>
+{% endblock %}

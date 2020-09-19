@@ -1,0 +1,135 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Tickets del Departamento{% endblock %}
+{% block header_title %}Tickets del Departamento:{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	<a href="{{path_for('tickets.index')}}">Tickets del Departamento</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+  <div class="col-md-12s col-xs-12">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title text-bold">
+					{% for puesto in puestos %}
+	              		{% if puesto.departamento|length > 0 %}
+	              			{% if puesto.id_puesto == puesto_id %}
+	                		<i class="fa {{ puesto.icono }}"></i> {{ puesto.departamento }}
+	              			{% endif %}
+	              		{% endif %}
+	                {% endfor %}
+				</h3>
+			</div>
+			<div class="card-body">
+				{% if tickets|length > 0 %}
+					<div class="table-responsive">
+						<table class="table table-hover bugs_tabla" width="100%">
+							<thead>
+								<th>Nombre</th>
+								<th>Asunto</th>
+								<th>Estado</th>
+								<th>Ultima Actualización</th>
+								<th></th>
+							</thead>
+							<tbody>
+								{% for ticket in tickets %}
+								<tr>
+									<td>{{ ticket.individuo.nombre }} {{ ticket.individuo.apellido }} </td>
+									<td>{{ ticket.asunto }}</td>
+									<td>
+									{% if ticket.estado == 0 %}
+										<span class="badge label-info">Sin Responder</span>
+									{% elseif ticket.estado == 1 %}
+										<span class="badge label-warning">En proceso</span>
+									{% elseif ticket.estado == 2 %}
+										<span class="badge label-success">Finalizado</span>
+									{% endif %}</td>
+									<td>{{ticket.updated_at|date('d/m/Y')}} {{ticket.updated_at|date('H:i')}}</td>
+									<td>
+										<div class="dropdown">
+										  <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+										  <span class="caret"></span></button>
+										  <div class="dropdown-menu">
+										    <a class="dropdown-item" href="{{ path_for('tickets.ver',  {'id': ticket.id } )}}">Ver Ticket</a>
+									    	{% if ticket.urgente == 0 %}
+									    		<a class="dropdown-item" href="{{ path_for('tickets.prioridad',  {'id': ticket.id, 'prioridad': 1} )}}">Cambiar prioridad a urgente</a>
+									    	{% else %}
+									    		<a class="dropdown-item" href="{{ path_for('tickets.prioridad',  {'id': ticket.id, 'prioridad': 0} )}}">Cambiar prioridad a normal</a>
+									    	{% endif %}
+										    <a class="dropdown-item" href="{{ path_for('tickets.archivar',  {'id': ticket.id } )}}">Archivar Ticket</a>
+										  </div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% else %}
+					<h4 class="text-center text-bold">No tienes tickets para responder.</h4>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+<div id="myModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+	  <form name="ticket-crear-form" method="POST" action="{{path_for('tickets.crear')}}">
+	  <!-- Modal content-->
+	  <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Crear nuevo ticket</h4>
+	      </div>
+	      <div class="modal-body">
+	      	<div class="form-group">
+		        <div class="row">
+		        	<div class="col-md-6">
+			          	<label for="departamento_ticket">Seleccione un departamento:</label><br>
+			          	<select class="form-control" name="departamento_ticket" id="departamento_ticket">
+			          	{% for puesto in puestos %}
+			              	{% if puesto.departamento|length > 0 %}
+			              		<option value="{{ puesto.id_puesto }}">{{ puesto.departamento }}</option>
+			              	{% endif %}
+			           	{% endfor %}
+					   	</select>
+					 </div>
+					 <div class="col-md-6">
+			          	<label for="prioridad">Seleccione su prioridad:</label><br>
+			          	<select class="form-control" name="prioridad" id="prioridad">
+			          		<option value="0"> Normal</option>
+			          		<option value="1"> Urgente</option>
+					   	</select>
+					 </div>
+					 <div class="col-md-12">
+			          	<input type="text" id="asunto_ticket" name="asunto_ticket" class="form-control" placeholder="Asunto del ticket">
+					 </div>
+				</div>
+	        </div>
+	        <div class="form-group">
+	          <label for="respuesta_texto">Envié su ticket a continuación:</label><br>
+	          <textarea id="respuesta_texto" style="min-width: 100%; max-width: 100%; min-height:200px; resize:none;" name="respuesta_texto"></textarea>
+	        </div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="submit" class="btn btn-flat btn-sm btn-info pull-right" name="ticket_responder_boton" value="1"><i class="fa fa-ticket" aria-hidden="true"></i> Generar ticket</button>
+	      </div>
+	  </div>
+	  {{ csrf.field | raw }}
+	  </form>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+	<script>
+    	CKEDITOR.replace( 'respuesta_texto' );
+    </script>
+{% endblock %}

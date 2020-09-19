@@ -1,0 +1,684 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+.input_celda
+{
+	width: 100px;
+}
+.red {
+  background-color: red !important;
+}
+</style>
+{% endblock %}
+{% block title %}Informe Final{% endblock %}
+{% block header_title %}Informe Final{% endblock %}
+{% block breadcrumb %}
+{% endblock %}
+{% block content %}
+{% include 'admin_views/admin_partials/flash.twig' %}
+<div class="card card-success">
+	<div class="card-header with-border">
+		<h3 class="card-title text-bold">Escriba un mensaje a continuación para enviar una notificación:</h3>
+	</div>
+	<div class="card-body">
+		 <div class="form-group">
+	        <label>Periodo elegido:</label>
+	        <div class="input-group date">
+	          <div class="input-group-addon">
+	            <i class="fa fa-calendar"></i>
+	          </div>
+	          <input type="text" class="form-control pull-right" id="datepicker">
+	        </div>
+	        <!-- /.input group -->
+	     </div>
+	     <hr>
+	     <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">PROYECTADO VENTAS:</h5>
+		 <div class="table-responsive" >
+            <table class="table table-striped table-condensed tabla_informe" style="width=100%;">
+              <thead>
+                  <th data-orderable="false">VENTAS SALTA</th>
+                  <th data-orderable="false">Lunes</th>
+                  <th data-orderable="false">Martes</th>
+                  <th data-orderable="false">Miércoles</th>
+                  <th data-orderable="false">Jueves</th>
+                  <th data-orderable="false">Viernes</th>
+                  <th data-orderable="false">Sábado</th>
+                  <th data-orderable="false">Domingo</th>
+                  <th data-orderable="false">TOTAL</th>
+              </thead>
+              <tbody>
+              </tbody>              
+            </table>
+         </div>
+         <hr>
+         <div class="table-responsive" >
+            <table class="table table-striped table-condensed tabla_informe_oran" style="width=100%;">
+              <thead>
+                  <th data-orderable="false">VENTAS ORAN</th>
+                  <th data-orderable="false">Lunes</th>
+                  <th data-orderable="false">Martes</th>
+                  <th data-orderable="false">Miércoles</th>
+                  <th data-orderable="false">Jueves</th>
+                  <th data-orderable="false">Viernes</th>
+                  <th data-orderable="false">Sábado</th>
+                  <th data-orderable="false">Domingo</th>
+                  <th data-orderable="false">TOTAL</th>
+              </thead>
+              <tbody>
+              </tbody>              
+            </table>
+         </div>
+         <hr>
+         <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">PROYECTADO COMPRAS:</h5>
+         <div class="table-responsive" >
+            <table class="table table-striped table-condensed tabla_informe_compras_general" style="width=100%;">
+              <thead>
+                  <th data-orderable="false">COMPRAS</th>
+                  <th data-orderable="false">Lunes</th>
+                  <th data-orderable="false">Martes</th>
+                  <th data-orderable="false">Miércoles</th>
+                  <th data-orderable="false">Jueves</th>
+                  <th data-orderable="false">Viernes</th>
+                  <th data-orderable="false">Sábado</th>
+                  <th data-orderable="false">Domingo</th>
+                  <th data-orderable="false">TOTAL</th>
+              </thead>
+              <tbody>
+              </tbody>              
+            </table>
+         </div>
+         <hr>
+         <div class="table-responsive" >
+            <table class="table table-striped table-condensed tabla_informe_compras_salta" style="width=100%;">
+              <thead>
+                  <th data-orderable="false">SALTA - OTROS GASTOS</th>
+                  <th data-orderable="false">Lunes</th>
+                  <th data-orderable="false">Martes</th>
+                  <th data-orderable="false">Miércoles</th>
+                  <th data-orderable="false">Jueves</th>
+                  <th data-orderable="false">Viernes</th>
+                  <th data-orderable="false">Sábado</th>
+                  <th data-orderable="false">Domingo</th>
+                  <th data-orderable="false">TOTAL</th>
+              </thead>
+              <tbody>
+              </tbody>              
+            </table>
+         </div>
+         <hr>
+         <div class="table-responsive" >
+            <table class="table table-striped table-condensed tabla_informe_compras_oran" style="width=100%;">
+              <thead>
+                  <th data-orderable="false">ORAN - OTROS GASTOS</th>
+                  <th data-orderable="false">Lunes</th>
+                  <th data-orderable="false">Martes</th>
+                  <th data-orderable="false">Miércoles</th>
+                  <th data-orderable="false">Jueves</th>
+                  <th data-orderable="false">Viernes</th>
+                  <th data-orderable="false">Sábado</th>
+                  <th data-orderable="false">Domingo</th>
+                  <th data-orderable="false">TOTAL</th>
+              </thead>
+              <tbody>
+              </tbody>              
+            </table>
+         </div>
+         <hr>
+         <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">TOTAL EROGACIONES:</h5>
+         <div class="table-responsive" >
+            <table class="table table-striped table-condensed tabla_informe_erogaciones" style="width=100%;">
+	         	<thead>
+	         		  <th data-orderable="false"></th>
+	                  <th data-orderable="false"></th>
+	                  <th data-orderable="false"></th>
+	                  <th data-orderable="false"></th>
+	                  <th data-orderable="false"></th>
+	                  <th data-orderable="false"></th>
+	                  <th data-orderable="false"></th>
+	                  <th data-orderable="false"></th>
+	                  <th data-orderable="false"></th>
+	         	</thead>
+	         	<tbody>
+	         	</tbody>
+	         </table>
+	     </div>
+         <hr>
+         <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">ESTADO DE LAS CORRIENTES DE EFECTIVO</h5>
+         <div class="table-responsive" >
+            <table class="table table-striped table-condensed tabla_informe_cc" style="width=100%;">
+              <thead>
+                  <th data-orderable="false"></th>
+                  <th data-orderable="false">Lunes</th>
+                  <th data-orderable="false">Martes</th>
+                  <th data-orderable="false">Miércoles</th>
+                  <th data-orderable="false">Jueves</th>
+                  <th data-orderable="false">Viernes</th>
+                  <th data-orderable="false">Sábado</th>
+                  <th data-orderable="false">Domingo</th>
+                  <th data-orderable="false">TOTAL</th>
+              </thead>
+              <tbody>
+              </tbody>              
+            </table>
+         </div>
+	</div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(function() 
+{
+	$('#datepicker').datepicker({
+	  	format: 'dd/mm/yyyy',
+	});
+	$('#datepicker').change(function () {
+	    var fecha = $('#datepicker').val(); 
+	});
+
+    var tabla_1 = $('.tabla_informe').DataTable( 
+    {
+      	processing: true,
+      	serverSide: true,
+      	ajax: { url: "{{path_for('informe.final.consulta', { semana: nro_semana , tabla: 1 })}}" },
+      	columns: 
+      	[
+	      {
+	        name: 'nombre',
+	        data: 'nombre'
+	      },
+	      { 
+	        name: 'lunes',
+	        data: 'dias.1'
+	      },
+	      { 
+	        name: 'martes',
+	        data: 'dias.2'
+	      },
+	      { 
+	        name: 'miercoles',
+	        data: 'dias.3'
+	      },
+	      { 
+	        name: 'jueves',
+	        data: 'dias.4'
+	      },
+	      { 
+	        name: 'viernes',
+	        data: 'dias.5'
+	      },
+	      { 
+	        name: 'sabado',
+	        data: 'dias.6'
+	      },
+	      { 
+	        name: 'domingo',
+	        data: 'dias.7'
+	      },
+	      {
+	      	name: 'total',
+	      	data: 'dias.8'
+	      }
+      	],
+      	"bPaginate": false,
+      	"bLengthChange": false,
+      	"bInfo": false,
+      	"searching": false,
+      	"createdRow": function( row, data, dataIndex ) 
+      	{
+	      	if(parseInt(data[2]) == 0) 
+	      	{        
+	        	$(row).addClass('red');
+	      	}
+	  	}
+ 	});
+
+    tabla_1.MakeCellsEditable({
+        "onUpdate": editarCelda,
+        "inputCss":'input_celda',
+        "columns": [1,2,3,4,5,6,7],
+        "confirmationButton": { 
+            "confirmCss": 'btn btn-success btn-xs',
+            "cancelCss": 'btn btn-success btn-xs'
+        },
+		"inputTypes": [
+            {
+				"column": [1,2,3,4,5,6,7],
+				"type":"number", 
+				"options":null 
+			}
+        ]
+    });
+
+    // -----------------------
+
+ 	var tabla_2 = $('.tabla_informe_oran').DataTable( 
+    {
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{path_for('informe.final.consulta', { semana: nro_semana , tabla: 2 })}}" },
+      columns: 
+      [
+	      {
+	        name: 'nombre',
+	        data: 'nombre'
+	      },
+	      { 
+	        name: 'lunes',
+	        data: 'dias.1'
+	      },
+	      { 
+	        name: 'martes',
+	        data: 'dias.2'
+	      },
+	      { 
+	        name: 'miercoles',
+	        data: 'dias.3'
+	      },
+	      { 
+	        name: 'jueves',
+	        data: 'dias.4'
+	      },
+	      { 
+	        name: 'viernes',
+	        data: 'dias.5'
+	      },
+	      { 
+	        name: 'sabado',
+	        data: 'dias.6'
+	      },
+	      { 
+	        name: 'domingo',
+	        data: 'dias.7'
+	      },
+	      {
+	      	name: 'total',
+	      	data: 'dias.8'
+	      }
+      ],
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bInfo": false,
+      "searching": false,
+ 	});
+
+ 	tabla_2.MakeCellsEditable({
+        "onUpdate": editarCelda,
+        "inputCss":'input_celda',
+        "columns": [1,2,3,4,5,6,7],
+        "confirmationButton": { 
+            "confirmCss": 'btn btn-success btn-xs',
+            "cancelCss": 'btn btn-success btn-xs'
+        },
+		"inputTypes": [
+            {
+				"column": [1,2,3,4,5,6,7],
+				"type":"number", 
+				"options":null 
+			}
+        ]
+    });
+
+
+ 	// -----------------------
+
+ 	var tabla_3 = $('.tabla_informe_compras_general').DataTable( 
+    {
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{path_for('informe.final.consulta', { semana: nro_semana , tabla: 3 })}}" },
+      columns: 
+      [
+	      {
+	        name: 'nombre',
+	        data: 'nombre'
+	      },
+	      { 
+	        name: 'lunes',
+	        data: 'dias.1'
+	      },
+	      { 
+	        name: 'martes',
+	        data: 'dias.2'
+	      },
+	      { 
+	        name: 'miercoles',
+	        data: 'dias.3'
+	      },
+	      { 
+	        name: 'jueves',
+	        data: 'dias.4'
+	      },
+	      { 
+	        name: 'viernes',
+	        data: 'dias.5'
+	      },
+	      { 
+	        name: 'sabado',
+	        data: 'dias.6'
+	      },
+	      { 
+	        name: 'domingo',
+	        data: 'dias.7'
+	      },
+	      {
+	      	name: 'total',
+	      	data: 'dias.8'
+	      }
+      ],
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bInfo": false,
+      "searching": false,
+ 	});
+
+ 	tabla_3.MakeCellsEditable({
+        "onUpdate": editarCelda,
+        "inputCss":'input_celda',
+        "columns": [1,2,3,4,5,6,7],
+        "confirmationButton": { 
+            "confirmCss": 'btn btn-success btn-xs',
+            "cancelCss": 'btn btn-success btn-xs'
+        },
+		"inputTypes": [
+            {
+				"column": [1,2,3,4,5,6,7],
+				"type":"number", 
+				"options":null 
+			}
+        ]
+    });
+
+ 	// -----------------------
+
+ 	var tabla_4 = $('.tabla_informe_compras_salta').DataTable( 
+    {
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{path_for('informe.final.consulta', { semana: nro_semana , tabla: 4 })}}" },
+      columns: 
+      [
+	      {
+	        name: 'nombre',
+	        data: 'nombre'
+	      },
+	      { 
+	        name: 'lunes',
+	        data: 'dias.1'
+	      },
+	      { 
+	        name: 'martes',
+	        data: 'dias.2'
+	      },
+	      { 
+	        name: 'miercoles',
+	        data: 'dias.3'
+	      },
+	      { 
+	        name: 'jueves',
+	        data: 'dias.4'
+	      },
+	      { 
+	        name: 'viernes',
+	        data: 'dias.5'
+	      },
+	      { 
+	        name: 'sabado',
+	        data: 'dias.6'
+	      },
+	      { 
+	        name: 'domingo',
+	        data: 'dias.7'
+	      },
+	      {
+	      	name: 'total',
+	      	data: 'dias.8'
+	      }
+      ],
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bInfo": false,
+      "searching": false,
+ 	});
+
+ 	tabla_4.MakeCellsEditable({
+        "onUpdate": editarCelda,
+        "inputCss":'input_celda',
+        "columns": [1,2,3,4,5,6,7],
+        "confirmationButton": { 
+            "confirmCss": 'btn btn-success btn-xs',
+            "cancelCss": 'btn btn-success btn-xs'
+        },
+		"inputTypes": [
+            {
+				"column": [1,2,3,4,5,6,7],
+				"type":"number", 
+				"options":null 
+			}
+        ]
+    });
+
+ 	// -----------------------
+
+ 	var tabla_5 = $('.tabla_informe_compras_oran').DataTable( 
+    {
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{path_for('informe.final.consulta', { semana: nro_semana , tabla: 5 })}}" },
+      columns: 
+      [
+	      {
+	        name: 'nombre',
+	        data: 'nombre'
+	      },
+	      { 
+	        name: 'lunes',
+	        data: 'dias.1'
+	      },
+	      { 
+	        name: 'martes',
+	        data: 'dias.2'
+	      },
+	      { 
+	        name: 'miercoles',
+	        data: 'dias.3'
+	      },
+	      { 
+	        name: 'jueves',
+	        data: 'dias.4'
+	      },
+	      { 
+	        name: 'viernes',
+	        data: 'dias.5'
+	      },
+	      { 
+	        name: 'sabado',
+	        data: 'dias.6'
+	      },
+	      { 
+	        name: 'domingo',
+	        data: 'dias.7'
+	      },
+	      {
+	      	name: 'total',
+	      	data: 'dias.8'
+	      }
+      ],
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bInfo": false,
+      "searching": false,
+ 	});
+
+ 	tabla_5.MakeCellsEditable({
+        "onUpdate": editarCelda,
+        "inputCss":'input_celda',
+        "columns": [1,2,3,4,5,6,7],
+        "confirmationButton": { 
+            "confirmCss": 'btn btn-success btn-xs',
+            "cancelCss": 'btn btn-success btn-xs'
+        },
+		"inputTypes": [
+            {
+				"column": [1,2,3,4,5,6,7],
+				"type":"number", 
+				"options":null 
+			}
+        ]
+    });
+
+ 	// -----------------------
+
+ 	var tabla_6 = $('.tabla_informe_erogaciones').DataTable( 
+    {
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{path_for('informe.final.consulta', { semana: nro_semana , tabla: 6 })}}" },
+      columns: 
+      [
+	      {
+	        name: 'nombre',
+	        data: 'nombre'
+	      },
+	      { 
+	        name: 'lunes',
+	        data: 'dias.1'
+	      },
+	      { 
+	        name: 'martes',
+	        data: 'dias.2'
+	      },
+	      { 
+	        name: 'miercoles',
+	        data: 'dias.3'
+	      },
+	      { 
+	        name: 'jueves',
+	        data: 'dias.4'
+	      },
+	      { 
+	        name: 'viernes',
+	        data: 'dias.5'
+	      },
+	      { 
+	        name: 'sabado',
+	        data: 'dias.6'
+	      },
+	      { 
+	        name: 'domingo',
+	        data: 'dias.7'
+	      },
+	      {
+	      	name: 'total',
+	      	data: 'dias.8'
+	      }
+      ],
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bInfo": false,
+      "searching": false,
+ 	});
+	
+	tabla_6.MakeCellsEditable({
+        "onUpdate": editarCelda,
+        "inputCss":'input_celda',
+        "columns": [1,2,3,4,5,6,7],
+        "confirmationButton": { 
+            "confirmCss": 'btn btn-success btn-xs',
+            "cancelCss": 'btn btn-success btn-xs'
+        },
+		"inputTypes": [
+            {
+				"column": [1,2,3,4,5,6,7],
+				"type":"number", 
+				"options":null 
+			}
+        ]
+    });
+
+ 	// -----------------------
+
+ 	var tabla_7 = $('.tabla_informe_cc').DataTable( 
+    {
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{path_for('informe.final.consulta', { semana: nro_semana , tabla: 7 })}}" },
+      columns: 
+      [
+	      {
+	        name: 'nombre',
+	        data: 'nombre'
+	      },
+	      { 
+	        name: 'lunes',
+	        data: 'dias.1'
+	      },
+	      { 
+	        name: 'martes',
+	        data: 'dias.2'
+	      },
+	      { 
+	        name: 'miercoles',
+	        data: 'dias.3'
+	      },
+	      { 
+	        name: 'jueves',
+	        data: 'dias.4'
+	      },
+	      { 
+	        name: 'viernes',
+	        data: 'dias.5'
+	      },
+	      { 
+	        name: 'sabado',
+	        data: 'dias.6'
+	      },
+	      { 
+	        name: 'domingo',
+	        data: 'dias.7'
+	      },
+	      {
+	      	name: 'total',
+	      	data: 'dias.8'
+	      }
+      ],
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bInfo": false,
+      "searching": false,
+ 	});
+
+ 	tabla_7.MakeCellsEditable({
+        "onUpdate": editarCelda,
+        "inputCss":'input_celda',
+        "columns": [1,2,3,4,5,6,7],
+        "confirmationButton": { 
+            "confirmCss": 'btn btn-success btn-xs',
+            "cancelCss": 'btn btn-success btn-xs'
+        },
+		"inputTypes": [
+            {
+				"column": [1,2,3,4,5,6,7],
+				"type":"number", 
+				"options":null 
+			}
+        ]
+    });
+
+ 	// ------------------------
+    function editarCelda(updatedCell, updatedRow, oldValue) 
+    {
+        console.log("The new value for the cell is: " + updatedCell.data());
+        console.log("The values for each cell in that row are: " + updatedRow.data());
+
+        $.toast({
+	        heading: 'Informe',
+	        text: 'Ingrese el motivo para editar la celda',
+	        showHideTransition: 'slide',
+	        icon: 'info',
+	        position: 'bottom-right',
+	      });
+    }
+});
+</script>
+{% endblock %}

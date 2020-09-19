@@ -1,0 +1,874 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+
+input[type='number'] {
+-moz-appearance:textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+@media (min-width: 768px) {
+	.form-inline .form-control {
+	    display: inline-block;
+	    width: 100%;
+	    vertical-align: middle;
+	}
+}
+</style>
+{% endblock %}
+{% block title %}Carpeta{% endblock %}
+{% block header_title %}Carpeta: {{carpeta.operacion}}{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('carpeta.tablero')}}">Carpetas</a>
+</li>
+<li class="breadcrumb-item active">
+	<a> Ver</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <input type="hidden" name="id_cliente" id="id_cliente" value="{{carpeta.id_cliente}}">
+        <input type="hidden" name="id_datero" id="id_datero" value="{{carpeta.id_datero}}">
+        <ul class="list-group">
+          {% if carpeta.id_datero == 0 %}
+          <li class="list-group-item"><a class="btn" href="{{path_for('cliente.datero.cargar',{},{id_carpeta:carpeta.id})}}"><h4>Primero: crear el datero</h4></a></li>
+          <li class="list-group-item"><a disabled><h4>Segundo: Tiene Vehiculos para Entregar</h4></a></li>
+          <li class="list-group-item"><a disabled><h4>Tercero: Generar Cuenta Corriente</h4></a></li>
+          {% else %}
+          <li class="list-group-item">
+            <div class="row">
+  						<div class="col-md-12">
+  							<div class="table-responsive" style="overflow: visible;">
+  								<table class="table table-hover" id="tablaClientes" width="100%">
+  									<caption>
+  										<h3>Clientes PRESENTES asociados</h3>
+  										<div class="form-inline">
+  											<div class="col-lg-11 col-md-10 col-xs-9" id="bloodhoundCliente">
+  						        		<input type="text" class="form-control typeahead" id="factura_razon_social" name="factura_razon_social" style="font-family:Arial, FontAwesome" placeholder="&#xF002; Nombre Completo o Documento" value="{{old.factura_razon_social}}">
+  							    		</div>
+  				          			<a class="btn btn-info" href="{{path_for('cliente.nuevo-cliente',{},{'id_carpeta':carpeta.id})}}" data-toggle="tooltip" title="Agregar Cliente" >+<i class="fa fa-user"></i></a>
+  										</div>
+  									</caption>
+  									<thead style="background-color:darkturquoise;">
+  										<tr>
+  											<th data-visible="false">
+  												ID
+  											</th>
+  											<th>
+  												Documento
+  											</th>
+  											<th>
+  												Apellido y Nombre
+  											</th>
+  											<th>
+  											</th>
+  										</tr>
+  									</thead>
+  									<tbody>
+  										{% for item in carpeta.clientes %}
+  										<tr>
+  											<td>
+  												{{item.id_cliente}}
+  											</td>
+  											<td>
+  												{{item.cliente.tipoDocumento.nombre}}:&nbsp;{{item.cliente.documento}}
+  											</td>
+  											<td>
+  												{{item.cliente.apellido}} {{item.cliente.nombre}}
+  												{% if item.id_cliente == carpeta.id_cliente %}
+  													<span class="badge label-danger">Titular</span>
+  							        	{% endif %}
+  											</td>
+  											<td>
+  												<div class="dropdown">
+  													<button type="button" class="btn btn-sm bg-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+  						                <span class="caret"></span>
+  						                <span class="sr-only">Toggle Dropdown</span>
+  						              </button>
+  										      <div class="dropdown-menu" role="menu">
+  										        <a class="dropdown-item cliente-eliminar">Desvincular</a>
+  										        <a class="dropdown-item" href="{{path_for('cliente.editar',{'id':item.id_cliente},{'return_to':current_path_wb})}}">Editar</a>
+  									        	{% if item.id_cliente == carpeta.id_cliente %}
+										        	<a class="dropdown-item" >Titular</a>
+  								        		{% else %}
+										        	<a class="dropdown-item disabled" href="{{path_for('carpeta.titular',{'id':carpeta.id,'id_cliente':item.id_cliente})}}">Titular</a>
+  									        	{% endif %}
+  										      </div>
+  												</div>
+  											</td>
+  										</tr>
+  										{% endfor %}
+  									</tbody>
+  								</table>
+  							</div>
+  						</div>
+  					</div>
+            <div class="row">
+  						<div class="col-md-12">
+  							<div class="table-responsive">
+  								<table class="table" id="tablaDateros" width="100%">
+  									<caption>
+  										<h3>
+  											Dateros
+  											<a class="btn btn-info btn-sm text-white" id="btnAgregarDatero">Registrar Nuevo</a>
+  										</h3>
+  									</caption>
+  									<thead style="background-color: skyblue;">
+  										<tr>
+  											<th data-visible="false">
+  												ID
+  											</th>
+  											<th>
+  												Creado
+  											</th>
+  											<th>
+  												Responsable
+  											</th>
+  											<th>
+  												Vehiculo
+  											</th>
+  											<th>
+  												Precios
+  											</th>
+  											<th>
+  												Estado
+  											</th>
+  											<th>
+  											</th>
+  										</tr>
+  									</thead>
+  									<tbody>
+  										{% for item in carpeta.dateros %}
+  										<tr {{carpeta.id_datero == item.id?'style="background-color: #ECF0F5;"':''}}>
+  											<td>
+  												{{item.id}}
+  											</td>
+  											<td>
+  												{{item.created_at|date('d/m/Y')}}
+  											</td>
+  											<td>
+  												{{item.apellido}} {{item.nombre}}
+  											</td>
+  											<td>
+  												{{item.marca.nombre}}: {{item.vehiculo_modelo}}
+  											</td>
+  											<td>
+  												Contado:&nbsp;${{item.vehiculo_precio|number_format(2, ',', '.')}} Financiar:&nbsp;${{item.presupuesto_financiar|number_format(2, ',', '.')}}
+  											</td>
+  											<td>
+  												{{item.tipoEstado.nombre}}
+  											</td>
+  											<td>
+  												<a class="btn btn-sm btn-info" href="{{path_for('cliente.datero.editar', {  'id': item.id },{'return_to':current_path_wb})}}" data-toggle="tooltip" data-container="body" data-html="true" title="Editar"><span class="ion ion-edit"></span></a>
+                          <a class="btn btn-sm btn-primary" href="{{path_for('cliente.datero.imprimir', {  'id': item.id })}}" target="_blank" data-toggle="tooltip" data-container="body" data-html="true" title="Imprimir"><span class="ion ion-printer"></span></a>
+  												<a class="btn btn-sm btn-warning" onclick="estados({{item.id}});" target="_blank" data-toggle="tooltip" data-container="body" data-html="true" title="Estados"><span class="ion ion-link"></span></a>
+  											</td>
+  										</tr>
+  										{% endfor %}
+  									</tbody>
+  								</table>
+  							</div>
+  						</div>
+  					</div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="table-responsive">
+                  <table class="table " width="100%">
+                    <caption>
+                      <h3>
+                        Vehiculo a COMPRAR
+                      </h3>
+                    </caption>
+                    <thead style="background-color: cornflowerblue;">
+                      <th>
+                        Vehiculo
+                      </th>
+                      <th>
+                        Informacion
+                      </th>
+                      <th>
+                        Precios
+                      </th>
+                      <th>
+                        Estado
+                      </th>
+                      <th>
+
+                      </th>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        {% set tipo = (carpeta.vehiculo.getUsado is empty )? 1 : 2 %}
+                        <td>
+                          {{carpeta.vehiculo.getMarca.nombre}}: {{carpeta.vehiculo.modelo}}
+                        </td>
+                        <td>
+                          {% if tipo == 1 %}
+                          {{carpeta.vehiculo.getUsado.exowner}}
+                          ({{carpeta.vehiculo.getUsado.dominio}})
+                          {% else %}
+                          NUEVO
+                          {% endif %}
+                        </td>
+                        <td>
+                          Venta:&nbsp;${{carpeta.vehiculo.precio_venta|number_format(2, ',', '.')}}<br>
+                        </td>
+                        <td>
+                          {{carpeta.vehiculo.getEstadoLista.nombre}}
+                        </td>
+                        <td>
+                          {% if tipo == 1 %}
+                          <a class="btn btn-sm btn-info" href="{{path_for('vehicle.modify', {  'id': carpeta.vehiculo.id },{'return_to':current_path_wb})}}" data-toggle="tooltip" data-container="body" data-html="true" title="Editar"><span class="ion ion-edit"></span></a>
+                          {% endif %}
+                          <a class="btn btn-sm btn-info" href="{{path_for('vehicle.formulario', {  'id': carpeta.vehiculo.id },{'return_to':current_path_wb,'tipo':tipo})}}" data-toggle="tooltip" data-container="body" data-html="true" title="Formularios"><span class="ion ion-document"></span></a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </li>
+            {% if carpeta.vehiculos|length == 0 %}
+            <li class="list-group-item"><a class="btn btnAgregarVehiculo"><h4>Segundo: Tiene Vehiculos para Entregar</h4></a></li>
+              {% if carpeta.id_cuentacorriente == 0 %}
+              <li class="list-group-item"><a class="btn" id="btnCuentaCorriente" ><h4>Tercero: Generar Cuenta Corriente</h4></a></li>
+              {% else %}
+              <li class="list-group-item">
+                <div class="row">
+      						<div class="col-md-12">
+      							<div class="table-responsive">
+      								<table class="table " id="tablaCuentas" width="100%">
+      									<caption>
+      										<h3>
+      											Cuenta Corriente
+      										</h3>
+      									</caption>
+      									<thead style="background-color: yellow;">
+      										<th data-visible="false">
+      											ID
+      										</th>
+                          <th>
+                            Nombre
+                          </th>
+      										<th>
+      											Total
+      										</th>
+      										<th>
+      											Pagado
+      										</th>
+      										<th>
+      											Saldo
+      										</th>
+      										<th>
+
+      										</th>
+      									</thead>
+      									<tbody>
+      										{% for item in carpeta.cuentas %}
+      										<tr {{carpeta.id_vehiculo == item.id_vehiculo?'style="background-color: #BCCCEA;"':''}}>
+      											<td>
+      												{{item.id}}
+      											</td>
+                            <td>
+                              {{item.nombre_cuenta}}
+                            </td>
+      											<td>
+      			                  $&nbsp;{{cuenta.total|number_format(2, ',', '.')}}
+      			                </td>
+      			                <td>
+      			                  $&nbsp;{{cuenta.pagado|number_format(2, ',', '.')}}
+      			                </td>
+      			                <td>
+      			                  $&nbsp;{{(cuenta.total - cuenta.pagado)|number_format(2, ',', '.')}}
+      			                </td>
+      											<td>
+          	        					<a class="btn btn-sm btn-flat btn-primary pull-right" href="{{path_for('cuenta.movimientos', {'id': item.id })}}"><i class="fa fa-book"></i> Resumen</a>
+                            </td>
+      										</tr>
+      										{% endfor %}
+      									</tbody>
+      								</table>
+      							</div>
+      						</div>
+      					</div>
+              </li>
+              {% endif %}
+            {% else %}
+            <li class="list-group-item">
+              <div class="row">
+                <div class="col-md-12">
+    							<div class="table-responsive">
+    								<table class="table " id="tablaVehiculos" width="100%">
+    									<caption>
+    										<h3>
+    											Vehiculos a Tomar
+    											<a class="btn btn-primary btn-sm btnAgregarVehiculo text-white" >Agregar</a>
+    										</h3>
+    									</caption>
+    									<thead style="background-color: cornflowerblue;">
+    										<th data-visible="false">
+    											ID
+    										</th>
+    										<th>
+    											Dominio
+    										</th>
+    										<th>
+    											Vehiculo
+    										</th>
+    										<th>
+    											Titular
+    										</th>
+    										<th>
+    											Precios
+    										</th>
+                        <th>
+                          Estado
+                        </th>
+    										<th>
+
+    										</th>
+    									</thead>
+    									<tbody>
+                        {% set precioTotalToma = 0 %}
+    										{% for item in carpeta.vehiculos %}
+    										<tr>
+    											<td>
+    												{{item.vehiculo.id}}
+    											</td>
+    											<td>
+    												{{item.vehiculo.getUsado.dominio}}
+    											</td>
+    											<td>
+    												{{item.vehiculo.getMarca.nombre}}: {{item.vehiculo.modelo}}
+    											</td>
+    											<td>
+    												{{item.vehiculo.getUsado.exowner}}
+    											</td>
+    											<td>
+    												Venta:&nbsp;${{item.vehiculo.precio_venta|number_format(2, ',', '.')}}<br>
+    												Toma:&nbsp;${{item.vehiculo.getUsado.precio_toma|number_format(2, ',', '.')}}
+                            {% set precioTotalToma = precioTotalToma + item.vehiculo.getUsado.precio_toma %}
+    											</td>
+                          <td>
+                            {{item.vehiculo.getEstadoLista.nombre}}
+                          </td>
+    											<td>
+    												<a class="btn btn-sm btn-info" href="{{path_for('vehicle.modify', {  'id': item.vehiculo.id },{'return_to':current_path_wb})}}" data-toggle="tooltip" data-container="body" data-html="true" title="Editar"><span class="ion ion-edit"></span></a>
+                            <a class="btn btn-sm btn-info" href="{{path_for('vehicle.formulario', {  'id': item.vehiculo.id },{'return_to':current_path_wb})}}" data-toggle="tooltip" data-container="body" data-html="true" title="Formularios"><span class="ion ion-document"></span></a>
+                          </td>
+    										</tr>
+    										{% endfor %}
+    									</tbody>
+    								</table>
+    							</div>
+    						</div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="">Monto total de Vehiculos a Tomar: ${{precioTotalToma|number_format(2, ',', '.')}}</label>
+                    <br>
+                    <label for="">Monto total de Formularios a Realizar: ${{montoFormularios|number_format(2, ',', '.')}}</label>
+                  </div>
+                </div>
+              </div>
+            </li>
+              {% if carpeta.id_cuentacorriente == 0  %}
+              <li class="list-group-item"><a id="btnCuentaCorriente"><h4>Tercero Generar Cuenta Corriente</h4></a></li>
+              {% else %}
+              <li class="list-group-item">
+                <div class="row">
+      						<div class="col-md-12">
+      							<div class="table-responsive">
+      								<table class="table " id="tablaCuentas" width="100%">
+      									<caption>
+      										<h3>
+      											Cuenta Corriente
+      										</h3>
+      									</caption>
+      									<thead style="background-color: yellow;">
+      										<th data-visible="false">
+      											ID
+      										</th>
+                          <th>
+                            Nombre
+                          </th>
+      										<th>
+      											Total
+      										</th>
+      										<th>
+      											Pagado
+      										</th>
+      										<th>
+      											Saldo
+      										</th>
+      										<th>
+
+      										</th>
+      									</thead>
+      									<tbody>
+      										{% for item in carpeta.cuentas %}
+      										<tr {{carpeta.id_vehiculo == item.id_vehiculo?'style="background-color: #BCCCEA;"':''}}>
+      											<td>
+      												{{item.id}}
+      											</td>
+                            <td>
+                              {{item.nombre_cuenta}}
+                            </td>
+      											<td>
+      			                  $&nbsp;{{cuenta.total|number_format(2, ',', '.')}}
+      			                </td>
+      			                <td>
+      			                  $&nbsp;{{cuenta.pagado|number_format(2, ',', '.')}}
+      			                </td>
+      			                <td>
+      			                  $&nbsp;{{(cuenta.total - cuenta.pagado)|number_format(2, ',', '.')}}
+      			                </td>
+      											<td>
+          	        					<a class="btn btn-sm btn-flat btn-primary pull-right" href="{{path_for('cuenta.movimientos', {'id': item.id })}}"><i class="fa fa-book"></i> Resumen</a>
+                            </td>
+      										</tr>
+      										{% endfor %}
+      									</tbody>
+      								</table>
+      							</div>
+      						</div>
+      					</div>
+              </li>
+              {% endif %}
+            {% endif %}
+          {% endif %}
+        </ul>
+      </div>
+      <div class="card-footer">
+        <a href="{{path_for('carpeta.tablero')}}" class="btn btn-warning">TABLERO</a>
+        {% if carpeta.id_vehiculo > 0 and carpeta.datero.id_tipo_estado == 7 and carpeta.aprobado is null %}
+        <a href="{{path_for('carpeta.aprobar',{id:carpeta.id})}}" class="btn btn-success pull-right">APROBAR CARPETA</a>
+        {% endif %}
+        {% if carpeta.aprobado is not null %}
+        <a href="{{path_for('carpeta.cerrar',{id:carpeta.id})}}" class="btn btn-danger pull-right">CERRAR CARPETA</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function(e) {
+
+  $('#tablaClientes').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+      	targets:[0],
+        type:"num",
+      },
+      {
+      	targets:[1],
+        width:"19%",
+      },
+      {
+      	targets:[3],
+        width:"5%",
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Por favor agregue un Cliente",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#tablaDateros').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Por favor genere un Datero a partir de un Cliente",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#tablaVehiculos').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "No hay vehiculos asociados.",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#tablaCuentas').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Por favor genere una Cuenta",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  var cliente = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.todos')}}?consulta=%QUERY",
+	    wildcard: '%QUERY'
+	  }
+	});
+
+	$('#bloodhoundCliente .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'factura_razon_social',
+	  display: 'nombre',
+	  source: cliente,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.apellido +' '+response.nombre+'('+response.documento+')</p>';
+      },
+		  empty:'No existe el cliente. Por favor cree uno nuevo.',
+		  }
+	}).on('typeahead:selected', function(event, selection) {
+		$(this).typeahead('val','');
+		var table = $('#tablaClientes').DataTable();
+		var array = table.column( 0 ).data().toArray();
+		var array = array.map(function(item) {
+	    return parseInt(item, 10);
+	  });
+		if(!array.includes(selection.id)){
+			$('#tablaClientes').block({ message: null });
+			var ruta = "{{ path_for('carpeta.cliente.vincular',{id:99,id_cliente:88}) }}".replace('99','AA').replace('88','BB');
+			$.ajax({
+				url: ruta.replace('AA',{{carpeta.id}}).replace('BB',selection.id),
+				method: 'GET',
+				dataType: 'json',
+				success: function(data,status) {
+					var table = $('#tablaClientes').DataTable();
+					var clienteEditar = "{{path_for('cliente.editar',{id:99})}}".replace('99',data.id);
+					var clienteTitular = "{{path_for('carpeta.titular',{id:carpeta.id,id_cliente:'AA'})}}".replace('AA',data.id);
+					var btnCliente = '<div class="dropdown">'+
+							'<button type="button" class="btn btn-sm bg-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">'+
+				                '<span class="caret"></span>'+
+				                '<span class="sr-only">Toggle Dropdown</span>'+
+				              '</button>'+
+				      '<div class="dropdown-menu" role="menu">'+
+				        '<a class="dropdown-item cliente-eliminar">Desvincular</a>'+
+				        '<a class="dropdown-item" href="'+clienteEditar+'">Editar</a>'+
+				        '<a class="dropdown-item" href="'+clienteTitular+'">Titular</a>'+
+				      '</div>'+
+						'</div>';
+					table.row.add([
+						data.id,
+						data.tipo_documento.nombre+': '+data.documento,
+						data.apellido+' '+data.nombre,
+						btnCliente
+						])
+					.draw()
+				  .node();
+				  $('#tablaClientes').unblock();
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+					$.toast({
+		        heading: 'Cliente',
+		        text: 'A ocurrido un error al vincular el cliente. Intente mas tarde.',
+		        showHideTransition: 'slide',
+		        icon: 'error',
+		        position: 'bottom-right',
+		      });
+		      $('#tablaClientes').unblock();
+		    },
+			});
+		} else {
+			$.toast({
+        heading: 'Cliente',
+        text: 'No puede agregarse el mismo cliente.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+		}
+	});
+
+	$('#tablaClientes tbody').on( 'click', 'a.cliente-eliminar', function () {
+		var id_cliente = Number($('#id_cliente').val());
+		var table = $('#tablaClientes').DataTable();
+		var row = $(this).parents('tr');
+		var id = Number(table.row( row ).data()[0]);
+		if(id_cliente != id){
+			var ruta = "{{ path_for('carpeta.cliente.desvincular',{id:99,id_cliente:88}) }}".replace('99','AA').replace('88','BB');
+			$('#tablaClientes').block({ message: null });
+			$.ajax({
+				url: ruta.replace('AA',{{carpeta.id}}).replace('BB',id),
+				method: 'GET',
+				dataType: 'json',
+				success: function(data,status){
+					var table = $('#tablaClientes').DataTable();
+					table.row( row )
+		        .remove()
+		        .draw();
+				  $('#tablaClientes').unblock();
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+					$.toast({
+		        heading: 'Cliente',
+		        text: 'A ocurrido un error al desvincular al cliente. Intente mas tarde.',
+		        showHideTransition: 'slide',
+		        icon: 'error',
+		        position: 'bottom-right',
+		      });
+				  $('#tablaClientes').unblock();
+		    }
+			});
+
+    } else {
+    	$.toast({
+        heading: 'Cliente',
+        text: 'No puede desvincularse al actual titular.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+    }
+
+	});
+
+	$('#btnAgregarDatero').on('click',function(){
+		var table = $('#tablaClientes').DataTable();
+		if(table.data().count()==0){
+			$.toast({
+        heading: 'Datero',
+        text: 'Debe haber al menos un cliente quien sera el Responsable y Titular del Vehiculo a Comprar.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+      return null;
+		}
+		var opciones = [
+		]
+		table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+		    var d = this.data();
+		    opciones.push({
+		    	'text':d[1]+"("+d[2]+")",
+		    	'value':d[0],
+		    });
+		});
+		bootbox.prompt({
+	    title: "Seleccione un Cliente para Registrar un nuevo Datero.",
+	    inputType: 'select',
+	    inputOptions: opciones,
+	    buttons: {
+	      cancel: {
+	        label: '<i class="fa fa-times"></i> Cancelar'
+	      },
+	      confirm: {
+	        label: 'Confirmar'
+	      }
+	    },
+	    callback: function (result) {
+	    	if(result!=null){
+					var route = "{{path_for('cliente.datero.cargar',{},{'id_cliente':'AA','id_carpeta':carpeta.id})}}".replace('AA',result).replace(/&amp;/g,'&');
+	    		document.location.assign(route);
+	    	}
+	    }
+		});
+	});
+
+	$('.btnAgregarVehiculo').on('click',function(){
+		var table = $('#tablaClientes').DataTable();
+		if(table.data().count()==0){
+			$.toast({
+        heading: 'Vehiculo',
+        text: 'Debe haber al menos un cliente en el listado quien debe figurar el Titular del Vehiculo.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+      return null;
+		}
+		var opciones = [
+		]
+		table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+		    var d = this.data();
+		    opciones.push({
+		    	'text':d[1]+"("+d[2]+")",
+		    	'value':d[0],
+		    });
+		});
+		bootbox.prompt({
+	    title: "Seleccione un Cliente quien es el Titular del Vehiculo para Continuar",
+	    inputType: 'select',
+	    inputOptions: opciones,
+	    buttons: {
+	      cancel: {
+	        label: '<i class="fa fa-times"></i> Cancelar'
+	      },
+	      confirm: {
+	        label: 'Confirmar'
+	      }
+	    },
+	    callback: function (result) {
+	    	if(result!=null){
+	    		var route = "{{path_for('vehicle.cargar',{},{'return_to':current_path_wb,'id_cliente':'CLIENTE','id_carpeta':carpeta.id}) }} ".replace(/&amp;/g,'&').replace('CLIENTE',result);
+	    		document.location.assign(route);
+	    	}
+	    }
+		});
+	});
+
+	$('#btnCuentaCorriente').on('click',function(){
+		var id_datero = Number($('#id_datero').val());
+		if(id_datero==0){
+			$.toast({
+        heading: 'Cuenta Corriente',
+        text: 'Debe haber un Datero donde el Responsable tambien se encuentre entre los Clientes de esta Carpeta.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+      return null;
+		}
+		window.location.href = "{{path_for('carpeta.cuenta',{id:carpeta.id})}}";
+	});
+
+});
+
+
+function estados(id){
+  bootbox.prompt({
+    title: "Seleccione el nuevo Estado del Datero.",
+    inputType: 'select',
+    inputOptions: {{dateroEstados|json_encode|raw}},
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: 'Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result!=null){
+        var route = "{{path_for('cliente.datero.estado',{id:99,id_tipo_estado:'id_tipo_estado'},{return_to:current_path_wb}) }} "
+          .replace('99',id)
+          .replace('id_tipo_estado',result)
+          .replace(/&amp;/g,'&');
+        document.location.assign(route);
+      }
+    }
+  });
+}
+</script>
+{% endblock %}

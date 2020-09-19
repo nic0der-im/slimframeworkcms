@@ -1,0 +1,146 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Editar vehículo 0km{% endblock %}
+{% block header_title %}Editar vehículo 0km{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item" >
+	<a href="{{path_for('vehicle.index')}}">Vehículos</a>
+</li>
+<li class="breadcrumb-item active" >
+	Editar
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+    <form name="form_0km_editar" method="POST" action="{{path_for('precios.0km.editar.post',  {'id': nuevo.id } )}}">
+    <input type="hidden" name="precio_id_vehiculo" id="precio_id_vehiculo" value="0">
+	  <section class="invoice">
+      <!-- title row -->
+      <div class="row">
+        <div class="col-lg-12">
+          <h2 class="page-header">
+            <i class="fa fa-car"></i> {{ nuevo.modelo }} [{{ nuevo.seg }}]
+          </h2>
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- info row -->
+
+      <div class="row">
+        <div class="col-lg-12">
+          <h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">Entrega mínima:</h5>
+
+           <div class="table-responsive">
+            <table class="table">
+              <tbody>
+               <tr style="background-color:#d0c0c0;">
+                <th style="width:50%">Precio de lista del vehículo:</th>
+                <td><span class="pull-right">$ {{  nuevo.precio_sugerido }}</span></td>
+              </tr>
+              {% if nuevo.marca == 13 %} {# Si es chevrolet permite elegir el precio de revista #}
+              <tr>
+                <th>Precio de revista: </th>
+                <td><span class="pull-right">$<input type="text" id="flete_patentamiento" name="flete_patentamiento" style="text-align: right; " value="{{ nuevo.flete_patentamiento }}"></span></td>
+              </tr>
+              {% else %} {# si es ford se puede editar el flete y patentamiento #}
+              <tr>
+                <th>Flete y patentamiento: </th>
+                <td><span class="pull-right">$<input type="text" id="flete_patentamiento" name="flete_patentamiento" style="text-align: right; " value="{{ nuevo.flete_patentamiento }}"></span></td>
+              </tr>
+              <tr>
+                <th>Bonificación:</th>
+                <td><span class="pull-right">$<input type="text" id="bonificacion" name="bonificacion" style="text-align: right; " value="{{ nuevo.bonificacion }}"></span></td>
+              </tr>
+              {% endif %}
+
+            </tbody></table>
+          </div>
+        </div>
+
+        {% if nuevo.marca == 13 %}
+        <div class="col-md-12">
+          <div class="table-responsive" >
+            <table class="table table-striped table-condensed precios_tabla" style="margin-bottom: 0px;">
+              <thead>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Año</th>
+                <th>Ultimo Precio:</th>
+                <th></th>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <!-- /.row -->
+
+      <!-- this row will not appear when printing -->
+      <div class="row no-print">
+        <div class="col-lg-12">
+          <button type="button" class="btn btn-success pull-right" type="submit"><i class="fa fa-save"></i> Guardar Cambios</button>
+        </div>
+      </div>
+    </section>
+    {{ csrf.field | raw }}
+    </form>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.precios_tabla').DataTable( {
+      order:[[0,'desc']],
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{path_for('precios.listado')}}" },
+      columns: [
+      {
+        name: 'marca',
+        data: 'nombremarca.nombre'
+      },
+      {
+        name: 'nombre',
+        data: 'nombre'
+      },
+      {
+        name: 'anio',
+        data: 'anio'
+      },
+      {
+        name: 'precio',
+        data: 'precio.precio'
+      },
+      {
+        name: 'opciones',
+        data: function(data,type,row)
+        {
+          var funcion = 'cambiar_precio(' + data.id + ', '+  data["precio"]["precio"] + ');'
+          var boton = '<a class="btn btn-sm btn-flat btn-info pull-right" onclick="'+ funcion + '">Usar</a>';
+          return boton;
+        },
+      }],
+      "oSearch": {"sSearch": "2018 " + "{{ nuevo.modelo | split(' ')[0] }}"},
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bInfo": false,
+  });
+});
+
+function cambiar_precio(id, precio)
+{
+  $('#flete_patentamiento').attr('value', precio);
+  $('#precio_id_vehiculo').attr('value', id);
+  return 1;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,409 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block head %}
+<meta name="description" content=" 👁‍🗨  Si querés un auto {{publicacion.titulo}} en Ciro Automotores tenemos autos usados en Salta y autos cero kilómetros. 🔥 !Hacé contacto ahora mismo! 🔥"/>
+<meta property="og:description" content="Elegí tu financiación y empezá a vivir tu sueño. Tomamos tu usado como forma de pago y al mejor precio del mercado. ✅ Contacto: +54 387 4898080. 🔥🔥"/>
+<meta property="og:title" content="Estás viendo: {{publicacion.titulo}} en Ciro Automotores 🚘🏃"/>
+<meta property="og:type" content="product" />
+{% if publicacion.vehiculo.getFotos[0] %}
+<meta property="og:image" itemprop="image" content="{{base_url()}}{{path_for('imagen',{'params':publicacion.vehiculo.getFotos[0].archivo},{'p':'og'})}}">
+{% else %}
+<meta property="og:image" itemprop="image" content="{{base_url()}}{{path_for('imagen',{'params':'/../asources/images/no-disponible.png'},{'p':'og'})}}">
+{% endif %}
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="200">
+<meta property="og:image:type" content="image/jpeg/jpg/png">
+{% endblock %}
+{% block aditional_css %}
+
+	{% if production %}
+
+	<link rel="stylesheet" href="/dist/css/vehicles.min.css" />
+	<link rel="stylesheet" href="/dist/css/vehicle-grid.min.css" />
+	<link rel="stylesheet" href="/dist/css/vehicle-grid-similares.min.css" />
+	<link rel="stylesheet" href="/dist/css/single-vehicle.min.css" />
+
+	{% else %}
+
+	<link rel="stylesheet" href="/css/vehiculos/sources/vehicles.css" />
+	<link rel="stylesheet" href="/css/basic/sources/vehicle-grid.css" />
+	<link rel="stylesheet" href="/css/vehiculos/sources/vehicle-grid-similares.css" />
+	<link rel="stylesheet" href="/css/vehiculos/sources/single-vehicle.css" />
+
+	{% endif %}
+
+{% endblock %}
+{% block title %}{{publicacion.titulo}} {% endblock %}
+{% block content %}
+	{# ------------------ #}
+
+	<div class="container-fluid">
+		<div class="single-vehicle">
+			<div class="row">
+				<div class="col-lg-8 col-sm-12 pr-lg-0">
+					<div class="card main-vehicle-card mt-3 mt-lg-0">
+						<div class="vehicle-card carousel-card">
+							<div class="vehicle-mi">
+								<div class="vehicle-media">
+									<div id="vehicle-carousel-{{publicacion.vehiculo.id}}" class="carousel vehicle-carousel slide" data-interval="false">
+										{% if publicacion.vehiculo.getFotos | length > 0 %}
+											<ol class="carousel-indicators">
+												{% for foto in publicacion.vehiculo.getFotos %}
+													<li data-target="#vehicle-carousel-{{publicacion.vehiculo.id}}" data-slide-to="{{loop.index - 1 }}" {% if loop.first %}class="active"{% endif %}></li>
+												{% endfor %}
+											</ol>
+											<div class="carousel-inner">
+												{% for foto in publicacion.vehiculo.getFotos %}
+													<div class="carousel-item {% if loop.first %} active {% endif %}">
+														{% if loop.first %}
+															<img class="d-block w-100 vehicle-photo-img" src="{{path_for('imagen',{'params':foto.archivo},{'p':'medium'})}}" alt="{{publicacion.titulo}} {{loop.index}}" data-original="{{path_for('imagen',{'params':foto.archivo},{'p':'original'})}}" >
+														{% else %}
+															<img class="d-block w-100 vehicle-photo-img lazy" data-src="{{path_for('imagen',{'params':foto.archivo},{'p':'medium'})}}" alt="{{publicacion.titulo}} {{loop.index}}" data-original="{{path_for('imagen',{'params':foto.archivo},{'p':'original'})}}" >
+														{% endif %}
+													</div>
+												{% endfor %}
+											</div>
+										{% else %}
+											<div class="carousel-inner">
+												<div class="carousel-item active">
+													<img class="d-block w-100" src="/asources/images/no-disponible.png" alt="Sin imagen para mostrar.">
+													<div class="overlayer">{{ random(sugerencia_sin_fotos)|raw }}</div>
+												</div>
+											</div>
+										{% endif %}
+										<a class="carousel-control-prev" rel="nofollow" href="#vehicle-carousel-{{publicacion.vehiculo.id}}" role="button" data-slide="prev">
+											<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+											<span class="sr-only">Previous</span>
+										</a>
+										<a class="carousel-control-next" rel="nofollow" href="#vehicle-carousel-{{publicacion.vehiculo.id}}" role="button" data-slide="next">
+											<span class="carousel-control-next-icon" aria-hidden="true"></span>
+											<span class="sr-only">Next</span>
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						{# Vista rápida movil #}
+						<div class="vehicle-card basic_info-card border border-left-0 d-block d-lg-none">
+							<div class="card-body">
+								{% if publicacion.vistas > 1 %}
+									<div class="vehicle-param vehicle-vistas">
+										<img src="/images/fire_icon.png">
+										<span>{{ publicacion.vistas }} personas han visto esta publicación</span>
+									</div>
+								{% endif %}
+								<h1 class="vehicle-param vehicle-title">{{ publicacion.titulo }}</h1>
+								<div class="vehicle-param vehicle-price">$ {{publicacion.vehiculo.precio_venta | number_format(0, '.', '.')}}</div>
+								<hr>
+								<div class="row">
+									<div class="col-sm-12">
+										<a href="{{path_for('compratuauto.primerpaso', {'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}" class="btn btn-flat btn-warning btn-block">Comprar este vehículo</a>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<img src="/images/btc.png">
+									</div>
+									<div class="col-md-6">
+										<img src="/images/ltc.png">
+									</div>
+								</div>
+								<hr>
+								<form method="POST" action="{{path_for('consulta')}}" name="form_consulta">
+									<div class="step0">
+										<div class="form-row {% if auth.individuo.nombre %}d-none{% endif %}">
+											<div class="col">
+												<div class="form-group">
+													<input type="text" class="form-control form-control-sm" name="consulta_nombre" placeholder="Nombre" value="{{ auth.individuo.nombre ? auth.individuo.nombre : '' }}" {% if auth.individuo.nombre %}d-none{% endif %} required="">
+												</div>
+											</div>
+											<div class="col">
+												<div class="form-group">
+													<input type="text" class="form-control form-control-sm" name="consulta_apellido" placeholder="Apellido" value="{{ auth.individuo.apellido ? auth.individuo.apellido : '' }}" {% if auth.individuo.apellido %}d-none{% endif %} required="">
+												</div>
+											</div>
+										</div>
+										<div class="form-row {% if auth.user.email %}d-none{% endif %}">
+											<div class="col">
+												<div class="form-group">
+													<input type="email" class="form-control form-control-sm" name="consulta_email" placeholder="Dirección de correo electrónico" value="{{ auth.user.email ? auth.user.email : '' }}" {% if auth.user.email %}d-none{% endif %}>
+												</div>
+											</div>
+										</div>
+										<div class="form-row">
+											<div class="col">
+												<div class="form-group">
+													<input type="text" class="form-control form-control-sm" name="consulta_telefono" placeholder="Teléfono" value="{{ auth.individuo.telefono ? auth.individuo.telefono : '' }}" required="">
+												</div>
+											</div>
+										</div>
+										<div class="form-row">
+											<div class="col">
+												<div class="form-group">
+													<textarea class="form-control form-control-sm" name="consulta_texto" placeholder="Consulta"></textarea>
+												</div>
+											</div>
+										</div>
+										<input class="fw-ta form-control consulta_url" hidden name="consulta_url" placeholder="Enlace de la publicacion" value="{{base_url()}}{{path_for('vehicle.ver', {	'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}">
+										<input class="fw-ta form-control consulta_userid" hidden name="consulta_userid" value="{{ auth.user.id ? auth.user.id : '-1' }}">
+										<div class="form-row">
+											<div class="col-sm-12">
+												<button onClick="ga('send', 'event', 'pagina_publi', 'consulta', 'btn consulta');" type="submit" class="btn btn-sm btn-flat btn-primary float-lg-left btn-mobile" id="btnConsultarDesktop">Consultar</button>
+												<button onClick="ga('send', 'event', 'pagina_publi', 'whatsapp', 'btn_pagina');" type="button" class="btn btn-sm btn-flat btn-success float-lg-right btn-mobile">Consultar por WhatsApp</button>
+												<button onClick="ga('send', 'event', 'pagina_publi', 'llamar');" type="button" class="btn btn-sm btn-flat btn-info text-white btn-mobile">Llamar a la agencia</button>
+											</div>
+										</div>
+									</div>
+									<div class="step1">
+										<div class="card text-white bg-info rounded">
+											<div class="card-body">
+											Tu consulta ha sido enviada a nuestros asesores.
+											Se comunicarán contigo en las próximas horas.
+											</div>
+										</div>
+									</div>
+									{{ csrf.field | raw}}
+								</form>
+							</div>
+						</div>
+						<div class="card-header">
+							Ficha técnica
+						</div>
+						<div class="card-body p-0">
+							<ul class="list-group list-group-flush">
+								{% if publicacion.vehiculo.getUsado.color is not empty %}
+								<li class="list-group-item d-flex justify-content-end">
+									<span class="lgi-item mr-auto">Color</span>
+									<span>{{publicacion.vehiculo.getUsado.color}}</span>
+								</li>
+								{% endif %}
+								<li class="list-group-item d-flex justify-content-end">
+									<span class="lgi-item mr-auto">Kilometraje</span>
+									<span>{{publicacion.vehiculo.getUsado.kilometraje}}km</span>
+								</li>
+								<li class="list-group-item d-flex justify-content-end">
+									<span class="lgi-item mr-auto">Motor</span>
+									<span>{{publicacion.vehiculo.getTipoMotor.nombre}}</span>
+								</li>
+								<li class="list-group-item d-flex justify-content-end">
+									<span class="lgi-item mr-auto">Cilindrada</span>
+									<span>{{publicacion.vehiculo.motor | number_format(1, '.', ',')}}</span>
+								</li>
+								<li class="list-group-item d-flex justify-content-end">
+									<span class="lgi-item mr-auto">Transmisión</span>
+									<span>{{publicacion.vehiculo.getTransmision.nombre}}</span>
+								</li>
+								<li class="list-group-item d-flex justify-content-end">
+									<span class="lgi-item mr-auto">Año</span>
+									<span>{{publicacion.vehiculo.year}}</span>
+								</li>
+								<li class="list-group-item d-flex justify-content-end">
+									<span class="lgi-item mr-auto">Cantidad de puertas</span>
+									<span>{{publicacion.vehiculo.cantidad_puertas}}</span>
+								</li>
+							</ul>
+						</div>
+						<div class="card-header">
+								Publicación
+						</div>
+						<div class="card-body">
+							{{ publicacion.contenido | raw }}
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4 col-sm-12 pl-lg-0">
+					{# Vista rápida desktop #}
+					<div class="col-informacion col-info-sticky d-none d-lg-block">
+						<div class="card info-card">
+							<div class="card-body">
+								{% if publicacion.vistas > 1 %}
+									<div class="vehicle-param vehicle-vistas">
+										<img src="/images/fire_icon.png">
+										<span>{{ publicacion.vistas }} personas han visto esta publicación</span>
+									</div>
+								{% endif %}
+								<h1 class="vehicle-param vehicle-title">{{ publicacion.titulo }}</h1>
+								<div class="vehicle-param vehicle-price">$ {{publicacion.vehiculo.precio_venta | number_format(0, '.', '.')}}</div>
+								<hr>
+								<div class="row">
+									<div class="col-sm-12">
+										<a href="{{path_for('compratuauto.primerpaso', {'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}" class="btn btn-flat btn-warning btn-block">Comprar este vehículo</a>
+									</div>
+								</div>
+								<hr>
+								<div class="row">
+									<div class="col-md-6">
+										<img class="img-fluid" src="/images/btc.png">
+									</div>
+									<div class="col-md-6">
+										<img class="img-fluid" src="/images/ltc.png">
+									</div>
+								</div>
+								<form method="POST" action="{{path_for('consulta')}}" name="form_consulta">
+									<div class="step0">
+										<hr>
+										<div class="form-row">
+											<div class="col">
+												<div class="form-group">
+													<input type="text" class="form-control form-control-sm" name="consulta_nombre" placeholder="Nombre" value="{{ auth.individuo.nombre ? auth.individuo.nombre : '' }}" {% if auth.individuo.nombre %}readonly{% endif %} required="">
+												</div>
+											</div>
+											<div class="col">
+												<div class="form-group">
+													<input type="text" class="form-control form-control-sm" name="consulta_apellido" placeholder="Apellido" value="{{ auth.individuo.apellido ? auth.individuo.apellido : '' }}" {% if auth.individuo.apellido %}readonly{% endif %} required="">
+												</div>
+											</div>
+										</div>
+										<div class="form-row">
+											<div class="col">
+												<div class="form-group">
+													<input type="email" class="form-control form-control-sm" name="consulta_email" placeholder="Dirección de correo electrónico" value="{{ auth.user.email ? auth.user.email : '' }}" {% if auth.user.email %}readonly{% endif %}>
+												</div>
+											</div>
+										</div>
+										<div class="form-row">
+											<div class="col">
+												<div class="form-group">
+													<input type="text" class="form-control form-control-sm" name="consulta_telefono" placeholder="Teléfono" value="{{ auth.individuo.telefono ? auth.individuo.telefono : '' }}" required="">
+												</div>
+											</div>
+										</div>
+										<div class="form-row">
+											<div class="col">
+												<div class="form-group">
+													<textarea class="form-control form-control-sm" name="consulta_texto" placeholder="Consulta"></textarea>
+												</div>
+											</div>
+										</div>
+										<input class="fw-ta form-control consulta_url" hidden name="consulta_url" placeholder="Enlace de la publicacion" value="{{base_url()}}{{path_for('vehicle.ver', {	'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}">
+										<input class="fw-ta form-control consulta_userid" hidden name="consulta_userid" value="{{ auth.user.id ? auth.user.id : '-1' }}">
+										<div class="form-row">
+											<div class="col-sm-12">
+												<button onClick="ga('send', 'event', 'pagina_publi', 'consultar');" type="submit" class="btn btn-sm btn-flat btn-primary pull-left" id="btnConsultarDesktop">Consultar</button>
+												<button onClick="ga('send', 'event', 'pagina_publi', 'whatsapp', 'btn_pagina');" type="button" class="btn btn-sm btn-flat btn-success pull-right">Consultar por WhatsApp</button>
+											</div>
+										</div>
+									</div>
+									<div class="step1 mt-3">
+										<div class="card text-white bg-info rounded">
+											<div class="card-body">
+											Tu consulta ha sido enviada a nuestros asesores.
+											Se comunicarán contigo en las próximas horas.
+											</div>
+										</div>
+									</div>
+									{{ csrf.field | raw}}
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<p class="mt-2 mb-3 h4 font-weight-light">También puede interesarte</p>
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="col-vehicles col-similares">
+					<div id="grid">
+					{% for publicacion in similares %}
+					<div class="card vehicle-card">
+						<div class="vehicle-mi">
+							<div class="vehicle-media">
+								<div class="carousel-inner">
+									{% if publicacion.vehiculo.getFotos | length > 0 %}
+										<img class="card-img-top" src="{{path_for('imagen',{'params':publicacion.vehiculo.getFotos[0].archivo},{'p':'small'})}}" alt="{{publicacion.titulo}}">
+										{#{% if publicacion.vehiculo.created_at > "now"|date_modify('-2 Week') %}
+											<img class="lazo" src="/images/2a.png">
+										{% elseif publicacion.rankSemana %}
+											<img class="lazo" src="/images/2b.png">
+										{% endif %}#}
+									{% else %}
+										<img class="card-img-top" src="{{path_for('imagen',{'params':'/asources/images/no-disponible.png'},{'p':'small'})}}" alt="Sin imagen para mostrar.">
+										<div class="overlayer">
+											<div class="w-100">
+												Vehículo sin imagen.<br>Por el momento...
+											</div>
+										</div>
+									{% endif %}
+								</div>
+							</div>
+							<button onClick="ga('send', 'event', 'pagina_publi', 'whatsapp', 'btnmaspub');" class="btn-sm btn-whatsapp btn-outline-success" data-href="https://api.whatsapp.com/send?phone=543874898080&text={% if auth.individuo %}Hola,%20mi%20nombre%20es%20{{auth.individuo.nombre|url_encode}}%20{{auth.individuo.apellido|url_encode}}{% else %}Hola{% endif %}.%20Tengo%20una%20consulta%20sobre%20esta%20publicación%20*{{publicacion.titulo|url_encode}}*.%0A{{base_url()|url_encode}}{{path_for('vehicle.ver', {	'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })|url_encode}}" data-toggle="popover-whatsapp">
+								<i class="fa fa-whatsapp"></i>
+							</button>
+							<div class="card-block vehicle-params">
+								<div class="vehicle-param vehicle-title">{{ publicacion.titulo }}</div>
+								<div class="vehicle-param vehicle-price">$ {{publicacion.vehiculo.precio_venta | number_format(0, '.', '.')}}</div>
+								<div class="vehicle-param vehicle-data">{{ publicacion.vehiculo.year }} {{ publicacion.vehiculo.getUsado.kilometraje ? '| ' ~ publicacion.vehiculo.getUsado.kilometraje ~ 'km' : ''}}</div>
+								<div class="vehicle-param vehicle-localidad">{{ publicacion.vehiculo.getLocalidad.nombre }}</div>
+							</div>
+						</div>
+						<div class="vehicle-view-pub">
+							<a onClick="ga('send', 'event', 'pagina_publi', 'masautos');" href="{{path_for('vehicle.ver', { 'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}" class="btn btn-sm btn-primary btn-ver-publicacion pull-right">Ver publicación</a>
+						</div>
+					</div>
+					{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal -->
+	<div class="modal fade" id="modal_credito" tabindex="-1" role="dialog" aria-labelledby="modal_creditoLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modal_creditoLabel">{{ publicacion.titulo }}</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body" style="text-align:center;">
+					<div class="row">
+						<div class="col-sm-12">
+							<img src="/images/logo.png" style="width: 130px;">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<br>
+							Año del vehículo: <strong>{{ publicacion.vehiculo.year }}</strong>
+							<br>
+							Precio de lista: <strong>${{ publicacion.vehiculo.precio_lista|trim('0','right')|trim('.','right') }}</strong>
+							<br>
+							Precio de contado: <strong>${{ publicacion.vehiculo.precio_venta|trim('0','right')|trim('.','right') }}</strong>
+							<hr>
+							Si te registrás ahora podés financiar un crédito de hasta: <h3>${{ credito }}</h3>
+							Podés obtener tu vehículo con una entrega mínima de <h3>${{ entrega_minima }}</h3>
+							<a class="btn btn-primary btn-block btn-flat" href="{{ path_for('contacto') }}">CONTACTANOS</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block custom_js %}
+
+	{% if production %}
+
+		<script src="/dist/js/vehicle-grid.min.js"></script>
+		<script src="/dist/js/consulta.min.js"></script>
+
+	{% else %}
+
+		<script src="/js/pages/vehicle-grid.js"></script>
+		<script src="/js/pages/consulta.js"></script>
+
+	{% endif %}
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+	$('.vehicle-photo-img').click(function(){
+		window.open($(this).attr('data-original'));
+	});
+
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+#sidebar {
+  overflow-y: scroll;
+  width: 250px;
+  position: fixed;
+  top: 96px;
+  left: -250px;
+  height: 100%;
+  z-index: 999;
+  background: #fefefe;
+  color: #fff;
+  transition: all 0.3s;
+  overflow: scroll !important;
+  box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 375px) {
+  #sidebar {
+    top: 46px;
+  }
+}
+
+/*
+#sidebar:hover {
+  overflow: scroll !important;
+}
+*/
+
+#sidebar.active {
+  left: 0;
+}
+
+#dismiss {
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+  background: #7386D5;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  -webkit-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  transition: all 0.3s;
+}
+#dismiss:hover {
+  background: #fff;
+  color: #7386D5;
+}
+
+.overlayed {
+  position: fixed;
+  width: 140vw;
+  height: 140vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 998;
+  display: none;
+}
+
+#sidebar ul.components {
+  padding: 20px 10px;
+  padding-bottom: 40px;
+
+}
+
+#sidebar ul li a, #sidebar .userbar a.nav-link { color: #666; }
+
+#sidebar ul li:hover>a, #sidebar .userbar a.nav-link:hover { color: #333; }
+
+#sidebar li.active a { color: #333; font-weight: 500; }
+
+#main-navbar li.active a { font-weight: 500; }
+
+.btn-mbnavbar.active {
+	background-color: rgba(255, 255, 255, .03);
+	box-shadow: none;
+}
+
+#sidebar .logo-box img { 
+	width: 120px;
+	height: 120px;
+	display: block;
+	margin: auto;
+	margin-bottom: 10px;
+}
+
+#sidebar ul ul {
+  padding: 0rem 1rem;
+}

@@ -1,0 +1,205 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Bloque{% endblock %}
+{% block header_title %}
+	{% if old.id > 0 %}
+	Editar
+	{% else %}
+	Crear
+	{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('paginas.index')}}">Páginas</a>
+</li >
+<li class="breadcrumb-item">
+	<a  href="{{path_for('paginas.bloques', {	'id_pagina': pagina.id })}}">Bloques</a>
+</li>
+<li class="breadcrumb-item active">
+	{% if old.id > 0 %}
+	Edicion
+	{% else %}
+	Nuevo
+	{% endif %}
+</li>
+{% endblock %}
+{% block content %}
+	<div class="row">
+		{% if old.id > 0 %}
+			<form name="bloque_post" enctype="multipart/form-data" method="POST" action="{{path_for('paginas.bloques.editar',{'id_pagina':pagina.id , 'id':old.id })}}" autocomplete="off">
+		{% else %}
+			<form name="bloque_post" enctype="multipart/form-data" method="POST" action="{{path_for('paginas.bloques.crear',{'id_pagina':pagina.id})}}" autocomplete="off">
+		{% endif %}
+			<div class="col-sm-12">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="card card-info">
+							<div class="card-header">
+								<h3 class="card-title text-bold">Descripción del bloque:</h3>
+							</div>
+							<div class="card-body">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-12">
+											<label for="tipo">Tipo de bloque:</label>
+											<select class="form-control select2" name="tipo" id="bloque_tipo" >
+												<option value="0" {{old.tipo == 0? 'selected':''}} >Normal</option>
+												<option value="1" {{old.tipo == 1? 'selected':''}} >Imagen</option>
+											</select>
+										</div>
+										<div class="col-sm-12">
+											<label for="titulo">Titulo del bloque:</label>
+											<input type="text" class="form-control" name="titulo" id="bloque_titulo" placeholder="Titulo del bloque" value="{{old.titulo}}" >
+										</div>
+										<div class="col-sm-12">
+											<label for="completo">Titulo del BOTON del bloque:</label>
+											<input type="text" class="form-control" name="completo" id="bloque_boton" placeholder="Titulo del boton del bloque" value="{{old.completo}}">
+										</div>
+										{% if old.id>0 %}
+										<div class="col-sm-6">
+											{% if old.imagen %}
+											<img src="{{old.imagen}}" class="img-thumbnail	" alt="Responsive image" id="bloque_link">
+											{% else %}
+											<label class="control-label">SIN IMAGEN</label>
+											{% endif %}
+										</div>
+										<div class="col-sm-6">
+											<label for="imagen">
+												Imagen del bloque:
+												{% if old.imagen %}
+													Para cambiar la imagen vuelva a seleccionar un archivo, en caso contrario no.
+												{% endif %}
+											</label>
+											<div class="input-group" >
+												<div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-image" aria-hidden="true"></i></span>
+                        </div>
+												<input type="file" class="form-control" name="imagen"  >
+											</div>
+										</div>
+										{% else %}
+										<div class="col-sm-12">
+											<label for="imagen">Imagen del bloque:</label>
+											<div class="input-group" >
+												<div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-image" aria-hidden="true"></i></span>
+                        </div>
+												<input type="file" class="form-control" name="imagen"  >
+											</div>
+										</div>
+										{% endif %}
+										<div class="col-sm-12">
+											<label for="imagen_title">Etiqueta title de la imagen:</label>
+											<input type="text" class="form-control" name="imagen_title" id="bloque_link_title" placeholder="Usado para la descripcion de la imagen" value="{{old.imagen_title}}">
+										</div>
+										<div class="col-sm-12">
+											<div class="form-group">
+												<label for="parrafo">Contenido</label>
+												<textarea class="form-control"  name="parrafo" id="bloque_contenido" placeholder="Contenido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la publicación.<br>Por ejemplo: <b>[terminaresto]</b>">
+													{{old.parrafo}}
+												</textarea>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card-footer" >
+								{% if old.id > 0 %}
+		   					<a class="btn btn-danger" href="{{path_for('paginas.bloques.eliminar', {'id_pagina': pagina.id,'id': old.id })}}" onclick="return confirm('¿Estas seguro que quieres eliminar este bloque?');">Eliminar bloque</a>
+								<button class="btn btn-primary btn-flat pull-right" type="submit">Editar bloque</button>
+								<a class="btn btn-warning pull-right"  id="previa"> Vista Previa</a>
+								{% else %}
+								<button class="btn btn-primary btn-flat pull-right" type="submit">Crear bloque</button>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function(){
+	CKEDITOR.replace( 'bloque_contenido', {
+		height: 200,
+		toolbarGroups: [
+			{"name":"basicstyles","groups":["basicstyles"]},
+			{"name":"links","groups":["links"]},
+			{"name":"paragraph","groups":["list","blocks", "align"]},
+			{"name":"document","groups":["mode"]},
+			{"name":"insert","groups":["insert"]},
+			{"name":"styles","groups":["styles"]},
+			{"name":"about","groups":["about"]}
+		],
+		// Remove the redundant buttons from toolbar groups defined above.
+		removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar'
+	});
+
+	$('#previa').on('click',function(){
+		var text = CKEDITOR.instances['bloque_contenido'].getData();
+		var img = $('#bloque_link').attr('src');
+		var titulo = '';
+		if($('#bloque_titulo').val()){
+			titulo = '<h3>'+$('#bloque_titulo').val()+'</h3>';
+		}
+		var css =
+						'<html lang="en" class="no-js">'+
+						'<head>'+
+						'<link rel="stylesheet" href="{{base_url()}}/css/0km/main.css" />'+
+						'<link rel="stylesheet" href="/css/0km/base.css" />'+
+            '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">'+
+            '</head>';
+		var w = window.open(null,null,"height="+screen.height+",width="+screen.width+",fullscreen=yes,status=yes,toolbar=no,menubar=no,location=no");
+		var bloque = '';
+		if($('#bloque_tipo').val()==1){
+			bloque =
+				'<body id="body" data-spy="scroll" data-target=".header">'+
+				'<div class="promo-bloque" style="background-image: url('+img+');">'+
+            '<div class="centered">'+
+                '<h2>'+titulo+'</h2>'+
+                text +
+            '</div>'+
+        '</div>'+
+	      '<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript">'+
+	      '</scr'+'ipt>'+
+				'<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous">'+
+				'</scr'+'ipt>'+
+	      '</body>'+
+	      '</html>';
+		} else {
+			bloque =
+				'<body id="body" data-spy="scroll" data-target=".header">'+
+				'<div id="products">'+
+		      '<div class="container content-lg">'+
+			      '<div class="container-fluid no-padding">'+
+				      '<div class="row row-space-4">'+
+					      '<div class="col-md-6">'+
+					      titulo+
+					      text+
+					      '</div>'+
+					      '<div class="col-md-6">'+
+								'<img src="'+img+'" alt="" class="img-responsive">'+
+								'</div>'+
+							'</div>'+
+			      '</div>'+
+		      '</div>'+
+	      '</div>'+
+	      '<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript">'+
+	      '</scr'+'ipt>'+
+				'<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous">'+
+				'</scr'+'ipt>'+
+	      '</body>'+
+	      '</html>';
+	    }
+	  //$(w.document.body).html(css+bloque);
+	  w.document.write(css+bloque);
+	});
+});
+</script>
+{% endblock %}

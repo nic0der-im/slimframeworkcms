@@ -1,0 +1,53 @@
+clear {
+	content: "";
+	display: table;
+}
+
+.clear:before {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.clear:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.text-bg-muted {
+	color: rgba(255,255,255, .5);
+}
+.db-txtr {	
+	display: block;
+	text-align: right;
+}
+
+.aclaracion-formulario {
+	margin-bottom: 1em;
+}
+
+.md-pull-right {
+	float: none;
+}
+
+.margin-bot-normal, .mbn {
+	margin-bottom: 1em !important;
+}
+
+.md-no-mb {
+	margin-bottom: inherit;
+}
+
+@media (min-width: 992px) {
+	.md-pull-right {
+		float: right !important;
+	}
+	.md-no-mb {
+		margin-bottom: 0px;
+	}
+}
+
+.overhidden {
+	display: none !important;
+}

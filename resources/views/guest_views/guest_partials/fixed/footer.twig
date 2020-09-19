@@ -1,0 +1,138 @@
+<footer class="footer ciromark">
+	<div class="little">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-12 text-white">
+					<div class="text-center text-white"><div class="anchor"><i class="fa  fa-car" aria-hidden="true"></i> Explorá más autos usados y 0 Kilómetros <a href="{{path_for('home')}}" title="Autos usados y 0km en Salta">Aquí</a> </div> | <div class="anchor"><i class="fa  fa-car" aria-hidden="true"></i> Conocé más autos usados y 0 Kilómetros disponibles para Jujuy <a href="{{ path_for('home.usados.jujuy') }}">Aquí</a></div></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="{% if auth.check %} col-md-4 {% else %} col-md-3 {% endif %} col-sm-6 col-12 center-sm-down">
+				<ul class="nav flex-column ">
+					<li class="nav-item">
+						<div class="nav-link font-weight-bold">Nuestras redes</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link">
+							<a href="https://www.facebook.com/ciroautomotoressalta/" target="_blank" onClick="ga('send', 'event', 'pagina_home', 'facebook', 'red_social');">
+								<i class="fa fa-facebook-square" aria-hidden="true"></i>Ciro Automotores
+							</a>
+						</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link">
+							<a onClick="ga('send', 'event', 'pagina_home', 'whatsapp', 'red_social');"  href="https://api.whatsapp.com/send?phone=543874898080&text=Hola.%20Tengo%20una%20consulta." target="_blank" title="Contactate ya mismo con nosotros.">
+								<i class="fa fa-whatsapp" aria-hidden="true"></i>+54 387 4898080
+							</a>
+						</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link">
+							<a onClick="ga('send', 'event', 'pagina_home', 'twitter', 'red_social');" href="https://twitter.com/CiroAutomotores" target="_blank">
+								<i class="fa fa-twitter" aria-hidden="true"></i>@ciroautomotores
+							</a>
+						</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link">
+							<a onClick="ga('send', 'event', 'pagina_home', 'instagram', 'red_social');" href="https://www.instagram.com/ciroautomotores/" target="_blank">
+								<i class="fa fa-instagram" aria-hidden="true"></i>@ciroautomotores
+							</a>
+						</div>
+					</li>
+				</ul>
+			</div>			
+			<div class="{% if auth.check %} col-md-4 {% else %} col-md-3 {% endif %} col-sm-6 col-12 center-sm-down">
+				<ul class="nav flex-column">
+					<li class="nav-item">
+						<div class="nav-link font-weight-bold">Sucursal Salta</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link no-link"><i class="fa fa-map-marker" aria-hidden="true"></i>España 1190, Salta C.P 4400</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link no-link"><i class="fa fa-phone" aria-hidden="true"></i>+54 387 4898080</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link">
+							<a onClick="ga('send', 'event', 'pagina_home', 'mapa_salta', 'footer');" href="https://www.google.com.ar/maps/place/Ciro+Automotores/@-24.785345,-65.422796,15z/data=!4m5!3m4!1s0x0:0x54ce154108fc1b2e!8m2!3d-24.7878401!4d-65.4190055" target="_blank"><i class="fa fa-map-signs" aria-hidden="true"></i>¿Cómo llegar?</a>
+						</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link no-link">
+							<i class="fa fa-handshake-o" aria-hidden="true"></i>
+							{% if ((("now"|date('H')>8 and "now"|date('H')<14) or ("now"|date('H')>16 and "now"|date('H')<22)) and ("now"|date('w')>0 and "now"|date('w')<6)) or ("now"|date('H')>8 and "now"|date('H')<14 and "now"|date('w')==6 ) %}
+								Estamos atendiendo ahora mismo.
+							{% else %}
+								Por ahora se encuentra cerrado.
+							{% endif %}
+						</div>
+					</li>
+				</ul>
+			</div>
+
+			<div class="{% if auth.check %} col-md-4 {% else %} col-md-3 {% endif %} col-sm-6 col-12 center-sm-down">
+				<ul class="nav flex-column">
+					<li class="nav-item">
+						<div class="nav-link font-weight-bold">Sucursal Orán</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link no-link"><i class="fa fa-map-marker" aria-hidden="true"></i>Alvarado 569, C.P 4530</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link no-link"><i class="fa fa-phone" aria-hidden="true"></i>+54 387 4898080</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link"> 
+							<a onClick="ga('send', 'event', 'pagina_home', 'mapa_oran', 'footer');" href="https://www.google.com.ar/maps/place/Rudecindo+Alvarado+569,+A4530ANK+San+Ramon+de+la+Nueva+Oran,+Salta/@-23.1340885,-64.3236353,17z/data=!4m13!1m7!3m6!1s0x940ff5ee46189c13:0x3223e8df309f2fb6!2sRudecindo+Alvarado+569,+A4530ANK+San+Ramon+de+la+Nueva+Oran,+Salta!3b1!8m2!3d-23.1338339!4d-64.3235736!3m4!1s0x940ff5ee46189c13:0x3223e8df309f2fb6!8m2!3d-23.1338339!4d-64.3235736" target="_blank"><i class="fa fa-map-signs" aria-hidden="true"></i>¿Cómo llegar?</a>
+						</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link no-link">
+							<i class="fa fa-handshake-o" aria-hidden="true"></i>
+							{% if ((("now"|date('H')>8 and "now"|date('H')<14) or ("now"|date('H')>16 and "now"|date('H')<22)) and ("now"|date('w')>0 and "now"|date('w')<6)) or ("now"|date('H')>8 and "now"|date('H')<14 and "now"|date('w')==6 ) %}
+								Estamos atendiendo ahora mismo.
+							{% else %}
+								Por ahora se encuentra cerrado.
+							{% endif %}
+						</div>
+					</li>
+				</ul>
+			</div>
+			{% if not auth.check %}
+			<div class="col-md-3 col-sm-6 col-12 center-sm-down">
+				<ul class="nav flex-column">
+					<li class="nav-item">
+						<div class="nav-link font-weight-bold">BOLETÍN DE NOVEDADES</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link just-text d-iblock">Suscribite a nuestro newsletter y recibí ofertas y promociones exclusivas.</div>
+						<form action="{{ path_for('suscripcion') }}" method="post">
+							<div class="form-group">
+								<input type="email" class="form-control form-control-sm" placeholder="Correo electrónico" id="suscripcion_email" name="suscripcion_email" required="">
+							</div>
+							<div class="form-group pl-3">
+								<button onClick="ga('send', 'event', 'pagina_home', 'btn_suscribirme', 'footer');" type="submit" class="btn btn-info btn-sm float-right">Suscribirme</button>
+							</div>
+							{{ csrf.field | raw }}
+						</form>
+					</li>
+				</ul>
+			</div>
+			{% endif %}
+		</div>		
+	</div>
+	<div class="littledarker">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-12 text-white">
+					<div class="float-left center-sm-down"><a href="{{path_for('home')}}" class="text-white" title="Ciro Automotores" >Ciro Automotores</a> &copy; {{"now"|date("Y")}} - Todos los derechos reservados</div>
+					<div class="float-right center-sm-down">Programado por ConvierteDigital.com</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>

@@ -1,0 +1,270 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block head %}
+	<meta property="og:site_name" content="Ciro Automotores">
+	<meta property="og:image" itemprop="image" content="{{base_url()}}/public/images/logo300x200.png">
+	<meta property="og:image:type" content="image/png">
+	<meta property="og:image:secure_url" itemprop="image" content="https:{{static_assets}}/public/images/logo300x200.png">
+	<meta property="og:image:width" content="300">
+	<meta property="og:image:height" content="200">
+	<meta property="og:type" content="article" />
+	<meta property="og:image:url" content="{{base_url()}}/public/images/logo300x200.png">
+	<meta property="og:title" content="Ciro Automotores - Encontrá autos usados en Salta y Jujuy al igual que autos 0 KM" />
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+	<meta property="og:description" content="En Ciro Automotores te ofrecemos los mejores autos usados en Salta y Jujuy. Además contamos con autos 0 KM. ¡Te esperamos!" />
+	<meta name="description" content="Ciro Automotores tiene los mejores autos usados en Salta y también contamos con autos 0 kilómetros. !Hacé contacto ahora mismo!" />
+	<meta name="keywords" content="autos usados salta, autos usados en salta, autos 0 kilometros, autos 0 km" />
+	<link itemprop="thumbnailUrl" href="{{base_url()}}/public/images/logo300x200.png"> 
+	<span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject"> 
+		<link itemprop="url" href="{{base_url()}}/public/images/logo300x200.png"> 
+	</span>
+{% endblock %}
+{% block aditional_css %}
+
+	{% if production %}
+	<link rel="stylesheet" href="/css/campains/sources/preciosmundiales.css">
+	<link rel="stylesheet" href="/dist/css/vehicle-grid.min.css">
+	<link rel="stylesheet" href="/dist/css/vehicles.min.css">
+
+	{% else %}
+
+	<link rel="stylesheet" href="/css/basic/sources/vehicle-grid.css">
+	<link rel="stylesheet" href="/css/vehiculos/sources/vehicles.css">
+	<link rel="stylesheet" href="/css/campains/sources/preciosmundiales.css">
+
+	{% endif %}
+
+
+	{% for module in extra_modules %}
+		<!-- start {{ module.module }} css -->
+		{% for css in module.css %}
+		<link rel="stylesheet" href="{{css|raw}}" />
+		{% endfor %}
+		<!-- end {{ module.module }} css -->
+	{% endfor %}
+{% endblock %}
+{% block title %}⚽ Precios Mundiales {% endblock %}
+
+{% block content %}
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="card banner-card precios-mundiales">
+					<div class="banner-content">
+						<div class="banner-text text-center">
+							Seguimos alentando a la Selección Argentina con nuestros
+						</div>
+						<div class="banner-title text-center">
+							#PreciosMundiales <span class="fuchibol">⚽</span>
+						</div>
+					</div>					
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="precios-mundiales col-vehicles">
+				<div id="grid">
+					<div class="card vehicle-card mundial-card" data-vehicle="chevrolet-onix-joy-5p">
+						<img src="/images/campains/precios-mundiales/chevrolet-onix-joy-5p.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="chevrolet-cruze-5p">
+						<img src="/images/campains/precios-mundiales/chevrolet-cruze-5p.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="chevrolet-onix-5p">
+						<img src="/images/campains/precios-mundiales/chevrolet-onix-5p.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="chevrolet-prisma-4p">
+						<img src="/images/campains/precios-mundiales/chevrolet-prisma-4p.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="chevrolet-prisma-joy">
+						<img src="/images/campains/precios-mundiales/chevrolet-prisma-joy.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="chevrolet-spin">
+						<img src="/images/campains/precios-mundiales/chevrolet-spin.png" class="card-img-top">				
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="chevrolet-tracker-awd">
+						<img src="/images/campains/precios-mundiales/chevrolet-tracker-awd.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="ford-f4000-4x2">
+						<img src="/images/campains/precios-mundiales/ford-f4000-4x2.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="ford-f4000-4x4">
+						<img src="/images/campains/precios-mundiales/ford-f4000-4x4.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="ford-transit-furgon">
+						<img src="/images/campains/precios-mundiales/ford-transit-furgon.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="nueva-ranger-cd-xl">
+						<img src="/images/campains/precios-mundiales/nueva-ranger-cd-xl.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="nuevo-fiesta-5p-s-plus">
+						<img src="/images/campains/precios-mundiales/nuevo-fiesta-5p-s-plus.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="nuevo-ford-focus-5p-s">
+						<img src="/images/campains/precios-mundiales/nuevo-ford-focus-5p-s.png" class="card-img-top">
+					</div>
+					<div class="card vehicle-card mundial-card" data-vehicle="nuevo-ford-ka-5p-s">
+						<img src="/images/campains/precios-mundiales/nuevo-ford-ka-5p-s.png" class="card-img-top">		
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-12" id="contacto-mundial">
+				<div class="title-contacto">
+					Tu mejor jugada va a ser retirar tu 0KM					
+				</div>
+				<div class="subtitle-contacto">
+					¡Obtén tu <strong>#PrecioMundial</strong> ahora mismo!
+				</div>
+				
+				<div class="row">
+					<div class="col-lg-8 mx-auto">						
+						<div class="card contacto-mundial">
+							<div class="card-body">								
+								<form class="row" method="POST" action="{{path_for('preciosmundiales.consulta')}}">
+									<div class="col-lg-6">
+										<img src="" id="previewautito" class="card-img-top">
+									</div>
+									<div class="col-lg-6 step0">
+										<div class="form-row">
+											<div class="col-lg-6">
+												<div class="form-group">
+													<input type="text" class="form-control" name="pm_nombre" id="pm_nombre" placeholder="Nombre" autocomplete="given-name" required value="{{auth.individuo.nombre}}">
+												</div>
+											</div>
+											<div class="col-lg-6">
+												<div class="form-group">
+													<input type="text" class="form-control" name="pm_apellido" id="pm_apellido" placeholder="Apellido" autocomplete="family-name" required value="{{auth.individuo.apellido}}">												</div>
+											</div>
+										</div>
+										<div class="form-group">											
+											<input type="tel" class="form-control" name="pm_telefono" id="pm_telefono" placeholder="Teléfono" autocomplete="tel" required value="{{auth.individuo.telefono}}">
+										</div>
+										<div class="form-group">											
+											<select class="form-control" id="selector" name="pm_vehiculo" required="">
+												<option value="-1">Vehiculo</option>
+												<option value="chevrolet-onix-joy-5p">Chevrolet Onix Joy 5P 1.4 N LS MT+</option>
+												<option value="chevrolet-cruze-5p">Chevrolet Cruze 5P 1.4 TURBO LT MT</option>
+												<option value="chevrolet-onix-5p">Chevrolet Onix 5P 1.4 N LT MT</option>
+												<option value="chevrolet-prisma-4p">Chevrolet Prisma 4P 1.4 N LT MT</option>
+												<option value="chevrolet-prisma-joy">Chevrolet Prisma Joy 4P 1.4 N LS MT+</option>
+												<option value="chevrolet-spin">Chevrolet Spin 1.8 N LT MT</option>
+												<option value="chevrolet-tracker-awd">Chevrolet Tracker AWD LTZ +</option>
+												<option value="ford-f4000-4x2">Ford F4000 4X2</option>
+												<option value="ford-f4000-4x4">Ford F4000 4x4</option>
+												<option value="ford-transit-furgon">Ford Transit 2.2 D Furgon Medio</option>
+												<option value="nueva-ranger-cd-xl">Nueva Ranger CD XL 2.2 DSL 4x4</option>
+												<option value="nuevo-fiesta-5p-s-plus">Nuevo Fiesta 5P S Plus</option>
+												<option value="nuevo-ford-focus-5p-s">Nuevo Ford Focus 5P S</option>
+												<option value="nuevo-ford-ka-5p-s">Nuevo Ford Ka 5P S</option>
+											</select>
+										</div>
+										<div class="form-group">
+											<button type="submit" class="btn btn-primary btn-block">Quiero mi #PrecioMundial</button>
+										</div>										
+									</div>
+									<div class="col-lg-6 step1">
+										<div class="congrats-title text-center">¡FELICITACIONES!</div>
+										<div class="congrats-subtitle text-center">
+											Gracias por participar de <strong>#PreciosMundiales</strong>.<br>
+											Un asesor se comunicará en minutos.
+										</div>
+										<hr>
+										<small class="text-center d-block">
+											<a href="/" class="btn-primary btn"><b>Ver más vehículos en Ciro Automotores</b></a>
+										</small>
+									</div>
+									{{ csrf.field | raw}}
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block custom_js %}
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$('.mundial-card').on('click', function(){
+			$('html, body').animate({
+				scrollTop: $("#contacto-mundial").offset().top
+			}, 500);
+
+			var value = $(this).data('vehicle');
+			var src = $(this).children('.card-img-top').attr('src');
+			$('#previewautito').attr('src', src);
+			$('#selector option[value="' + value + '"]').prop('selected', true);
+
+		});
+
+		$('#selector').on('change', function(){
+
+			var val = $(this).val();			
+			var src = $('[data-vehicle="' + val + '"]').children('.card-img-top').attr('src');
+			$('#previewautito').attr('src', src);
+			$('#selector').removeClass('has-error');
+
+		});
+
+		$('form').on('submit', function(e){
+			
+			var form = $(this);
+			e.preventDefault();
+
+			if($('#selector').val() == -1){
+				$('#selector').addClass('has-error');
+				return false;
+			}
+			else
+			{
+				$.ajax({
+					url: $(form).attr('action'),
+					method: $(form).attr('method'),
+					data: $(form).serialize(),
+					success: function(data){
+						console.log(data);
+						if(data.success == true) {
+							console.log('true');
+							$('.step0').fadeOut(300, function(){
+								$('.step1').fadeIn(300);
+							});
+						}
+					},
+					complete: function (jqXHR) {
+						var csrfToken = jqXHR.getResponseHeader('X-CSRF-Token');
+						if (csrfToken) {
+							try {
+								csrfToken = $.parseJSON(csrfToken);
+								var csrfTokenKeys = Object.keys(csrfToken);
+								var hiddenFields = $(form).find('input.csrf[type="hidden"]');
+								if (csrfTokenKeys.length === hiddenFields.length) {
+									hiddenFields.each(function(i) {
+										$(this).attr('name', csrfTokenKeys[i]);
+										$(this).val(csrfToken[csrfTokenKeys[i]]);
+									});
+								}
+							}
+							catch (e) {
+
+							}
+						}
+					}
+				});
+			}
+		});
+
+	});
+	</script>
+
+{% endblock %}
+
+{% block custom_modules %}
+	{% for module in extra_modules %}
+		<!-- start {{ module.module }} -->
+		{% include module.settings.view %}
+		<!-- end {{ module.module }} -->
+	{% endfor %}
+{% endblock %}

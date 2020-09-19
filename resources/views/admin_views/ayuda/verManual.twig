@@ -1,0 +1,40 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}{{ manual.nombre }}{% endblock %}
+{% block header_title %}Documentación y Manual de Usuario{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item" >
+  <a href="{{path_for('ayuda.index')}}">Ayuda</a>
+</li>
+<li class="breadcrumb-item" >
+  <a href="{{path_for('ayuda.index')}}">Documentación</a>
+</li>
+<li class="breadcrumb-item active" >
+  <a href="{{path_for('ayuda.ver', {'id': manual.id })}}">Ver</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="card">
+    <div class="card-header">
+      	<h3 class="card-title">{{ manual.nombre }}</h3> - {{ manual.descripcion}}
+      	{% if 33 in auth.permisosEnlaces %}
+			<a class="btn btn-flat btn-sm btn-primary" onclick="return confirm('¿Estas seguro que quieres eliminar esta documentación? No hay vuelta atras capo.');" href="{{path_for('ayuda.eliminar', {	'id': manual.id })}}"><i class="fa fa-trash"></i></a>
+		{% endif %}
+		{% if 32 in auth.permisosEnlaces %}
+			<a class="btn btn-flat btn-sm btn-primary" href="{{path_for('ayuda.editar', {	'id': manual.id })}}"><i class="fa fa-pencil"></i></a>
+		{% endif %}
+    </div>
+    <div class="card-body">
+    {{ manual.texto | raw }}
+    </div>
+    <!-- /.box-body -->
+    <div class="card-footer">
+		Manual creado por el usuario ID: {{ manual.creador }}
+    </div>
+    <!-- /.box-footer-->
+  </div>
+</div>
+{% endblock %}

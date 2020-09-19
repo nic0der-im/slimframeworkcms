@@ -1,0 +1,155 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Notificaciones por Correo{% endblock %}
+{% block header_title %}Notificaciones por Correo{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	Tablero
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+		<div class="col-lg-12">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title text-bold">Adheridos:</h3>
+					<div class="card-tools">
+			      <button type="button" class="btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			        <span class="caret"></span> Acciones
+			      </button>
+			      <div class="dropdown-menu">
+			        <a class="dropdown-item" id="btnNuevo">Agregar Adhesion</a>
+			      </div>
+			    </div>
+				</div>
+				<div class="card-body p-0">
+					<div class="table-responsive">
+						<table class="table table-hover" id="tablaModuloCorreo" Width="100%">
+							<thead>
+								<tr>
+									<th>Creado</th>
+									<th>Usuario</th>
+									<th data-orderable="false">Email</th>
+									<th data-orderable="false">Enlace</th>
+									<th data-orderable="false"> </th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for item in correos %}
+									<tr>
+										<td>{{ usado.created_at | date('d/m/Y') }}</td>
+										<td>
+											{% if item.id_usuario==0 %}
+												No asociado
+											{% else %}
+												{{item.individuo.apellido}}	{{item.individuo.nombre}}
+											{% endif %}
+										</td>
+										<td>{{ item.email }}</td>
+										<td>{{ item.url_name }}</td>
+										<td style=" white-space: nowrap;">
+											<a href="{{path_for('correo.modulo.eliminar', {	'id': item.id })}}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estas seguro que quieres eliminar este correo?.');" data-toggle="tooltip" data-container="body" title="Eliminar"><i class="ion ion-trash-a"></i></a>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+</div>
+<div class="modal fade" id="modalModuloCorreo">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Adherir</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+      	<form class="form" action="{{path_for('correo.modulo')}}" method="POST" id="formModuloCorreo" >
+      		<div class="row">
+      			<div class="col-md-12">
+							<label for="email">Correo electronico</label>
+							<input type="email" class="form-control" name="email" id="email" autocomplete="off" required>
+						</div>
+						<div class="col-md-12">
+							<label for="id_enlace">Enlaces Disponibles</label>
+							<select class="form-control select2" id="id_enlace" name="id_enlace" style="width: 100%;" required>
+								{% for item in enlaces %}
+								<option value="{{item.id}}">{{item.nombre}}</option>
+								{% endfor %}
+							</select>
+						</div>
+
+        	</div>
+        	<button type="submit" class="hidden" id="submitModuloCorreo" style="display:none;"></button>
+        	{{ csrf.field | raw }}
+      	</form>
+
+      </div>
+      <div class="modal-footer">
+      	<a class="btn btn-success pull-right" id="btnModuloCorreo">Continuar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function(e) {
+	$('#id_enlace').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+	$.fn.dataTable.moment( 'DD/MM/YYYY' );
+	$('#tablaModuloCorreo').DataTable( {
+		order:[[0,'desc']],
+	  lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	$('#btnNuevo').on('click',function(){
+		$('#modalModuloCorreo').modal('show');
+	});
+
+	$('#btnModuloCorreo').on('click',function(){
+		$('#submitModuloCorreo').trigger('click');
+	});
+
+});
+
+</script>
+{% endblock %}

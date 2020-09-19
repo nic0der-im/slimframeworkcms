@@ -1,0 +1,2542 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link href="/asources/smartwizard/smart_wizard.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+
+	input[type='number'] {
+    -moz-appearance:textfield;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+	}
+
+	.importe-alert {
+    background-color: red !important;
+    color: white;
+    font-weight: bold;
+    text-align: right;
+    font-size: large;
+    border-color: red;
+	}
+	.selected{
+    background-color: #B0BED9;
+	}
+</style>
+{% endblock %}
+{% block title %}
+	{% if old.id > 0 %}
+	Editar Datero
+	{% else %}
+	Cargar un nuevo Datero
+	{% endif %}
+{% endblock %}
+{% block header_title %}
+	{% if old.id > 0 %}
+	Editar Datero
+	{% else %}
+	Cargar un nuevo Datero
+	{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+	<li class="breadcrumb-item">
+		<a href="{{path_for('cliente.datero.index')}}">Dateros</a>
+	</li>
+	<li class="breadcrumb-item active" >
+		{% if old.id > 0 %}
+			Editar
+		{% else %}
+		<a href="{{path_for('cliente.datero.cargar')}}"> Nuevo</a>
+		{% endif %}
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  {% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		{% if old.id > 0 %}
+		<form lass="form" id="formDatero" method="POST" action="{{path_for('cliente.datero.editar',{'id':old.id})}}" autocomplete="off">
+		{% else %}
+		<form lass="form" id="formDatero" method="POST" action="{{path_for('cliente.datero.cargar')}}" autocomplete="off">
+		{% endif %}
+			<input type="hidden" name="id_ciudad" id="id_ciudad" value="{{old.id_ciudad ? old.id_ciudad:0}}">
+			<input type="hidden" name="id_cliente" id="id_cliente" value="{{old.id_cliente ? old.id_cliente:0}}">
+			<input type="hidden" name="id_cliente_conyugue" id="id_cliente_conyugue" value="{{old.id_cliente_conyugue ? old.id_cliente_conyugue:0}}">
+			<input type="hidden" name="id_vehiculo" id="id_vehiculo" value="{{old.id_vehiculo ? old.id_vehiculo:0}}">
+			<input type="hidden" name="id_carpeta" id="id_carpeta" value="{{old.id_carpeta ? old.id_carpeta:0}}">
+			{% if return_to %}
+			<input type="hidden" name="return_to" id="return_to" value="{{return_to}}">
+			{% endif %}
+    	<div class="col-lg-12" >
+    		<div class="card" >
+					<div class="card-header">
+						<h3 class="card-title">Asistente para el formulario</h3>
+					</div>
+					<div class="card-body" style="padding-right: 0px; padding-left: 0px; padding-top: 0px; padding-bottom: 0px;">
+						<div id="rootwizard">
+							<ul >
+						  	<li class="nav-item " ><a class="nav-link active" href="#tab1" data-toggle="tab">Responsable</a></li>
+								<li class="nav-item "><a class="nav-link" href="#tab2" data-toggle="tab">Domicilio</a></li>
+								<li class="nav-item "><a class="nav-link" href="#tab3" data-toggle="tab">Act. Laboral</a></li>
+								<li class="nav-item "><a class="nav-link" href="#tab4" data-toggle="tab">Conyugue</a></li>
+								<li class="nav-item "><a class="nav-link" href="#tab5" data-toggle="tab">Conyugue Laboral</a></li>
+								<li class="nav-item "><a class="nav-link" href="#tab6" data-toggle="tab">Datos Operacion</a></li>
+								<li class="nav-item "><a class="nav-link" href="#tab7" data-toggle="tab">Finalizar</a></li>
+							</ul>
+							<div>
+						    <div id="tab1">
+						      <div class="form-group">
+										<div class="row">
+											<div class="col-md-4">
+												<label for="apellido">Apellido <small class="text-muted">(*)</small></label>
+												<div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+        									</div>
+													<input type="text" class="form-control" name="apellido" id="cliente_apellido" placeholder="Apellido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el apellido del cliente.<br>Por ejemplo: <b>Parietti</b>" value="{{old.apellido}}">
+												</div>
+											</div>
+											<div class="col-md-4">
+												<label for="nombre">Nombre <small class="text-muted">(*)</small></label>
+												<div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+        									</div>
+													<input type="text" class="form-control" name="nombre" id="cliente_nombre" placeholder="Nombre" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el nombre del cliente.<br>Por ejemplo: <b>Ciro</b>" value="{{old.nombre}}">
+												</div>
+											</div>
+											<div class="col-md-2">
+												<label for="sexo">Sexo</label>
+												<select class="form-control select2" id="sexo" name="sexo" style="width: 100%;" >
+													<option value="1" {{ old.sexo == 1? 'selected':'' }} >Hombre</option>
+													<option value="0" {{ old.sexo == 0? 'selected':'' }} >Mujer</option>
+				                </select>
+											</div>
+											<div class="col-md-2">
+												<label for="estado_civil">Estado Civil <small class="text-muted">(*)</small></label>
+												<select class="form-control select2" id="estado_civil" name="estado_civil" style="width: 100%;" >
+													<option value="Soltero" {{ old.estado_civil == 'Soltero'? 'selected':'' }} >Soltero</option>
+													<option value="Casado" {{ old.estado_civil == 'Casado'? 'selected':'' }} >Casado</option>
+													<option value="Divorciado" {{ old.estado_civil == 'Divorciado'? 'selected':'' }} >Divorciado</option>
+													<option value="Viudo" {{ old.estado_civil == 'Viudo'? 'selected':'' }} >Viudo</option>
+				                </select>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-2">
+												<label for="id_tipo_documento">Tipo Documento <small class="text-muted">(*)</small></label>
+												<select class="form-control select2" id="cliente_tipo_documento" name="id_tipo_documento" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el tipo de documento del cliente.<br>Por ejemplo: <b>DNI</b>" >
+				                	{% for item in tipoDocumento %}
+				                		{% if old.id_tipo_documento == item.id %}
+				                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+				                			{% else %}
+				                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+				                		{% endif %}
+				                	{% endfor %}
+				                </select>
+											</div>
+											<div class="col-md-3">
+												<label for="documento">Número de documento <small class="text-muted">(*)</small></label>
+												<div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+        									</div>
+													<input type="number" class="form-control" name="documento" id="cliente_documento" placeholder="Número de documento" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el número de documento del cliente.<br>Por ejemplo: <b>20645312</b>" value="{{old.documento}}">
+												</div>
+											</div>
+											<div class="col-md-2">
+												<label for="fecha_nacimiento">Fecha de nacimiento</label>
+												<div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+        									</div>
+													<input type="text" class="form-control datepicker" name="fecha_nacimiento" id="cliente_fecha_nacimiento" placeholder="Fecha de nacimiento" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la fecha de nacimiento del cliente.<br>Por ejemplo: <b>21/05/1970</b>" value="{{old.format_fecha_nacimiento}}">
+												</div>
+											</div>
+											<div class="col-md-2">
+												<label for="nacionalidad">Nacionalidad <small class="text-muted">(*)</small></label>
+												<input type="text" class="form-control" name="nacionalidad" id="datero_nacionalidad" placeholder="Argentino" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingrese la nacionalidad.<br>Por ejemplo: <b>Argentino</b>" value="{{old.nacionalidad}}">
+											</div>
+											<div class="col-md-3">
+												<label for="lugar_nacimiento">Lugar Nacimiento <small class="text-muted">(*)</small></label>
+												<input type="text" class="form-control" name="lugar_nacimiento" id="datero_lugar_nacimiento" placeholder="Salta Capital" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el lugar de nacimiento.<br>Por ejemplo: <b>Salta Capital</b>" value="{{old.lugar_nacimiento}}">
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-6">
+												<label for="padre">Apellido y Nombre del Padre </label>
+												<div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="ion ion-ios-people" aria-hidden="true"></i></span>
+        									</div>
+													<input type="text" class="form-control" name="padre" id="datero_padre" placeholder="Apellido y Nombre Completo" autocomplete="off" value="{{old.padre}}">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<label for="madre">Apellido y Nombre de la Madre</label>
+												<div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="ion ion-ios-people-outline" aria-hidden="true"></i></span>
+                          </div>
+													<input type="text" class="form-control" name="madre" id="datero_madre" placeholder="Apellido y Nombre Completo" autocomplete="off" value="{{old.madre}}">
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<label for="cargo">Personas a cargo</label>
+												<div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-users" aria-hidden="true"></i></span>
+                          </div>
+													<input type="text" class="form-control" name="cargo" id="datero_cargo" placeholder="Apellido y Nombre Completo de las personas que tiene a cargo" autocomplete="off" value="{{old.cargo}}">
+												</div>
+											</div>
+										</div>
+									</div>
+						    </div>
+						    <div id="tab2">
+						      <div class="row" >
+										<div class="col-md-2">
+											<label for="vivienda">Vivienda</label>
+											<select class="form-control select2" id="vivienda" name="vivienda" >
+												<option value="Propia" {{ old.vivienda == 'Propia'? 'selected':'' }} >Propia</option>
+												<option value="Familiar" {{ old.vivienda == 'Familiar'? 'selected':'' }} >Familiar</option>
+												<option value="Alquilada" {{ old.vivienda == 'Alquilada'? 'selected':'' }} >Alquilada</option>
+												<option value="Otra" {{ old.vivienda == 'Otra'? 'selected':'' }} >Otra</option>
+			                </select>
+										</div>
+										<div class="col-md-3">
+											<label for="gasto_mensual">Gasto Mensual</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+                        </div>
+												<input type="number" class="form-control" name="gasto_mensual" id="datero_gasto_mensual" placeholder="Ej 5000" autocomplete="off" value="{{old.gasto_mensual}}">
+											</div>
+										</div>
+										<div class="col-md-3">
+											<label for="estudios">Nivel Educativo</label>
+											<select class="form-control select2" id="estudios" name="estudios" style="width: 100%;" >
+												<option value="Ninguno"  {{ old.estudios == 'Ninguno'? 'selected':'' }} >Ninguno</option>
+												<option value="Primario"  {{ old.estudios == 'Primario'? 'selected':'' }} >Primario</option>
+												<option value="Secundario"  {{ old.estudios == 'Secundario'? 'selected':'' }} >Secundario</option>
+												<option value="Terciario"  {{ old.estudios == 'Terciario'? 'selected':'' }} >Terciario</option>
+												<option value="Universitario"  {{ old.estudios == 'Universitario'? 'selected':'' }} >Universitario</option>
+			                </select>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+											<label class="control-label" for="telefono">Teléfono</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-phone" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control phoneFormatter" name="telefono" id="cliente_telefono" placeholder="Teléfono" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el teléfono del cliente.<br>Por ejemplo: <b>3874898080</b>" value="{{old.telefono}}">
+											</div>
+										</div>
+										<div class="col-md-3">
+											<label class="control-label" for="celular">Celular</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-mobile-phone" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control phoneFormatter" name="celular" id="cliente_celular" placeholder="Celular" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el numero de Celular del cliente.<br>Por ejemplo: <b>3874898080</b>" value="{{old.celular}}">
+											</div>
+										</div>
+										<div class="col-md-6">
+											<label for="email">Dirección de correo electrónico </label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                        </div>
+												<input type="email" class="form-control" name="email" id="cliente_email" placeholder="Dirección de correo electrónico" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el email del cliente.<br>Por ejemplo: <b>ciroparietti@gmail.com</b>" value="{{old.email}}">
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<label for="domicilio">Calle <small class="text-muted">(*)</small> </label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control" name="domicilio" id="cliente_domicilio" placeholder="Domicilio" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el domicilio del cliente.<br>Por ejemplo: <b>España</b>" value="{{old.domicilio}}">
+											</div>
+										</div>
+										<div class="col-md-2">
+											<label for="numero">Numero</label>
+											<input type="text" class="form-control" name="numero" id="cliente_numero" placeholder="Nro" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingrese el numero de la calle.<br>Por ejemplo: <b>555</b>" value="{{old.numero}}">
+										</div>
+										<div class="col-md-1">
+											<label for="piso">Dpto</label>
+											<input type="text" class="form-control" name="dpto" id="cliente_dpto" placeholder="Dpto" autocomplete="off" value="{{old.dpto}}">
+										</div>
+										<div class="col-md-1">
+											<label for="piso">Piso</label>
+											<input type="text" class="form-control" name="piso" id="cliente_piso" placeholder="Piso" autocomplete="off" value="{{old.piso}}">
+										</div>
+										<div class="col-md-5">
+											<label for="domicilio_observaciones">Observaciones sobre el domicilio</label>
+											<input type="text" class="form-control" name="domicilio_observaciones" id="cliente_domicilio_observaciones" placeholder="Observaciones sobre el domicilio" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="¿Alguna observación sobre el domicilio?" value="{{old.domicilio_observaciones}}">
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+											<label for="id_provincia">Provincia</label>
+											<select class="form-control select2" id="cliente_provincia" name="id_provincia" required data-toggle="tooltip" data-placement="auto" title="Ingresá la provincia donde reside el cliente.<br>Por ejemplo: <b>Salta</b>" >
+			                	{% for item in provincias %}
+			                		{% if old.id_provincia == item.id %}
+			                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+			                			{% else %}
+			                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+			                		{% endif %}
+			                	{% endfor %}
+			                </select>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group" id="bloodhoundCiudad">
+												<label class="control-label" for="localidad">Localidad <small class="text-muted">(*)</small> </label>
+												<input type="text" class="form-control typeahead" name="localidad" id="cliente_localidad" placeholder="Localidad" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la localidad donde reside el cliente.<br>Por ejemplo: <b>Ciudad de Salta</b>" value="{{old.localidad}}">
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group">
+												<label class="control-label" for="cp">Codigo Postal <small class="text-muted">(*)</small> </label>
+												<input type="number" class="form-control" name="cp" id="cliente_cp" placeholder="CP" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el Codigo Postal.<br>Por ejemplo: <b>4400</b>" value="{{old.cp}}" >
+											</div>
+										</div>
+									</div>
+						    </div>
+								<div id="tab3">
+									<div class="row">
+										<div class="col-md-12">
+                      <div class="form-group">
+                        <label for="datero_actividad_economica">Actividad Economica F883</label>
+                        <div class="row">
+                          <div class="col-lg-11 col-md-11 col-9 col-sm-10" >
+    												<select class="form-control select2" id="datero_actividad_economica" name="id_actividad_economica">
+    			                	</select>
+    											</div>
+                          <div class="col-lg-1 col-md-1 col-1 col-sm-1">
+                            <span class="input-group-btn"><a class="btn btn-info" id="btnActividadEconomica"><i class="ion ion-search" ></i></a></span>
+                          </div>
+                        </div>
+                      </div>
+										</div>
+										<div class="col-md-3">
+											<label for="profesion">Actividad principal/Profesion</label>
+											<select class="form-control select2" id="datero_profesion" name="profesion" value="{{old.profesion}}">
+												<option value="" ></option>
+												{% for item in profesiones %}
+			                  	{% if item.id == old.profesion %}
+			                  	<option value="{{item.id}}" selected>{{item.nombre }}</option>
+													{% else %}
+			                  	<option value="{{item.id}}" >{{item.nombre }}</option>
+													{% endif %}
+			                	{% endfor %}
+			                </select>
+										</div>
+										<div class="col-md-3">
+											<label for="empresa">Empresa</label>
+											<input type="text" class="form-control" name="empresa" id="datero_empresa" placeholder="Nombre" autocomplete="off" value="{{old.empresa}}">
+										</div>
+										<div class="col-md-3">
+											<label for="sector_economico">Sector Economico</label>
+											<select class="form-control select2" id="datero_sector_economico" name="sector_economico" >
+												<option value="" ></option>
+												<option value="Ama de Casa" >Ama de Casa</option>
+												<option value="Autonomo" >Autonomo</option>
+												<option value="Desempleado (C/Ingresos)" >Desempleado (C/Ingresos)</option>
+												<option value="Desempleado (S/Ingresos)" >Desempleado (S/Ingresos)</option>
+												<option value="Estudiante" >Estudiante</option>
+												<option value="Gobierno" >Gobierno</option>
+												<option value="Empleado" >Empleado</option>
+												<option value="Militar" >Militar</option>
+												<option value="Organismo Publico" >Organismo Publico</option>
+												<option value="Otro" >Otro</option>
+												<option value="Retirado" >Retirado</option>
+												<option value="Sector Privado" >Sector Privado</option>
+			                </select>
+										</div>
+										<div class="col-md-3">
+											<label for="ramo">Ramo</label>
+											<input type="text" class="form-control" name="ramo" id="datero_ramo" autocomplete="off" value="{{old.ramo}}">
+										</div>
+										<div class="col-md-3">
+											<label for="relacion_dependencia">¿En relación de dependencia?</label>
+											<select class="form-control select2" id="datero_relacion_dependencia" name="relacion_dependencia" >
+												<option value="0" {{ old.relacion_dependencia == 0? 'selected':'' }} >NO</option>
+												<option value="1" {{ old.relacion_dependencia == 1? 'selected':'' }} >SI</option>
+			                </select>
+										</div>
+										<div class="col-md-2">
+											<label for="plan_sueldo">¿Plan Sueldo?</label>
+											<select class="form-control select2" id="datero_plan_sueldo" name="plan_sueldo" >
+												<option value="0" {{ old.plan_sueldo == 0? 'selected':'' }} >NO</option>
+												<option value="1" {{ old.plan_sueldo == 1? 'selected':'' }} >SI</option>
+			                </select>
+										</div>
+										<div class="col-md-3">
+											<label for="posicion">Posicion / Cargo</label>
+											<select class="form-control select2" id="datero_posicion" name="posicion" >
+												<option value="" ></option>
+												<option value="Ama de Casa" >Ama de Casa</option>
+												<option value="Autonomo S/Empleados" >Autonomo S/Empleados</option>
+												<option value="Comerciante C/Empleados" >Comerciante C/Empleados</option>
+												<option value="Comerciante S/Empleados" >Comerciante S/Empleados</option>
+												<option value="Ejecutivo Alto" >Ejecutivo Alto</option>
+												<option value="Ejecutivo Medio" >Ejecutivo Medio</option>
+												<option value="Empleado" >Empleado</option>
+												<option value="Empresario C/Empleados" >Empresario C/Empleados</option>
+												<option value="Estudiante" >Estudiante</option>
+												<option value="Jubilado" >Jubilado</option>
+												<option value="Obrero" >Obrero</option>
+												<option value="Prof Liberal C/Empleados" >Prof Liberal C/Empleados</option>
+												<option value="Prof Liberal S/Empleados" >Prof Liberal S/Empleados</option>
+												<option value="Rentista" >Rentista</option>
+			                </select>
+										</div>
+										<div class="col-md-4">
+											<label for="ocupacion">Ocupacion</label>
+											<div class="input-group">
+												<select class="form-control select2" id="datero_ocupacion" name="ocupacion" >
+													<option value="" ></option>
+													<option value="Ama de Casa" >Ama de Casa</option>
+													<option value="Autonomo" >Autonomo</option>
+													<option value="Comerciante" >Comerciante</option>
+													<option value="Desempleado (C/Ingresos)" >Desempleado (C/Ingresos)</option>
+													<option value="Desempleado (S/Ingresos)" >Desempleado (S/Ingresos)</option>
+													<option value="Empleado de Comercio / Organismo Publico" >Empleado de Comercio / Organismo Publico</option>
+													<option value="Empleado de Gran Empresa" >Empleado de Gran Empresa</option>
+													<option value="Empleado de Pyme" >Empleado de Pyme</option>
+													<option value="Empresario (Gran Empresa)" >Empresario (Gran Empresa)</option>
+													<option value="Empresario (Pyme)" >Empresario (Pyme)</option>
+													<option value="Estudiante" >Estudiante</option>
+													<option value="Igeniero" >Igeniero</option>
+													<option value="Medico / Dentista" >Medico / Dentista</option>
+													<option value="Otro" >Otro</option>
+													<option value="Profesional" >Profesional</option>
+													<option value="Retirado" >Retirado</option>
+				                </select>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<label for="antiguedad">Antiguedad</label>
+											<input type="number" class="form-control" name="antiguedad" id="datero_antiguedad" placeholder="Años" autocomplete="off" value="{{old.antiguedad}}">
+										</div>
+										<div class="col-md-2">
+											<label for="antiguedad_anterior">Antiguedad Laboral Anterior</label>
+											<input type="number" class="form-control" name="antiguedad_anterior" id="datero_antiguedad_anterior" placeholder="Años" autocomplete="off" value="{{old.antiguedad_anterior}}">
+										</div>
+										<div class="col-md-2">
+											<label for="ingresos">Ingresos Mensuales Netos </label>
+											<input type="number" class="form-control" name="ingresos" id="datero_ingresos" autocomplete="off" value="{{old.ingresos}}">
+										</div>
+										<div class="col-md-2">
+											<label for="ingresos_otros">Otros Ingresos / Conceptos </label>
+											<input type="number" class="form-control" name="ingresos_otros" id="datero_ingresos_otros" autocomplete="off" value="{{old.ingresos_otros}}">
+										</div>
+									</div>
+									<div class="row" >
+										<div class="col-md-12">
+											<div class="card card-danger">
+												<div class="card-header">
+													<h3 class="card-title text-bold">Domicilio Laboral</h3>
+												</div>
+												<div class="card-body">
+													<div class="form-group">
+														<div class="row">
+															<div class="col-md-3">
+																<label class="control-label" for="laboral_telefono">Teléfono</label>
+																<div class="input-group">
+                                  <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-phone" aria-hidden="true"></i></span>
+                                  </div>
+																	<input type="text" class="form-control phoneFormatter" name="laboral_telefono" id="cliente_laboral_telefono" placeholder="Teléfono" autocomplete="off" value="{{old.laboral_telefono}}">
+																</div>
+															</div>
+															<div class="col-md-3">
+																<label class="control-label" for="laboral_celular">Celular</label>
+																<div class="input-group">
+                                  <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-mobile-phone" aria-hidden="true"></i></span>
+                                  </div>
+																	<input type="text" class="form-control phoneFormatter" name="laboral_celular" id="cliente_laboral_celular" placeholder="Celular" autocomplete="off" value="{{old.laboral_celular}}">
+																</div>
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-4">
+																<label for="laboral_domicilio">Calle</label>
+																<div class="input-group">
+                                  <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+                                  </div>
+																	<input type="text" class="form-control" name="laboral_domicilio" id="cliente_laboral_domicilio" placeholder="Domicilio" autocomplete="off" value="{{old.laboral_domicilio}}">
+																</div>
+															</div>
+															<div class="col-md-2">
+																<label for="laboral_numero">Numero</label>
+																<input type="text" class="form-control" name="laboral_numero" id="cliente_laboral_numero" placeholder="Nro" autocomplete="off" value="{{old.laboral_numero}}">
+															</div>
+															<div class="col-md-1">
+																<label for="laboral_dpto">Dpto</label>
+																<input type="text" class="form-control" name="laboral_dpto" id="cliente_laboral_dpto" placeholder="Dpto" autocomplete="off" value="{{old.laboral_dpto}}">
+															</div>
+															<div class="col-md-1">
+																<label for="laboral_piso">Piso</label>
+																<input type="text" class="form-control" name="laboral_piso" id="cliente_laboral_piso" placeholder="Piso" autocomplete="off" value="{{old.laboral_piso}}">
+															</div>
+															<div class="col-md-5">
+																<label for="laboral_domicilio_observaciones">Observaciones sobre el domicilio</label>
+																<input type="text" class="form-control" name="laboral_domicilio_observaciones" id="cliente_laboral_domicilio_observaciones" placeholder="Observaciones sobre el domicilio" autocomplete="off" value="{{old.laboral_domicilio_observaciones}}">
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-3">
+																<label for="laboral_id_provincia">Provincia</label>
+																<select class="form-control select2" id="cliente_laboral_provincia" name="laboral_id_provincia" >
+								                	{% for item in provincias %}
+								                		{% if old.laboral_id_provincia == item.id %}
+								                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+								                			{% else %}
+								                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+								                		{% endif %}
+								                	{% endfor %}
+								                </select>
+															</div>
+															<div class="col-md-3">
+																<div class="form-group" id="bloodhoundLaboralCiudad">
+																	<label class="control-label" for="laboral_localidad">Localidad </label>
+																	<input type="text" class="form-control typeahead" name="laboral_localidad" id="cliente_laboral_localidad" placeholder="Localidad" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá la localidad donde reside el cliente.<br>Por ejemplo: <b>Ciudad de Salta</b>" value="{{old.laboral_localidad}}" >
+																</div>
+															</div>
+															<div class="col-md-2">
+																<div class="form-group">
+																	<label class="control-label" for="laboral_cp">Codigo Postal</label>
+																	<input type="number" class="form-control" name="laboral_cp" id="cliente_laboral_cp" placeholder="CP" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el Codigo Postal.<br>Por ejemplo: <b>4400</b>" value="{{old.laboral_cp}}" >
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+						    </div>
+								<div id="tab4">
+									<div class="row">
+										<div class="col-md-4">
+											<label for="conyugue_apellido">Apellido </label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control" name="conyugue_apellido" id="cliente_conyugue_apellido" placeholder="Apellido" autocomplete="off" value="{{old.conyugue_apellido}}">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="conyugue_nombre">Nombre</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control" name="conyugue_nombre" id="cliente_conyugue_nombre" placeholder="Nombre" autocomplete="off" value="{{old.conyugue_nombre}}">
+											</div>
+										</div>
+										<div class="col-md-2">
+												<label for="conyugue_sexo">Sexo</label>
+												<select class="form-control select2" id="conyugue_sexo" name="conyugue_sexo">
+													<option value="1" {{ old.conyugue_sexo == 1? 'selected':'' }} >Hombre</option>
+													<option value="0" {{ old.conyugue_sexo == 0? 'selected':'' }} >Mujer</option>
+				                </select>
+											</div>
+										<div class="col-md-2">
+											<label for="conyugue_cotitular">Es Cotitular?</label>
+											<select class="form-control select2" id="cliente_conyugue_cotitular" name="conyugue_cotitular" >
+												<option value="NO" {{ old.conyugue_cotitular == 'NO'? 'selected':'' }} >NO</option>
+												<option value="SI" {{ old.conyugue_cotitular == 'SI'? 'selected':'' }} >SI</option>
+			                </select>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-2">
+											<label for="conyugue_id_tipo_documento">Tipo Documento</label>
+											<select class="form-control select2" id="cliente_conyugue_tipo_documento" name="conyugue_id_tipo_documento" >
+			                	{% for item in tipoDocumento %}
+			                		{% if old.conyugue_id_tipo_documento == item.id %}
+			                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+			                			{% else %}
+			                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+			                		{% endif %}
+			                	{% endfor %}
+			                </select>
+										</div>
+										<div class="col-md-3">
+											<label for="conyugue_documento">Número de documento</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+                        </div>
+												<input type="number" class="form-control" name="conyugue_documento" id="cliente_conyugue_documento" placeholder="Número de documento" autocomplete="off" value="{{old.conyugue_documento}}">
+											</div>
+										</div>
+										<div class="col-md-2">
+											<label for="conyugue_fecha_nacimiento">Fecha de nacimiento</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control datepicker" name="conyugue_fecha_nacimiento" id="cliente_conyugue_fecha_nacimiento" value="{{old.format_conyugue_fecha_nacimiento}}">
+											</div>
+										</div>
+										<div class="col-md-2">
+											<label for="conyugue_nacionalidad">Nacionalidad</label>
+											<input type="text" class="form-control" name="conyugue_nacionalidad" id="datero_conyugue_nacionalidad" placeholder="Argentino" autocomplete="off" value="{{old.conyugue_nacionalidad}}">
+										</div>
+										<div class="col-md-3">
+											<label for="conyugue_lugar_nacimiento">Lugar Nacimiento</label>
+											<input type="text" class="form-control" name="conyugue_lugar_nacimiento" id="datero_conyugue_lugar_nacimiento" placeholder="Salta Capital" autocomplete="off" value="{{old.conyugue_lugar_nacimiento}}">
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<label for="conyugue_padre">Apellido y Nombre del Padre </label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="ion ion-ios-people" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control" name="conyugue_padre" id="datero_conyugue_padre" placeholder="Apellido y Nombre Completo" autocomplete="off" value="{{old.conyugue_padre}}">
+											</div>
+										</div>
+										<div class="col-md-6">
+											<label for="conyugue_madre">Apellido y Nombre de la Madre</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="ion ion-ios-people-outline" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control" name="conyugue_madre" id="datero_conyugue_madre" placeholder="Apellido y Nombre Completo" autocomplete="off" value="{{old.conyugue_madre}}">
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12">
+											<label for="conyugue_cargo">Personas a cargo </label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-users" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control" name="conyugue_cargo" id="datero_conyugue_cargo" placeholder="Apellido y Nombre Completo de las personas que tiene a cargo" autocomplete="off" value="{{old.conyugue_cargo}}">
+											</div>
+										</div>
+									</div>
+						    </div>
+								<div id="tab5">
+									<div class="row">
+										<div class="col-md-12">
+											<label for="datero_conyugue_actividad_economica">Actividad Economica F883</label>
+											<div class="row" >
+                        <div class="col-lg-11 col-md-11 col-10 col-sm-10">
+                          <select class="form-control select2" id="datero_conyugue_actividad_economica" name="conyugue_id_actividad_economica" style="width: 100%;">
+  			                	</select>
+                        </div>
+												<div class="col-lg-1 col-md-1 col-1 col-sm-1">
+                          <span class="input-group-btn"><a class="btn btn-info" id="btnConyugueActividadEconomica"><i class="ion ion-search" ></i></a></span>
+                        </div>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<label for="conyugue_profesion">Actividad principal/Profesion</label>
+											<select class="form-control select2" id="datero_conyugue_profesion" name="conyugue_profesion" >
+												<option value="" ></option>
+												{% for item in profesiones %}
+													{% if item.id == old.conyugue_profesion %}
+			                  	<option value="{{item.id}}" selected>{{item.nombre }}</option>
+													{% else %}
+			                  	<option value="{{item.id}}" >{{item.nombre }}</option>
+													{% endif %}
+			                	{% endfor %}
+			                </select>
+										</div>
+										<div class="col-md-3">
+											<label for="conyugue_empresa">Empresa</label>
+											<input type="text" class="form-control" name="conyugue_empresa" id="datero_conyugue_empresa" placeholder="Nombre" autocomplete="off" value="{{old.conyugue_empresa}}">
+										</div>
+										<div class="col-md-3">
+											<label for="conyugue_sector_economico">Sector Economico</label>
+											<select class="form-control select2" id="datero_conyugue_sector_economico" name="conyugue_sector_economico" >
+												<option value="" ></option>
+												<option value="Ama de Casa" >Ama de Casa</option>
+												<option value="Autonomo" >Autonomo</option>
+												<option value="Desempleado (C/Ingresos)" >Desempleado (C/Ingresos)</option>
+												<option value="Desempleado (S/Ingresos)" >Desempleado (S/Ingresos)</option>
+												<option value="Estudiante" >Estudiante</option>
+												<option value="Gobierno" >Gobierno</option>
+												<option value="Empleado" >Empleado</option>
+												<option value="Militar" >Militar</option>
+												<option value="Organismo Publico" >Organismo Publico</option>
+												<option value="Otro" >Otro</option>
+												<option value="Retirado" >Retirado</option>
+												<option value="Sector Privado" >Sector Privado</option>
+			                </select>
+										</div>
+										<div class="col-md-3">
+											<label for="conyugue_ramo">Ramo</label>
+											<input type="text" class="form-control" name="conyugue_ramo" id="datero_conyugue_ramo" autocomplete="off" value="{{old.conyugue_ramo}}">
+										</div>
+										<div class="col-md-3">
+											<label for="conyugue_relacion_dependencia">¿En relación de dependencia?</label>
+											<select class="form-control select2" id="datero_conyugue_relacion_dependencia" name="conyugue_relacion_dependencia" >
+												<option value="0" {{ old.conyugue_relacion_dependencia == 0? 'selected':'' }} >NO</option>
+												<option value="1" {{ old.conyugue_relacion_dependencia == 1? 'selected':'' }} >SI</option>
+			                </select>
+										</div>
+										<div class="col-md-2">
+											<label for="conyugue_plan_sueldo">¿Plan Sueldo?</label>
+											<select class="form-control select2" id="datero_conyugue_plan_sueldo" name="conyugue_plan_sueldo" >
+												<option value="0" {{ old.conyugue_plan_sueldo == 0? 'selected':'' }} >NO</option>
+												<option value="1" {{ old.conyugue_plan_sueldo == 1? 'selected':'' }} >SI</option>
+			                </select>
+										</div>
+										<div class="col-md-3">
+											<label for="conyugue_posicion">Posicion / Cargo</label>
+											<select class="form-control select2" id="datero_conyugue_posicion" name="conyugue_posicion" >
+												<option value="" ></option>
+												<option value="Ama de Casa" >Ama de Casa</option>
+												<option value="Autonomo S/Empleados" >Autonomo S/Empleados</option>
+												<option value="Comerciante C/Empleados" >Comerciante C/Empleados</option>
+												<option value="Comerciante S/Empleados" >Comerciante S/Empleados</option>
+												<option value="Ejecutivo Alto" >Ejecutivo Alto</option>
+												<option value="Ejecutivo Medio" >Ejecutivo Medio</option>
+												<option value="Empleado" >Empleado</option>
+												<option value="Empresario C/Empleados" >Empresario C/Empleados</option>
+												<option value="Estudiante" >Estudiante</option>
+												<option value="Jubilado" >Jubilado</option>
+												<option value="Obrero" >Obrero</option>
+												<option value="Prof Liberal C/Empleados" >Prof Liberal C/Empleados</option>
+												<option value="Prof Liberal S/Empleados" >Prof Liberal S/Empleados</option>
+												<option value="Rentista" >Rentista</option>
+			                </select>
+										</div>
+										<div class="col-md-4">
+											<label for="conyugue_ocupacion">Ocupacion</label>
+											<select class="form-control select2" id="datero_conyugue_ocupacion" name="conyugue_ocupacion" >
+												<option value="" ></option>
+												<option value="Ama de Casa" >Ama de Casa</option>
+												<option value="Autonomo" >Autonomo</option>
+												<option value="Comerciante" >Comerciante</option>
+												<option value="Desempleado (C/Ingresos)" >Desempleado (C/Ingresos)</option>
+												<option value="Desempleado (S/Ingresos)" >Desempleado (S/Ingresos)</option>
+												<option value="Empleado de Comercio / Organismo Publico" >Empleado de Comercio / Organismo Publico</option>
+												<option value="Empleado de Gran Empresa" >Empleado de Gran Empresa</option>
+												<option value="Empleado de Pyme" >Empleado de Pyme</option>
+												<option value="Empresario (Gran Empresa)" >Empresario (Gran Empresa)</option>
+												<option value="Empresario (Pyme)" >Empresario (Pyme)</option>
+												<option value="Estudiante" >Estudiante</option>
+												<option value="Igeniero" >Igeniero</option>
+												<option value="Medico / Dentista" >Medico / Dentista</option>
+												<option value="Otro" >Otro</option>
+												<option value="Profesional" >Profesional</option>
+												<option value="Retirado" >Retirado</option>
+			                </select>
+										</div>
+										<div class="col-md-2">
+											<label for="conyugue_antiguedad">Antiguedad</label>
+											<input type="number" class="form-control" name="conyugue_antiguedad" id="datero_conyugue_antiguedad" placeholder="Años" autocomplete="off" value="{{old.conyugue_antiguedad}}">
+										</div>
+										<div class="col-md-2">
+											<label for="conyugue_antiguedad_anterior">Antiguedad Laboral Anterior</label>
+											<input type="number" class="form-control" name="conyugue_antiguedad_anterior" id="datero_conyugue_antiguedad_anterior" placeholder="Años" autocomplete="off" value="{{old.conyugue_antiguedad_anterior}}">
+										</div>
+										<div class="col-md-2">
+											<label for="conyugue_ingresos">Ingresos Mensuales Netos </label>
+											<input type="number" class="form-control" name="conyugue_ingresos" id="datero_conyugue_ingresos" autocomplete="off" value="{{old.conyugue_ingresos}}">
+										</div>
+										<div class="col-md-2">
+											<label for="conyugue_ingresos_otros">Otros Ingresos / Conceptos </label>
+											<input type="number" class="form-control" name="conyugue_ingresos_otros" id="datero_conyugue_ingresos_otros" autocomplete="off" value="{{old.conyugue_ingresos_otros}}">
+										</div>
+									</div>
+									<div class="row" >
+										<div class="col-md-12">
+											<div class="card card-danger">
+												<div class="card-header">
+													<h3 class="card-title text-bold">Domicilio Laboral del Conyugue</h3>
+												</div>
+												<div class="card-body">
+													<div class="form-group">
+														<div class="row">
+															<div class="col-md-3">
+																<label class="control-label" for="conyugue_laboral_telefono">Teléfono</label>
+																<div class="input-group">
+                                  <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-phone" aria-hidden="true"></i></span>
+                                  </div>
+																	<input type="text" class="form-control phoneFormatter" name="conyugue_laboral_telefono" id="datero_conyugue_laboral_telefono" placeholder="Teléfono" autocomplete="off" value="{{old.conyugue_laboral_telefono}}">
+																</div>
+															</div>
+															<div class="col-md-3">
+																<label class="control-label" for="conyugue_laboral_celular">Celular</label>
+																<div class="input-group">
+                                  <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-mobile-phone" aria-hidden="true"></i></span>
+                                  </div>
+																	<input type="text" class="form-control phoneFormatter" name="conyugue_laboral_celular" id="datero_conyugue_laboral_celular" placeholder="Celular" autocomplete="off" value="{{old.conyugue_laboral_celular}}">
+																</div>
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-4">
+																<label for="conyugue_laboral_domicilio">Calle</label>
+																<div class="input-group">
+                                  <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+                                  </div>
+																	<input type="text" class="form-control" name="conyugue_laboral_domicilio" id="datero_conyugue_laboral_domicilio" placeholder="Domicilio" autocomplete="off" value="{{old.conyugue_laboral_domicilio}}">
+																</div>
+															</div>
+															<div class="col-md-2">
+																<label for="conyugue_laboral_numero">Numero</label>
+																<input type="text" class="form-control" name="conyugue_laboral_numero" id="datero_conyugue_laboral_numero" placeholder="Nro" autocomplete="off" value="{{old.conyugue_laboral_numero}}">
+															</div>
+															<div class="col-md-1">
+																<label for="conyugue_laboral_dpto">Dpto</label>
+																<input type="text" class="form-control" name="conyugue_laboral_dpto" id="datero_conyugue_laboral_dpto" placeholder="Dpto" autocomplete="off" value="{{old.conyugue_laboral_dpto}}">
+															</div>
+															<div class="col-md-1">
+																<label for="conyugue_laboral_piso">Piso</label>
+																<input type="text" class="form-control" name="conyugue_laboral_piso" id="datero_conyugue_laboral_piso" placeholder="Piso" autocomplete="off" value="{{old.conyugue_laboral_piso}}">
+															</div>
+															<div class="col-md-5">
+																<label for="conyugue_laboral_domicilio_observaciones">Observaciones sobre el domicilio</label>
+																<input type="text" class="form-control" name="conyugue_laboral_domicilio_observaciones" id="datero_conyugue_laboral_domicilio_observaciones" placeholder="Observaciones sobre el domicilio" autocomplete="off" old="{{old.conyugue_laboral_domicilio_observaciones}}">
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-3">
+																<label for="conyugue_laboral_id_provincia">Provincia</label>
+																<select class="form-control select2" id="datero_conyugue_laboral_provincia" name="conyugue_laboral_id_provincia" required >
+								                	{% for item in provincias %}
+								                		{% if old.conyugue_laboral_id_provincia == item.id %}
+								                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+								                			{% else %}
+								                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+								                		{% endif %}
+								                	{% endfor %}
+								                </select>
+															</div>
+															<div class="col-md-3">
+																<div class="form-group" id="bloodhoundConyugueLaboralCiudad">
+																	<label class="control-label" for="conyugue_laboral_localidad">Localidad </label>
+																	<input type="text" class="form-control typeahead" name="conyugue_laboral_localidad" id="datero_conyugue_laboral_localidad" placeholder="Localidad" autocomplete="off" value="{{old.conyugue_laboral_localidad}}" >
+																</div>
+															</div>
+															<div class="col-md-2">
+																<div class="form-group">
+																	<label class="control-label" for="conyugue_laboral_cp">Codigo Postal</label>
+																	<input type="number" class="form-control" name="conyugue_laboral_cp" id="datero_conyugue_laboral_cp" placeholder="CP" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el Codigo Postal.<br>Por ejemplo: <b>4400</b>" value="{{old.conyugue_laboral_cp}}" >
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+						    </div>
+								<div id="tab6">
+									<div class="row">
+										<div class="col-md-2">
+											<label for="vehiculo_calidad">Calidad</label>
+											<select class="form-control presupuesto select2" id="vehiculo_calidad" name="vehiculo_calidad" >
+												<option value="NUEVO" {{ old.vehiculo_calidad == 'NUEVO'? 'selected':'' }} >NUEVO</option>
+												<option value="USADO" {{ old.vehiculo_calidad == 'USADO'? 'selected':'' }} >USADO</option>
+			                </select>
+										</div>
+										<div class="col-md-2">
+											<label for="vehiculo_gnc">¿Posee GNC?</label>
+											<select class="form-control select2" id="vehiculo_gnc" name="vehiculo_gnc" >
+												<option value="0" {{ old.vehiculo_gnc == 0? 'selected':'' }} >NO</option>
+												<option value="1" {{ old.vehiculo_gnc == 1? 'selected':'' }} >SI</option>
+			                </select>
+										</div>
+										<div class="col-md-2">
+											<label for="vehiculo_año">Año</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                        </div>
+												<input type="text" class="form-control datepicker" name="vehiculo_año" id="vehiculo_año" autocomplete="off" >
+											</div>
+										</div>
+										<div class="col-md-2">
+											<label for="vehiculo_uso">¿Uso?</label>
+											<select class="form-control select2" id="vehiculo_uso" name="vehiculo_uso" >
+												<option value="PARTICULAR" {{old.vehiculo_uso == 'PARTICULAR'?'selected':''}} >PARTICULAR</option>
+												<option value="MIXTO" {{old.vehiculo_uso == 'MIXTO'?'selected':''}}>MIXTO</option>
+			                </select>
+										</div>
+										<div class="col-md-2">
+											<label for="vehiculo_credito">A Financiar<small class="text-muted"><i>(0=MAX)</i>(*)</small> </label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+                        </div>
+												<input type="number" class="form-control" name="vehiculo_credito" id="vehiculo_credito" required autocomplete="off" value="{{old.vehiculo_credito}}" style="text-align: right;">
+											</div>
+										</div>
+                    <div class="col-md-2">
+											<label for="presupuesto_seña">SEÑA</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+                        </div>
+												<input type="number" class="form-control importe-alert" name="presupuesto_seña" id="presupuesto_seña" autocomplete="off" value="{{old?old.presupuesto_seña:0}}" style="text-align: right;">
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-2">
+											<label for="id_marca">Marca</label>
+											<select class="form-control" name="id_marca" id="vehiculo_marca" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná la marca del vehículo.<br>Por ejemplo: <b>Ford</b>">
+												{% for row in marcas %}
+													{% if row.id==old.id_marca %}
+														<option class="option" value="{{row.id}}" selected="true">
+															{{row.nombre}}
+														</option>
+													{% else %}
+														<option class="option" value="{{row.id}}">
+															{{row.nombre}}
+														</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+										<div class="col-md-6">
+											<label for="vehiculo_modelo">Modelo <small class="text-muted">(*)</small> </label>
+											<input type="text" class="form-control" name="vehiculo_modelo" id="vehiculo_modelo" required autocomplete="off" value="{{old.vehiculo_modelo}}" >
+										</div>
+										<div class="col-md-2">
+											<label for="vehiculo_precio">Precio Contado <small class="text-muted">(*)</small> </label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+                        </div>
+												<input type="number" class="form-control" name="vehiculo_precio" id="vehiculo_precio" required="" autocomplete="off" value="{{old.vehiculo_precio}}" style="text-align: right;">
+											</div>
+										</div>
+										<div class="col-md-2">
+											<label for="presupuesto_plazos">Plazos</label>
+											<select class="form-control presupuesto select2" id="presupuesto_plazos" name="presupuesto_plazos" style="width: 100%;" >
+												<option value="12" {{ old.presupuesto_plazos == 12? 'selected':'' }} >Cuota 12</option>
+												<option value="24" {{ old.presupuesto_plazos == 24? 'selected':'' }}>Cuota 24</option>
+												<option value="36" {{ old.presupuesto_plazos == 36? 'selected':'' }}>Cuota 36</option>
+												<option value="48" {{ old.presupuesto_plazos == 48? 'selected':'' }}>Cuota 48</option>
+			                </select>
+										</div>
+										<div class="col-md-2 hide">
+											<label for="vehiculo_entrega_minima">Entrega Minima</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+                        </div>
+												<input type="number" class="form-control" name="vehiculo_entrega_minima" id="vehiculo_entrega_minima" autocomplete="off" value="{{old.vehiculo_entrega_minima}}" style="text-align: right;">
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-2 hide" >
+											<label class="control-label" for="vehiculo_seguro" >Seguro</label>
+											<select class="form-control" name="vehiculo_seguro" id="vehiculo_seguro" autocomplete="off" required data-placement="auto" value="{{old.vehiculo_seguro}}" >
+												<option value="Mas economico">Mas economico</option>
+												<option value="Mediano">Mediano</option>
+												<option value="Completo">Completo</option>
+											</select>
+										</div>
+										<div class="col-md-8 hide">
+											<label for="vehiculo_seguro_producto">Producto</label>
+											<input type="text" class="form-control" name="vehiculo_seguro_producto" id="vehiculo_producto" autocomplete="off" value="{{old.vehiculo_seguro_producto}}">
+										</div>
+										<div class="col-md-2">
+											<label for="banco">Bancarizado</label>
+											<select class="form-control select2" id="banco" name="banco" style="width: 100%;" >
+												<option value="NO" {{ old.banco == 'NO'? 'selected':'' }} >NO</option>
+												<option value="SANTANDER RIO" {{ old.banco == 'SANTANDER RIO'? 'selected':'' }} >Santander Rio</option>
+												<option value="ICBC" {{ old.banco == 'ICBC'? 'selected':'' }} >ICBC</option>
+												<option value="OTROS" {{ old.banco == 'OTROS'? 'selected':'' }} >Otros</option>
+			                </select>
+										</div>
+										<div class="col-md-2">
+											<label for="vehiculo_seguro_producto">Tasa</label>
+											<input type="text" class="form-control" name="vehiculo_tasa" id="vehiculo_tasa" autocomplete="off" value="{{old.vehiculo_tasa}}">
+										</div>
+										<div class="col-md-2">
+											<label for="vehiculo_prima">Extra Prima</label>
+											<select class="form-control select2" id="vehiculo_prima" name="vehiculo_prima" value="{{old.vehiculo_prima}}">
+												<option value="0" {{ old.vehiculo_prima == 0? 'selected':'' }} >NO</option>
+												<option value="1" {{ old.vehiculo_prima == 1? 'selected':'' }} >SI</option>
+			                </select>
+										</div>
+									</div>
+						    </div>
+						    <div id="tab7">
+						    	<div class="row">
+						    		<div class="col-md-12" >
+						    			<label class="control-label" >
+						    				Una vez finalizado el datero, se enviara un correo electronico a los interesados. Con los datos ingresados en un PDF adjunto.<br>
+						    				El vehiculo si es Usado no pasara a señado automaticamente.
+						    			</label>
+						    			<hr>
+						    			<label class="control-label" >
+						    				Si el cliente no se encuentra registrado, el mismo tambien sera registrado en nuestro sistema.<br>
+						    				Si es un vehiculo nuevo, ya sea usado o 0km, se generara un vehiculo que no aparecera en ningun otro lado mas que en el tablero de dateros.
+						    			</label>
+						    		</div>
+						    	</div>
+						    </div>
+								<div class="" id="tab8">
+									<div class="row">
+										<div class="col-md-3">
+											<label for="presupuesto_financiar">Capital a Financiar</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+                        </div>
+												<input type="number" class="form-control presupuesto" name="presupuesto_financiar" id="presupuesto_financiar" autocomplete="off" value="{{old?old.presupuesto_financiar:0}}" style="text-align: right;">
+											</div>
+										</div>
+										<div class="col-md-3">
+											<label for="presupuesto_vehiculo_valor">Valor del Vehiculo</label>
+											<div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+                        </div>
+												<input type="number" class="form-control presupuesto" name="presupuesto_vehiculo_valor" id="presupuesto_vehiculo_valor" autocomplete="off" value="{{old?old.presupuesto_vehiculo_valor:0}}" style="text-align: right;">
+											</div>
+										</div>
+										<div class="col-md-2">
+											<label for="presupuesto_porcentaje">Porcentaje&nbsp;Financiado</label>
+											<div class="input-group">
+												<input type="number" class="form-control" name="presupuesto_porcentaje" id="presupuesto_porcentaje" value="{{old.presupuesto_porcentaje}}" style="text-align: right;">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">%</span>
+                        </div>
+											</div>
+										</div>
+									</div>
+									<div class="row pull-center" >
+										<div class="col-md-3">
+											<label for="presupuesto_tasa">Tasa Nominal Anual</label>
+											<input type="text" class="form-control" name="presupuesto_tasa" id="presupuesto_tasa" value="{{old.presupuesto_tasa}}" style="text-align: right;">
+										</div>
+									</div>
+									<div class="row " >
+										<div class="card-body d-flex justify-content-center">
+											<div class="row">
+												<div class="col-md-12">
+													<div class="form-group row">
+														<label for="presupuesto_capital_intereses" class="col-md-4 col-form-label">Capital e Intereses: </label>
+														<div class="col-md-4">
+															<input type="text" class="form-control" name="presupuesto_capital_intereses" id="presupuesto_capital_intereses" value="{{old.presupuesto_capital_intereses}}" style="text-align: right;">
+														</div>
+													</div>
+													<div class="form-group row">
+														<label for="presupuesto_iva" class="col-md-4 col-form-label">IVA: (sobre intereses)</label>
+														<div class="col-md-4">
+															<input type="text" class="form-control" name="presupuesto_iva" id="presupuesto_iva" value="{{old.presupuesto_iva}}" style="text-align: right;">
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row" >
+										<div class="card-body">
+											<div class="form-group row">
+												<label for="presupuesto_cuota" class="col-sm-3 col-form-label">Importe cuota Mensual</label>
+		                    <div class="col-sm-8">
+													<input type="text" class="form-control importe-alert" name="presupuesto_cuota" id="presupuesto_cuota" value="{{old.presupuesto_cuota}}">
+												</div>
+			                </div>
+										</div>
+									</div>
+						    </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<div class="card card-info collapsed-card">
+					<div class="card-header with-border">
+						<h3 class="card-title text-bold">Observaciones</h3>
+						<div class="card-tools pull-right">
+	            <a class="btn btn-card-tool" data-widget="collapse">
+	            	<i class="fa fa-plus"></i>
+	            </a>
+          	</div>
+					</div>
+					<div class="card-body">
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-12">
+									<label for="observaciones">Observaciones</label>
+									<textarea class="form-control" name="observaciones" id="cliente_observaciones">{{old.observaciones}}</textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card card-info">
+					<div class="card-header">
+						<h3 class="card-title text-bold">Opciones del formulario</h3>
+					</div>
+					<div class="card-body">
+			  		{% if old.id > 0 %}
+						{% else %}
+						<button class="btn bg-default btn-flat pull-left" type="reset" id="btnReset">Limpiar campos</button>&nbsp;
+						{% endif %}
+						<a class="btn bg-primary btn-flat" id="btnCliente">Buscar cliente <i class="ion ion-search"></i></a>
+						<a class="btn bg-primary btn-flat " id="btnVehiculoUsado">Buscar Vehiculo Usado <i class="ion ion-search"></i></a>
+						<a class="btn bg-primary btn-flat " id="btnModelo">Buscar Modelo Auto <i class="ion ion-search"></i></a>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12 text-muted">
+						<small><b>(*)</b> Campos obligatorios.</small><br>
+					</div>
+				</div>
+			</div>
+			<button class="d-none" type="submit" id="submitForm"></button>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+</div>
+<div class="modal fade" id="modalCliente">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Listado de Clientes. Seleccione uno, con doble click:</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="table-responsive">
+              <table class="table responsive" style="width:100%;" id="tablaCliente">
+                <thead>
+									<tr>
+										<th>
+											id
+										</th>
+										<th>
+											Nombre y Apellido
+										</th>
+										<th>
+											Documento
+										</th>
+										<th>
+											Provincia
+										</th>
+										<th>
+											Localidad
+										</th>
+										<th>
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalActividadEconomica">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Listado de Actividades Economicas. Seleccione uno, con doble click:</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="table-responsive">
+              <table class="table responsive" style="width:100%;" id="tablaActividadEconomica">
+                <thead>
+									<tr>
+										<th>
+											id
+										</th>
+										<th>
+											Codigo
+										</th>
+										<th>
+											Nombre
+										</th>
+										<th>
+											Descripcion
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalConyugueActividadEconomica">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Listado de Actividades Economicas para el Conyugue. Seleccione uno, con doble click:</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="table-responsive">
+              <table class="table responsive" style="width:100%;" id="tablaConyugueActividadEconomica">
+                <thead>
+									<tr>
+										<th>
+											id
+										</th>
+										<th>
+											Codigo
+										</th>
+										<th>
+											Nombre
+										</th>
+										<th>
+											Descripcion
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalVehiculo">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Listado de Vehiculos Disponibles. Seleccione uno</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="table-responsive">
+              <table class="table responsive" style="width:100%;" id="tablaVehiculo">
+                <thead>
+									<tr>
+										<th>
+										</th>
+										<th>
+											Dominio
+										</th>
+										<th>
+											Marca
+										</th>
+										<th>
+											Modelo
+										</th>
+										<th>
+											Año
+										</th>
+										<th>
+											Km
+										</th>
+										<th>
+											Color
+										</th>
+										<th>
+											Localidad
+										</th>
+										<th>
+											Precio<br>Contado
+										</th>
+										<th>
+											Capital<br>Financiar
+										</th>
+										<th>
+											Entrega<br>Minima
+										</th>
+										<th>
+										 	Cil.
+										</th>
+										<th>
+											Tipo Motor
+										</th>
+										<th>
+											Trans.
+										</th>
+										<th>
+											Cant. Puertas
+										</th>
+										<th>
+											Ubicación
+										</th>
+										<th>
+											Ex Dueño
+										</th>
+										<th>
+											Estado
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalModelo">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Listado de Modelos. Seleccione uno, solo el modelo es modificado en el datero, el precio es sugerido</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="table-responsive">
+              <table class="table responsive" style="width:100%;" id="tablaModelo">
+                <thead>
+									<tr>
+										<th>Marca</th>
+										<th>Modelo</th>
+										<th>Año</th>
+										<th>Ultimo Precio:</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/asources/smartwizard/jquery.smartWizard.min.js"></script>
+<script type="text/javascript">
+$(document).on('ready', function(){
+
+	$.fn.dataTable.moment( 'DD/MM/YYYY HH:mm' );
+	$(document).on('focus', '.select2', function (e) {
+	  if (e.originalEvent) {
+	    $(this).siblings('select').select2('open');
+	  }
+	});
+
+	jQuery.extend(jQuery.validator.messages, {
+    required: '<div style="color:red;">Este campo es requerido.</div>',
+	});
+	var $validator = $("#formDatero").validate({
+		errorPlacement: function(error, element) {
+      error.appendTo('label[for="'+element.attr("name")+'"]');
+    }
+	});
+
+	$('#rootwizard').smartWizard({
+		selected: 0,
+		keyNavigation:true,
+		autoAdjustHeight:true,
+		backButtonSupport: true,
+    toolbarSettings: {
+        toolbarPosition: 'both', // none, top, bottom, both
+        toolbarButtonPosition: 'right', // left, right
+        showNextButton: true, // show/hide a Next button
+        showPreviousButton: true, // show/hide a Previous button
+        toolbarExtraButtons: [
+		    	$('<button></button>').text('Finalizar').addClass('btn btn-info').on('click', function(e){
+						e.preventDefault();
+						bootbox.confirm({
+							title: "{{old.id>0?'Modificar Datero':'Crear Datero'}}",
+							message: "Desea {{old.id>0?'modificar':'registrar'}} el formulario? Una vez echo, tambien se registrara el cliente y el vehiculo, si es que no estan en nuetro Sistema.",
+							buttons: {
+								cancel: {
+									label: '<i class="fa fa-times"></i> Cancelar'
+								},
+								confirm: {
+									label: '<i class="ion ion-checkmark-round"></i> Confirmar'
+								}
+							},
+							callback: function (result) {
+								if(result){
+									$('#submitForm').trigger('click');
+								}
+							}
+						});
+	        })
+				]
+    },
+    autoAdjustHeight:true,
+    lang: {  // Language variables
+      next: 'Siguiente',
+      previous: 'Atras'
+    },
+	});
+
+	$('#btnReset').on('click',function(){
+		$('#id_ciudad').val('');
+		$('#id_cliente').val('');
+		$('#id_vehiculo').val('');
+	});
+
+  $("#rootwizard").on("leaveStep", function(e, anchorObject, stepNumber, stepDirection) {
+    var $valid = $("#formDatero").valid();
+    if(!$valid) {
+      $validator.focusInvalid();
+      return false;
+    }
+  });
+
+	$('.sw-btn-group-extra').hide();
+	$("#rootwizard").on("showStep", function(e, anchorObject, stepNumber, stepDirection) {
+		if($('button.sw-btn-next').hasClass('disabled')){
+			$('.sw-btn-group-extra').show();
+		}else{
+			$('.sw-btn-group-extra').hide();
+		}
+	});
+	var language = {
+    inputTooShort: function(args) {
+      // args.minimum is the minimum required length
+      // args.input is the user-typed text
+      return "Ingrese mas de "+args.minimum+" caraceteres para empezar.";
+    },
+    inputTooLong: function(args) {
+      // args.maximum is the maximum allowed length
+      // args.input is the user-typed text
+      return "Demasiados caraceteres.";
+    },
+    errorLoading: function() {
+      return "Errores obteniendo la consulta.";
+    },
+    loadingMore: function() {
+      return "Obteniendo mas resultados.";
+    },
+    noResults: function() {
+      return "No resultados encontrados.";
+    },
+    searching: function() {
+      return "Buscando...";
+    },
+    maximumSelected: function(args) {
+      // args.maximum is the maximum number of items the user may select
+      return "Maximos resultados obtenidos.";
+    }
+	};
+
+	$('#sexo').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#conyugue_sexo').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+	$('#cliente_tipo_documento').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#vivienda').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#estudios').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#estado_civil').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#datero_actividad_economica').select2({
+    theme: "bootstrap",
+    width: '100%',
+    minimumInputLength: 2,
+    ajax: {
+      url: "{{path_for('cliente.actividad.consultar')}}",
+      dataType: 'json',
+      type: "GET",
+      quietMillis: 50,
+      data: function (term) {
+        return term
+      },
+      processResults: function (data) {
+        return {
+          results: $.map(data, function (item) {
+            return {
+              text: '('+item.codigo+') '+item.nombre,
+              id: item.id,
+            }
+          })
+        };
+      }
+    },
+    language:language,
+  });
+  {% if datero_actividad_economica %}
+  	var select2 = $('#datero_actividad_economica');
+    select2.append('<option value="{{datero_actividad_economica.id}}">({{datero_actividad_economica.codigo}}) {{datero_actividad_economica.nombre}}</option>');
+	  select2.val({{datero_actividad_economica.id}}).trigger('change');
+  {% endif %}
+  $('#datero_conyugue_actividad_economica').select2({
+    theme: "bootstrap",
+    width: '100%',
+    minimumInputLength: 2,
+    ajax: {
+      url: "{{path_for('cliente.actividad.consultar')}}",
+      dataType: 'json',
+      type: "GET",
+      quietMillis: 50,
+      data: function (term) {
+        return term
+      },
+      processResults: function (data) {
+        return {
+          results: $.map(data, function (item) {
+            return {
+              text: '('+item.codigo+') '+item.nombre,
+              id: item.id,
+            }
+          })
+        };
+      }
+    },
+    language:language,
+  });
+  {% if datero_conyugue_actividad_economica %}
+  	var select2 = $('#datero_conyugue_actividad_economica');
+    select2.append('<option value="{{datero_conyugue_actividad_economica.id}}">({{datero_conyugue_actividad_economica.codigo}}) {{datero_conyugue_actividad_economica.nombre}}</option>');
+	  select2.val({{datero_conyugue_actividad_economica.id}}).trigger('change');
+  {% endif %}
+  $('#datero_profesion').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#datero_relacion_dependencia').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#datero_sector_economico').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  }).val("{{old?old.sector_economico:''}}").trigger('change');
+  $('#datero_plan_sueldo').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#datero_posicion').select2({
+    theme: "bootstrap",
+    width: '100%',
+  }).val("{{old?old.posicion:''}}").trigger('change');
+  $('#datero_ocupacion').select2({
+    theme: "bootstrap",
+    width: '100%',
+  }).val("{{old?old.ocupacion:''}}").trigger('change');
+  $('#cliente_laboral_provincia').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#cliente_provincia').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('#cliente_conyugue_tipo_documento').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#cliente_conyugue_cotitular').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#datero_conyugue_profesion').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#datero_conyugue_relacion_dependencia').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#datero_conyugue_sector_economico').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  }).val("{{old?old.conyugue_sector_economico:''}}").trigger('change');
+  $('#datero_conyugue_plan_sueldo').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#datero_conyugue_posicion').select2({
+    theme: "bootstrap",
+    width: '100%',
+  }).val("{{old?old.conyugue_posicion:''}}").trigger('change');
+  $('#datero_conyugue_ocupacion').select2({
+    theme: "bootstrap",
+    width: '100%',
+  }).val("{{old?old.conyugue_ocupacion:''}}").trigger('change');
+  $('#cliente_conyugue_laboral_provincia').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#datero_conyugue_laboral_provincia').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('#vehiculo_calidad').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#vehiculo_gnc').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#vehiculo_uso').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#vehiculo_marca').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#vehiculo_seguro').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#banco').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#vehiculo_prima').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('#presupuesto_plazos').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  var ciudad = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.ciudad.consultar')}}?consulta=",
+	    wildcard: '%QUERY',
+	    replace: function (url, uriEncodedQuery) {
+        return url+uriEncodedQuery+"&id_provincia="+$('#cliente_provincia').val();
+      },
+	  }
+	});
+
+	$('#bloodhoundCiudad .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'localidad',
+	  display: 'nombre',
+	  source: ciudad,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.nombre +' ('+response.cp+')</p>';
+      },
+		  empty:'No existe la ciudad. Se procedera a crear uno nuevo para la provincia asignada.',
+		  }
+	}).on('typeahead:selected', function(event, selection) {
+		$('#id_ciudad').val(selection.id);
+		$('#cliente_cp').val(selection.cp);
+	});
+
+	$('#cliente_provincia').on('change',function(){
+		//Para que el typeahead pueda volver a cargar los datos cuando los campos esten vacios
+		//Primero se debe escribir algun caracter
+		//Segundo borrarlo, con esto se activara el trigger.
+		//La escritura como lectura son realizados en el objecto del input y el objeto del typeahead
+		$('#cliente_localidad').val('a').trigger('change');
+		$('#cliente_localidad').focus().typeahead('val','a').focus();
+		$('#cliente_localidad').val('').trigger('change');
+		$('#cliente_localidad').focus().typeahead('val','').focus();
+		$('#cliente_cp').val('');
+	});
+
+	var laboralCiudad = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.ciudad.consultar')}}?consulta=",
+	    wildcard: '%QUERY',
+	    replace: function (url, uriEncodedQuery) {
+        return url+uriEncodedQuery+"&id_provincia="+$('#cliente_laboral_provincia').val();
+      },
+	  }
+	});
+
+	$('#bloodhoundLaboralCiudad .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'localidad',
+	  display: 'nombre',
+	  source: laboralCiudad,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.nombre +' ('+response.cp+')</p>';
+      },
+		  empty:'No existe la ciudad. Se procedera a crear uno nuevo para la provincia asignada.',
+		  }
+	}).on('typeahead:selected', function(event, selection) {
+		$('#cliente_laboral_cp').val(selection.cp);
+	});
+
+	$('#cliente_laboral_provincia').on('change',function(){
+		$('#cliente_laboral_localidad').val('a').trigger('change');
+		$('#cliente_laboral_localidad').focus().typeahead('val','a').focus();
+		$('#cliente_laboral_localidad').val('').trigger('change');
+		$('#cliente_laboral_localidad').focus().typeahead('val','').focus();
+		$('#cliente_laboral_cp').val('');
+	});
+
+	var conyugueLaboralCiudad = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.ciudad.consultar')}}?consulta=",
+	    wildcard: '%QUERY',
+	    replace: function (url, uriEncodedQuery) {
+        return url+uriEncodedQuery+"&id_provincia="+$('#datero_conyugue_laboral_provincia').val();
+      },
+	  }
+	});
+
+	$('#bloodhoundConyugueLaboralCiudad .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'localidad',
+	  display: 'nombre',
+	  source: conyugueLaboralCiudad,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.nombre +' ('+response.cp+')</p>';
+      },
+		  empty:'No existe la ciudad. Se procedera a crear uno nuevo para la provincia asignada.',
+		  }
+	}).on('typeahead:selected', function(event, selection) {
+		$('#datero_conyugue_laboral_cp').val(selection.cp);
+	});
+
+	$('#datero_conyugue_laboral_provincia').on('change',function(){
+		$('#datero_conyugue_laboral_localidad').val('a').trigger('change');
+		$('#datero_conyugue_laboral_localidad').focus().typeahead('val','a').focus();
+		$('#datero_conyugue_laboral_localidad').val('').trigger('change');
+		$('#datero_conyugue_laboral_localidad').focus().typeahead('val','').focus();
+		$('#datero_conyugue_laboral_cp').val('');
+	});
+
+  $('#cliente_fecha_nacimiento').datepicker({
+		language:'es-ES',
+	  autoHide: true,
+	  autoPick: true,
+	  format: 'dd/mm/yyyy',
+	  endDate: new Date(),
+	});
+
+	$('#cliente_conyugue_fecha_nacimiento').datepicker({
+		language:'es-ES',
+	  autoHide: true,
+	  autoPick: true,
+	  format: 'dd/mm/yyyy',
+	  endDate: new Date(),
+	});
+
+	$('#vehiculo_año').datepicker({
+		language:'es-ES',
+	  autoHide: true,
+	  autoPick: true,
+	  format: 'yyyy',
+	  startDate: '2005',
+	  endDate: new Date().getFullYear(),
+	});
+
+	CKEDITOR.replace('cliente_observaciones', {
+		toolbar :
+		[
+			{ name: 'basicstyles', items : [ 'Bold','Italic' ] },
+			{ name: 'paragraph', items : [ 'NumberedList','BulletedList' ] }
+		]
+	});
+
+	var tablaCliente = $('#tablaCliente').DataTable( {
+    order:[[1,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    ajax:{
+      url:"{{path_for('cliente.consultar')}}",
+    },
+    columns: [
+      {
+        name: 'id',
+        data: 'id',
+      },
+      {
+        name: 'apellido',
+        data: function(data,type,dataToSet){
+          return capitalizar(data.apellido)+' '+capitalizar(data.nombre);
+        },
+      },
+      {
+        name: 'documento',
+        data: function(data,type,dataToSet){
+        	return data.tipo_documento.nombre+' '+data.documento;
+        }
+      },
+      {
+        name: 'id_provincia',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.provincia!=null){
+          	respuesta = data.provincia.nombre;
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'localidad',
+        data: 'localidad',
+      },
+      {
+      	name: 'data',
+      	data: function(data,type,dataToSet){
+      		return data;
+      	}
+      },
+    ],
+    columnDefs:[
+      {
+        targets:[0,5],
+        visible:false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+	var tablaVehiculo = $('#tablaVehiculo').DataTable( {
+		order:[[0,'desc']],
+    lengthMenu: [[5, 10], [5, 10]],
+    processing: true,
+    serverSide: true,
+    responsive: true,
+    info: false,
+    ajax:{
+      url:"{{path_for('vehicle.disponibles')}}",
+    },
+    columns: [
+      {
+        name: 'created_at',
+        data: 'created_at',
+      },
+      {
+        name: 'dominio',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+	      		var momentDate = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss');
+	    			respuesta = '<div class="" data-html="true" data-toggle="tooltip" title="Agregado el<br>'+momentDate.format('DD/MM/YYYY')+'">'+data.get_usado.dominio+'</div>';
+	      	}
+	      	return respuesta;
+        },
+      },
+      {
+        name: 'marca',
+        data: 'get_marca.nombre',
+      },
+      {
+        name: 'modelo',
+        data: 'modelo',
+      },
+      {
+        name: 'year',
+        data: 'year',
+      },
+      {
+        name: 'kilometraje',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.kilometraje;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'color',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.color;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'id_localidad',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_localidad!=null){
+        		respuesta = data.get_localidad.nombre;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'precio_venta',
+        data: 'precio_venta',
+        render: function(data,type,row){
+        	respuesta = '<label class="control-label precio_venta">'+formatCurrency(data)+'</label>';
+          return respuesta;
+        },
+      },
+      {
+        name: 'precio_lista',
+        data: 'calculo_credito',
+        render: function(data,type,row){
+          return formatCurrency(data);
+        },
+      },
+      {
+        name: 'entrega_minima',
+        data: 'entrega_minima',
+        render: function(data,type,row){
+        	respuesta = '<label class="control-label entrega_minima">'+formatCurrency(data)+'</label>';
+          return respuesta;
+        },
+      },
+      {
+        name: 'motor',
+        data: 'motor',
+        render: function(data,type,row){
+          return (data).toFixed(1);
+        },
+      },
+      {
+        name: 'id_tipo_motor',
+        data: 'get_tipo_motor.nombre',
+      },
+      {
+        name: 'id_transmision',
+        data: 'get_transmision.nombre',
+      },
+      {
+        name: 'cantidad_puertas',
+        data: 'cantidad_puertas',
+      },
+      {
+        name: 'id_ubicacion',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_ubicacion!=null){
+        		respuesta = data.get_ubicacion.nombre;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+        name: 'exowner',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.exowner;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+      	name: 'estado',
+      	data: function(data,type,row){
+      		var estadoLista = '<span class="label label-info">'+data.get_estado_lista.nombre+'</span>';
+      		var publicado = (data.publicado)? '<span class="label label-info">Publicado</span>': '<span class="label label-danger">Sin publicar</span>';
+      		var vehiculo_estado = '';
+      		if(data.get_tipos_estado!=null){
+	      		if(data.id_estado == 1){
+	      			vehiculo_estado = '<span class="label label-info">'+data.get_tipos_estado.nombre+'</span>';
+	      		} else if (data.id_estado == 2){
+	      			vehiculo_estado = '<span class="label label-warning">'+data.get_tipos_estado.nombre+'</span>';
+	      		} else {
+	      			vehiculo_estado = '<span class="label label-success">'+data.get_tipos_estado.nombre+'</span>';
+	      		}
+	      	}
+      		return estadoLista+'&nbsp;'+publicado+'&nbsp;';
+	      }
+      }
+    ],
+    columnDefs:[
+      {
+        targets:[1,2,3,4,5,6,7],
+        orderable: false,
+      },
+      {
+        targets: [0],
+        visible: false,
+      }
+    ],
+    createdRow: function (row, data, index) {
+      if(data.id_estado==2){
+        $(row).addClass('vehiculo_señado');
+      }
+    },
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	var tablaActividadEconomica = $('#tablaActividadEconomica').DataTable( {
+		order:[[1,'asc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    responsive: true,
+    info: false,
+    ajax:{
+      url:"{{path_for('cliente.actividad.tabla')}}",
+    },
+    columns: [
+      {
+        name: 'id',
+        data: 'id',
+      },
+      {
+        name: 'codigo',
+        data: 'codigo',
+      },
+      {
+        name: 'nombre',
+        data: 'nombre',
+      },
+      {
+        name: 'descripcion',
+        data: 'descripcion',
+      },
+    ],
+    columnDefs:[
+      {
+        targets: [0],
+        visible: false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+    },
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+	var tablaConyugueActividadEconomica = $('#tablaConyugueActividadEconomica').DataTable( {
+		order:[[1,'asc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    responsive: true,
+    info: false,
+    ajax:{
+      url:"{{path_for('cliente.actividad.tabla')}}",
+    },
+    columns: [
+      {
+        name: 'id',
+        data: 'id',
+      },
+      {
+        name: 'codigo',
+        data: 'codigo',
+      },
+      {
+        name: 'nombre',
+        data: 'nombre',
+      },
+      {
+        name: 'descripcion',
+        data: 'descripcion',
+      },
+    ],
+    columnDefs:[
+      {
+        targets: [0],
+        visible: false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+    },
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+	var tablaModelo = $('#tablaModelo').DataTable( {
+    	order:[[0,'desc']],
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{path_for('precios.listado')}}" },
+      columns: [
+      {
+        name: 'marca',
+        data: 'nombremarca.nombre'
+      },
+       {
+        name: 'nombre',
+        data: 'nombre'
+      },
+       {
+        name: 'anio',
+        data: 'anio'
+      },
+       {
+        name: 'precio',
+        data: 'precio.precio',
+        render: function(data,type,row){
+          return formatCurrency(data);
+        },
+      },
+    ]
+  });
+
+	$('#modalVehiculo, #modalActividadEconomica, #modalConyugueActividadEconomica, #modalCliente, #modalModelo').on('shown.bs.modal', function (e) {
+    $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+  });
+
+  $('#modalVehiculo').on('hide.bs.modal', function (e) {
+  	if($('#id_vehiculo').val()==0){
+			$('#vehiculo_calidad').val('NUEVO').trigger('change');
+  	}
+  });
+
+	$('#nuevo_cliente_nombre').focus();
+
+	$(phoneFormatter);
+
+	$('.presupuesto').on('change',function(){
+		calcularPresupuesto();
+	});
+
+	$('.presupuesto').on('input',function(){
+		calcularPresupuesto();
+	});
+
+	$('#vehiculo_credito').on('input',function(){
+		if(this.value>0){
+			$('#presupuesto_financiar').val(this.value);
+			calcularPresupuesto();
+		}
+	});
+	$('#vehiculo_entrega_minima').on('input',function(){
+		if(this.value>0){
+			$('#presupuesto_seña').val(this.value);
+			calcularPresupuesto();
+		}
+	});
+	$('#vehiculo_precio').on('input keyup',function(){
+		if(this.value>0){
+			$('#presupuesto_vehiculo_valor').val(this.value).trigger('input');
+			calcularPresupuesto();
+		}
+	});
+
+	$('#presupuesto_seña').on('input',function(){
+		var entrega_minima = Number($('#vehiculo_entrega_minima').val());
+		var credito = Number($('#vehiculo_credito').val());
+		if(this.value>entrega_minima){
+			var capital_financiar = Number($('#presupuesto_financiar').val());
+			var diferencia = capital_financiar-(this.value - entrega_minima);
+			if(diferencia>=0){
+				$('#presupuesto_financiar').val(diferencia);
+			} else{
+				$('#presupuesto_financiar').val(credito);
+			}
+		} else {
+			$('#presupuesto_financiar').val(credito);
+		}
+	});
+
+	$('#presupuesto_porcentaje').on('input',function(){
+		if(this.value>0){
+			var porcentaje = this.value;
+			var precio_contado = Number($('#presupuesto_vehiculo_valor').val());
+			var capital_financiar = (precio_contado/100)*porcentaje;
+			$('#presupuesto_financiar').val(capital_financiar.toFixed(0));
+			var plazos = Number($('#presupuesto_plazos').val());
+
+			if(precio_contado==0){
+				capital_financiar = 0;
+				precio_contado = 1; //para salvar la division por cero
+			}
+
+			var tna = 0.325;
+			if($('#vehiculo_calidad').val()=='USADO'){
+				tna = 0.325;
+			} else {
+				tna = 0.295;
+			}
+			$('#presupuesto_tasa').val(percent(tna));
+			var tasa = tna/12;
+			var capital_intereses = (tasa/(1-Math.pow((1+tasa),((-1)*plazos)) ) )*capital_financiar;
+			var iva = pagoint(tasa,1,plazos,(-1)*capital_financiar)*0.21;
+			var total = capital_intereses + iva;
+
+			$('#presupuesto_iva').val(formatCurrency(iva));
+			$('#presupuesto_capital_intereses').val(formatCurrency(capital_intereses));
+			$('#presupuesto_cuota').val(formatCurrency(total));
+		}
+	});
+
+	$('#btnCliente').on('click',function(){
+		$('#modalCliente').modal('show');
+	});
+	$('#btnActividadEconomica').on('click',function(){
+		$('#modalActividadEconomica').modal('show');
+	});
+	$('#btnConyugueActividadEconomica').on('click',function(){
+		$('#modalConyugueActividadEconomica').modal('show');
+	});
+	$('#tablaCliente tbody').on( 'click', 'tr', function () {
+		if ($(this).hasClass('selected') ) {
+			var row = tablaCliente.row(this).data();
+			$('#id_cliente').val(row.id);
+			$('#cliente_apellido').val(row.apellido);
+			$('#cliente_nombre').val(row.nombre);
+			$('#cliente_tipo_documento').val(row.id_tipo_documento).trigger('change');
+			$('#cliente_documento').val(row.documento);
+      var fecha_nacimiento = moment(row.fecha_nacimiento, 'YYYY-MM-DD').format('DD/MM/YYYY');
+      $('#cliente_fecha_nacimiento').datepicker('setDate',fecha_nacimiento);
+			$('#cliente_telefono').val(row.telefono);
+			$('#cliente_celular').val(row.celular);
+			$('#cliente_email').val(row.email);
+			$('#cliente_domicilio').val(row.domicilio);
+			$('#cliente_numero').val(row.numero);
+			$('#cliente_piso').val(row.piso);
+			$('#cliente_domicilio_observaciones').val(row.domicilio_observaciones);
+			$('#cliente_provincia').val(row.id_provincia).trigger('change');
+			$('#cliente_localidad').val(row.localidad);
+			$('#cliente_cp').val(row.cp);
+      $('#modalCliente').modal('hide');
+    } else {
+      tablaCliente.$('tr.selected').removeClass('selected');
+      $(this).addClass('selected');
+    }
+  });
+	$('#tablaActividadEconomica tbody').on( 'click', 'tr', function () {
+		if ($(this).hasClass('selected') ) {
+			var row = tablaActividadEconomica.row(this).data();
+			var id = row.id;
+			var codigo = row.codigo;
+			var nombre = row.nombre;
+			var select2 = $('#datero_actividad_economica');
+      select2.append('<option value="'+id+'">('+codigo+') '+nombre+'</option>');
+		  select2.val(id).trigger('change');
+      $('#modalActividadEconomica').modal('hide');
+    } else {
+      tablaActividadEconomica.$('tr.selected').removeClass('selected');
+      $(this).addClass('selected');
+    }
+  });
+  $('#tablaConyugueActividadEconomica tbody').on( 'click', 'tr', function () {
+		if ($(this).hasClass('selected') ) {
+			var row = tablaConyugueActividadEconomica.row(this).data();
+			var id = row.id;
+			var codigo = row.codigo;
+			var nombre = row.nombre;
+			var select2 = $('#datero_conyugue_actividad_economica');
+      select2.append('<option value="'+id+'">('+codigo+') '+nombre+'</option>');
+		  select2.val(id).trigger('change');
+      $('#modalConyugueActividadEconomica').modal('hide');
+    } else {
+      tablaConyugueActividadEconomica.$('tr.selected').removeClass('selected');
+      $(this).addClass('selected');
+    }
+  });
+
+	$('#vehiculo_calidad').on('change',function(){
+		if(this.value=='USADO'){
+			$('#modalVehiculo').modal('show');
+		} else {
+			$('#id_vehiculo').val(0);
+			tablaVehiculo.$('tr.selected').removeClass('selected');
+		}
+	});
+	$('#btnVehiculoUsado').on('click',function(){
+		$('#modalVehiculo').modal('show');
+	});
+	$('#tablaVehiculo tbody').on( 'click', 'tr', function () {
+		if ($(this).hasClass('selected') ) {
+			var row = tablaVehiculo.row(this).data();
+			var entrega_minima = row.entrega_minima;
+	    var precio_venta = row.precio_venta;
+	    var id_marca = row.id_marca;
+	    var id_vehiculo = row.id;
+	    var modelo = row.modelo;
+	    var año = row.year;
+	    var presupuesto_financiar = row.calculo_credito;
+	    $('#presupuesto_financiar').val(presupuesto_financiar);
+	    $('#presupuesto_seña').val(entrega_minima);
+	    $('#presupuesto_vehiculo_valor').val(precio_venta).trigger('input');
+	    $('#vehiculo_credito').val(presupuesto_financiar);
+	    $('#vehiculo_entrega_minima').val(entrega_minima);
+	    $('#vehiculo_precio').val(precio_venta);
+	    $('#vehiculo_marca').val(id_marca).trigger('change');
+      $('#vehiculo_modelo').val(modelo);
+      $('#vehiculo_año').datepicker('setDate',año.toString());
+      $('#id_vehiculo').val(id_vehiculo);
+      $('#vehiculo_calidad').val('USADO').trigger('change');
+      $('#modalVehiculo').modal('hide');
+    } else {
+      tablaVehiculo.$('tr.selected').removeClass('selected');
+      $(this).addClass('selected');
+    }
+  });
+
+  $('#btnModelo').on('click',function(){
+  	var marca = $('#vehiculo_marca').select2('data')[0].text;
+  	var año = $('#vehiculo_año').datepicker('getDate',true);
+  	tablaModelo.search( marca.trim() +' '+año ).draw();
+		$('#modalModelo').modal('show');
+  });
+  $('#tablaModelo tbody').on( 'click', 'tr', function () {
+		if ($(this).hasClass('selected') ) {
+			var row = tablaModelo.row(this).data();
+			var nombre = row.nombre;
+			$('#vehiculo_modelo').val(nombre);
+      $('#modalModelo').modal('hide');
+    } else {
+      tablaModelo.$('tr.selected').removeClass('selected');
+      $(this).addClass('selected');
+    }
+  });
+
+	calcularPresupuesto();
+});
+
+function phoneFormatter() {
+  $('.phoneFormatter').on('input', function() {
+    var number = $(this).val().replace(/[^\d]/g, '')
+    if (number.length == 7) {
+      number = number.replace(/(\d{3})(\d{4})/, "$1-$2");
+    } else if (number.length == 10) {
+      number = number.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
+    } else if (number.length > 12 && number.length < 14) {
+    	number = number.replace(/(\d+)(\d{3})(\d{3})(\d{4})/, "+$1($2) $3-$4");
+    } else {
+    	number = number.replace(/(\d+)(\d{3})(\d{4})/, "($1) $2-$3");
+    }
+    $(this).val(number)
+  });
+};
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+function formatNumberFromCurrency(total){
+	return Number(total.replace('.','').replace(',','.').replace(/[^0-9\.-]+/g,""));
+}
+
+function calcularPresupuesto(){
+	var capital_financiar = Number($('#presupuesto_financiar').val());
+	var precio_contado = Number($('#presupuesto_vehiculo_valor').val());
+	var plazos = Number($('#presupuesto_plazos').val());
+
+	if(precio_contado==0){
+		capital_financiar = 0;
+		precio_contado = 1; //para salvar la division por cero
+	}
+	var porcentaje = (capital_financiar / precio_contado)*10;
+	$('#presupuesto_porcentaje').val(percent(porcentaje));
+
+	var tna = 0.325;
+	if($('#vehiculo_calidad').val()=='USADO'){
+		tna = 0.325;
+	} else {
+		tna = 0.295;
+	}
+	$('#presupuesto_tasa').val(percent(tna));
+	var tasa = tna/12;
+	var capital_intereses = (tasa/(1-Math.pow((1+tasa),((-1)*plazos)) ) )*capital_financiar;
+	var iva = pagoint(tasa,1,plazos,(-1)*capital_financiar)*0.21;
+	var total = capital_intereses + iva;
+
+	$('#presupuesto_iva').val(formatCurrency(iva));
+	$('#presupuesto_capital_intereses').val(formatCurrency(capital_intereses));
+	$('#presupuesto_cuota').val(formatCurrency(total));
+}
+
+function pagoint(rate, per, pmt, pv) { //ipmt
+	var tmp = Math.pow(1 + rate, per);
+	return 0 - (pv * tmp * rate + pmt * (tmp - 1));
+}
+function percent(num){
+	return (num*10).toFixed(2);
+}
+function capitalizar(str){
+  return str.substr(0,1).toUpperCase()+str.substr(1);
+}
+</script>
+{% endblock %}

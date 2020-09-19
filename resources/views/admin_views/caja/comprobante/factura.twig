@@ -1,0 +1,792 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+	<style type="text/css">
+		/* scaffolding TYPEAHEAD */
+    .tt-query {
+      -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+         -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+              box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    }
+
+    .tt-hint {
+      color: #999
+    }
+
+    .tt-menu {    /* used to be tt-dropdown-menu in older versions */
+      width: 422px;
+      margin-top: 4px;
+      padding: 4px 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      -webkit-border-radius: 4px;
+         -moz-border-radius: 4px;
+              border-radius: 4px;
+      -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+         -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+              box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    }
+
+    .tt-suggestion {
+      padding: 3px 20px;
+      line-height: 24px;
+    }
+
+    .tt-suggestion.tt-cursor,.tt-suggestion:hover {
+      color: #fff;
+      background-color: #0097cf;
+
+    }
+
+    .tt-suggestion p {
+      margin: 0;
+    }
+    .twitter-typeahead, .tt-hint, .tt-input, .tt-menu { width: 100%; }
+
+    .envoltura {
+			display: flex;
+		}
+
+		.twitter-typeahead {
+			flex: 1 0 auto;
+		}
+
+		input[type='number'] {
+    -moz-appearance:textfield;
+		}
+
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+		    -webkit-appearance: none;
+		}
+
+		@media (min-width: 768px) {
+			.form-inline .form-control {
+			    display: inline-block;
+			    width: 100%;
+			    vertical-align: middle;
+			}
+		}
+	</style>
+{% endblock %}
+{% block title %}Obligaciones{% endblock %}
+{% block header_title %}
+<div>
+	Factura de {{sucursal.sucursal}} ({{sucursal.descripcion}})
+</div>
+{% endblock %}
+{% block breadcrumb %}
+	<li>
+		<a href="{{path_for('comprobante.factura.tablero')}}">Facturas</a>
+	</li>
+	<li class="active">
+		<a href="{{path_for('comprobante.factura.nuevo')}}"> Nuevo</a>
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="">
+		<div class="box box-danger">
+			<div class="box-header with-border">
+				<h3 class="box-title">Nueva Factura</h3>
+			</div>
+			<div class="box-body">
+				<form class="form" id="formFactura" method="POST" action="{{path_for('comprobante.factura.agregar')}}">
+					<input type="hidden" name="id_cliente" id="id_cliente" value="{{old?old.id_cliente:0}}" required>
+					<div class="row">
+						<div class="col-md-3">
+							<div class="form-group">
+                <label for="factura_tipo_comprobante">Tipo</label>
+                <select class="form-control select2" id="factura_tipo_comprobante" name="factura_tipo_comprobante" style="width: 100%;" tabindex="-1" >
+                	{% for item in tipoComprobante %}
+                		{% if old.factura_tipo_comprobante == item.id %}
+                  	<option value="{{item.id}}" selected="" >{{item.nombre|title}}</option>
+                			{% else %}
+                  	<option value="{{item.id}}" >{{item.nombre|title}}</option>
+                		{% endif %}
+                	{% endfor %}
+                </select>
+              </div>
+						</div>
+            <div class="col-md-2">
+              <div class="form-group">
+                <label for="factura_fecha">Fecha</label>
+              	<input type="text" class="form-control datepicker" id="factura_fecha" name="factura_fecha" required>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="factura_tipo_responsable">Condicion Responsable</label>
+                <select class="form-control select2" id="factura_tipo_responsable" name="factura_tipo_responsable" style="width: 100%;" tabindex="-1" >
+                	{% for item in tipoResponsable %}
+                		{% if old.factura_tipo_responsable == item.id %}
+                  	<option value="{{item.id}}" selected="" >{{item.nombre|title}}</option>
+                			{% else %}
+                  	<option value="{{item.id}}" >{{item.nombre|title}}</option>
+                		{% endif %}
+                	{% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="form-group">
+                <label for="factura_fecha_vto">Vencimiento</label>
+              	<input type="text" class="form-control datepicker" id="factura_fecha_vto" name="factura_fecha_vto" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+          	<div class="col-md-12" >
+          		<div class="box" >
+								<div class="box-header with-border">
+									<div class="form-horizontal">
+										<div class="form-group" id="bloodhoundCliente">
+			                <label for="factura_razon_social" class="col-sm-2 control-label"><h3 class="box-title">Cliente</h3></label>
+			                <div class="input-group col-sm-7 col-xs-10 envoltura">
+				              	<input type="text" class="form-control typeahead" id="factura_razon_social" name="factura_razon_social" style="border-radius: 4px 0px 0px 4px;font-family:Arial, FontAwesome" placeholder="&#xF002; Nombre Completo o Documento" value="{{old.factura_razon_social}}" required>
+				              	<a class="btn btn-info" id="btnNuevoCliente" data-toggle="tooltip" title="Agregar Cliente" style="border-radius: 0px 4px 4px 0px;" >
+				              		+<i class="fa fa-user"></i>
+			              		</a>
+				              </div>
+			              </div>
+			            </div>
+								</div>
+								<div class="box-body" id="boxCliente">
+									<div class="row">
+										<div class="col-md-3" >
+											<div class="col-md-5" style="padding-right: 0px;">
+												<div class="form-group">
+					                <label for="factura_tipo_documento">Tipo</label>
+					                <select class="form-control select2" id="factura_tipo_documento" name="factura_tipo_documento" style="width: 100%;" tabindex="-1" >
+					                	{% for item in tipoDocumento %}
+					                		{% if old.factura_tipo_documento == item.id %}
+					                  	<option value="{{item.id}}" selected="" >{{item.nombre}}</option>
+					                			{% else %}
+					                  	<option value="{{item.id}}" >{{item.nombre}}</option>
+					                		{% endif %}
+					                	{% endfor %}
+					                </select>
+					              </div>
+											</div>
+											<div class="col-md-7" style="padding-right: 0px;">
+					              <div class="form-group">
+					                <label for="factura_documento">Documento</label>
+					              	<input type="text" class="form-control" id="factura_documento" name="factura_documento" data-validation="digit" value="{{old.factura_documento}}" required>
+					              	{% if errors.factura_documento %}
+														<i class="help-block no-margin">{{ errors.factura_documento | first }}</i>
+													{% endif %}
+					              </div>
+					            </div>
+										</div>
+				            <div class="col-md-2">
+				              <div class="form-group">
+				                <label for="factura_cliente_nombre">Apellido</label>
+				              	<input type="text" class="form-control" id="factura_cliente_nombre" name="factura_cliente_nombre" value="{{old.factura_cliente_nombre}}" required>
+				              	{% if errors.factura_cliente_nombre %}
+													<i class="help-block no-margin">{{ errors.factura_cliente_nombre | first }}</i>
+												{% endif %}
+				              </div>
+				            </div>
+				            <div class="col-md-2">
+				              <div class="form-group">
+				                <label for="factura_cliente_apellido">Nombre</label>
+				              	<input type="text" class="form-control" id="factura_cliente_apellido" name="factura_cliente_apellido" value="{{old.factura_cliente_apellido}}" required>
+				              	{% if errors.factura_cliente_apellido %}
+													<i class="help-block no-margin">{{ errors.factura_cliente_apellido | first }}</i>
+												{% endif %}
+				              </div>
+				            </div>
+				            <div class="col-md-3">
+				              <div class="form-group">
+				                <label for="factura_cliente_domicilio">Domicilio</label>
+				              	<input type="text" class="form-control" id="factura_cliente_domicilio" name="factura_cliente_domicilio" value="{{old.factura_cliente_domicilio}}" required>
+				              	{% if errors.factura_cliente_domicilio %}
+													<i class="help-block no-margin">{{ errors.factura_cliente_domicilio | first }}</i>
+												{% endif %}
+				              </div>
+				            </div>
+				            <div class="col-md-2">
+				              <div class="form-group">
+				                <label for="factura_cliente_email">Email</label>
+				              	<input type="email" class="form-control" id="factura_cliente_email" name="factura_cliente_email" value="{{old.factura_cliente_email}}" required>
+				              	{% if errors.factura_cliente_email %}
+													<i class="help-block no-margin">{{ errors.factura_cliente_email | first }}</i>
+												{% endif %}
+				              </div>
+				            </div>
+			            </div>
+								</div>
+							</div>
+          	</div>
+          </div>
+          <div class="row">
+          	<div class="col-md-12" >
+          		<div class="box box-success">
+								<div class="box-header with-border">
+									<h3 class="box-title">Detalle</h3>
+									<div class="box-tools pull-right">
+							        <a class="btn btn-success" id="btnAgregarDetalle"><span class="ion ion-plus-round"></span></a>
+							    </div>
+								</div>
+								<div class="box-body">
+									<table class="table table-bordered" id="tablaDetalle" width="100%">
+										<thead>
+											<tr>
+												<th>
+													Codigo
+												</th>
+												<th>
+													Descripcion
+												</th>
+												<th>
+													PxU
+												</th>
+												<th>
+													Cant.
+												</th>
+												<th>
+													Bonif.
+												</th>
+												<th>
+													Subtotal
+												</th>
+												<th>
+												</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>
+													<input type="text" class="form-control factura_detalle_codigo" name="factura_detalle_codigo[]"  value="{{old.factura_detalle_codigo[0]}}" >
+												</td>
+												<td>
+				              		<input type="text" class="form-control factura_detalle_descripcion" name="factura_detalle_descripcion[]" value="{{old.factura_detalle_descripcion[0]}}" required>
+												</td>
+												<td>
+													<input type="number" class="form-control factura_detalle_precio" name="factura_detalle_precio[]" value="{{old?old.factura_detalle_precio[0]:0}}" style="text-align:right;" required>
+												</td>
+												<td>
+													<input type="number" class="form-control factura_detalle_cantidad" name="factura_detalle_cantidad[]" value="1" style="text-align:right;" readonly="">
+												</td>
+												<td>
+													<input type="number" class="form-control factura_detalle_bonificado" name="factura_detalle_bonificado[]" value="{{old?old.factura_detalle_bonificado[0]:0}}" style="text-align:right;" required>
+												</td>
+												<td>
+													<input type="number" class="form-control factura_detalle_subtotal" name="factura_detalle_subtotal[]" value="{{old?old.factura_detalle_subtotal[0]:0}}" style="text-align:right;" required>
+												</td>
+												<td>
+													<a class="btn btn-success btnBorrarDetalle"><span class="ion ion-minus-round"></span></a>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+									<div class="row">
+										{% if errors.factura_detalle_codigo %}
+				            <div class="col-md-1">
+				              <div class="form-group">
+				                <label for="factura_detalle_codigo">Codigo</label>
+				                <i class="help-block no-margin">{{ errors.factura_detalle_codigo | first }}</i>
+				              </div>
+				            </div>
+				            {% endif %}
+				            {% if errors.factura_detalle_descripcion %}
+				            <div class="col-md-6">
+				              <div class="form-group">
+				                <label for="factura_detalle_descripcion">Descripcion</label>
+													<i class="help-block no-margin">{{ errors.factura_detalle_descripcion | first }}</i>
+				              </div>
+				            </div>
+				            {% endif %}
+			            </div>
+								</div>
+							</div>
+          	</div>
+          </div>
+          <div class="row">
+          	<div class="col-md-8" >
+          		<div class="box box-info">
+								<div class="box-header with-border">
+									<h3 class="box-title">Observaciones</h3>
+								</div>
+								<div class="box-body">
+									<div class="row">
+										<div class="col-md-12">
+				              <div class="form-group">
+				              	<textarea class="form-control" style="min-height: 187px; min-width: 100%; max-width: 100%" name="factura_observaciones"></textarea>
+				              	{% if errors.factura_observaciones %}
+													<i class="help-block no-margin">{{ errors.factura_observaciones | first }}</i>
+												{% endif %}
+				              </div>
+				            </div>
+			            </div>
+								</div>
+							</div>
+          	</div>
+          	<div class="col-md-4" >
+          		<div class="box box-warning">
+								<div class="box-header with-border">
+									<h3 class="box-title">Totales</h3>
+								</div>
+								<div class="form-horizontal">
+									<div class="box-body">
+			              <div class="form-group" id="divSubtotal">
+		                  <label for="factura_subtotal" class="col-sm-3 control-label">Subtotal</label>
+		                  <div class="col-sm-9">
+		                    <input type="text" class="form-control" id="factura_subtotal" name="factura_subtotal" style="text-align:right;" readonly>
+		                  </div>
+		                </div>
+		                <div class="form-group" id='divBonificado'>
+		                  <label for="factura_bonificado" class="col-sm-3 control-label">Bonificado</label>
+		                  <div class="col-sm-9">
+		                    <input type="text" class="form-control" id="factura_bonificado" name="factura_bonificado" style="text-align:right;" readonly>
+		                  </div>
+		                </div>
+		                <div class="form-group" id='divImpuesto'>
+		                  <label for="factura_impuesto " class="col-sm-3 control-label">Impuesto</label>
+		                  <div class="col-sm-9">
+		                    <input type="text" class="form-control" id="factura_impuesto" name="factura_impuesto" style="text-align:right;" readonly>
+		                  </div>
+		                </div>
+									</div>
+								</div>
+								<div class="box-footer">
+						      <input type="text" class="form-control" id="factura_importe" name="factura_importe" style="text-align:right;" readonly>
+						      <button id="submitForm" type="submit" class="hide"></button>
+						    </div>
+							</div>
+          	</div>
+          </div>
+        	{{ csrf.field | raw }}
+				</form>
+			</div>
+			<div class="box-footer">
+	      <a class="btn btn-info pull-right" id="btnAgregar">Agregar</a>
+	    </div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$('body').tooltip({
+    selector: '[data-toggle="tooltip"]'
+	});
+
+	$('#factura_fecha').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+  $('#factura_fecha_vto').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+	$('#factura_importe').val(formatCurrency(0));
+	$('#factura_subtotal').val(formatCurrency(0));
+	$('#factura_impuesto').val(formatCurrency(0));
+	$('#factura_bonificado').val(formatCurrency(0));
+
+	
+	setTimeout(function(){
+		if($('#id_cliente').val()>0){
+			$('#factura_fecha').datepicker('setDate', '{{old.factura_fecha}}');
+			$('#factura_fecha_vto').datepicker('setDate', '{{old.factura_fecha_vto}}');
+			setTimeout(calcuclarTotales, 100);
+			$('#boxCliente').slideDown();
+			{% if old is defined and old is not null and old is not empty %}
+			var factura_detalle_codigo = {{ old.factura_detalle_codigo |json_encode|raw }};
+			var factura_detalle_descripcion = {{old.factura_detalle_descripcion|json_encode|raw}};
+			var factura_detalle_precio = {{old.factura_detalle_precio|json_encode|raw}};
+			var factura_detalle_cantidad = {{old.factura_detalle_cantidad|json_encode|raw}};
+			var factura_detalle_bonificado = {{old.factura_detalle_bonificado|json_encode|raw}};
+			var factura_detalle_subtotal = {{old.factura_detalle_subtotal|json_encode|raw}};
+
+			if(factura_detalle_descripcion.length>1){
+				for (var i = 1; i < factura_detalle_descripcion.length; i--) {
+					agregarDetalle(factura_detalle_codigo[i]);
+					agregarDetalle(factura_detalle_descripcion[i]);
+					agregarDetalle(factura_detalle_precio[i]);
+					agregarDetalle(factura_detalle_cantidad[i]);
+					agregarDetalle(factura_detalle_bonificado[i]);
+					agregarDetalle(factura_detalle_subtotal[i]);
+				}
+			}
+			{% endif %}
+		} else {
+			$('#boxCliente').slideUp();
+		}
+	}, 500);
+
+  $('.select2').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+   $('*[data-validation="digit"]').keydown(function (e) {
+      if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+          (e.keyCode == 65 && e.ctrlKey === true) ||
+          (e.keyCode >= 35 && e.keyCode <= 40)) {
+        return;
+      }
+      if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault();
+      }
+    });
+
+  var cliente = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.todos')}}?consulta=%QUERY",
+	    wildcard: '%QUERY'
+	  }
+	});
+
+	$('#bloodhoundCliente .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'factura_razon_social',
+	  display: 'nombre',
+	  source: cliente,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.apellido +' '+response.nombre+'('+response.documento+')</p>';
+      },
+		  empty:'No existe el cliente. Por favor cree uno nuevo.',
+		  }
+	}).on('typeahead:selected', function(event, selection) {
+		$('#id_cliente').val(selection.id);
+		$('#factura_tipo_documento').val(selection.id_tipo_documento).trigger('change');
+		$('#factura_documento').val(selection.documento);
+		$('#factura_cliente_apellido').val(selection.apellido);
+		$('#factura_cliente_nombre').val(selection.nombre);
+		$('#factura_cliente_domicilio').val(selection.domicilio);
+		$('#factura_cliente_email').val(selection.email);
+
+		$('#boxCliente').slideDown();
+	});
+
+	$('#factura_razon_social').on('keydown',function(){
+		var key = event.keyCode || event.charCode;
+    if( key == 8 || key == 46 ){
+    	$('#id_cliente').val(0);
+			$('#boxCliente').slideUp(null,function(){
+				$('#factura_tipo_documento').val(0).trigger('change');
+				$('#factura_documento').val('');
+				$('#factura_cliente_apellido').val('');
+				$('#factura_cliente_nombre').val('');
+				$('#factura_cliente_domicilio').val('');
+				$('#factura_cliente_email').val('');
+			});
+    } else {
+			var inp = String.fromCharCode(event.keyCode);
+	    if (/[a-zA-Z0-9-_ ]/.test(inp)){
+	    	$('#boxCliente').slideUp();
+	    }
+    }
+
+	});
+
+	$('#btnNuevoCliente').on('click',function(){
+		$('#id_cliente').val(0);
+		$('#boxCliente').slideUp(null,function(){
+			$('#factura_razon_social').typeahead('val', '');
+			$('#factura_tipo_documento').val(0).trigger('change');
+			$('#factura_documento').val('');
+			$('#factura_cliente_apellido').val('');
+			$('#factura_cliente_nombre').val('');
+			$('#factura_cliente_domicilio').val('');
+			$('#factura_cliente_email').val('');
+
+			$('#boxCliente').slideDown();
+
+		});
+	});
+
+	$('#tablaDetalle tbody').on('keyup','.factura_detalle_precio, .factura_detalle_bonificado',function(){
+		if( $(this).val()=='' ){
+			$(this).val(0);
+		} else {
+			var numero = $(this).val().replace(/^0+/, '');
+			if( numero=='' ){
+				$(this).val(0);
+			} else {
+				$(this).val(numero);
+			}
+		}
+		$('.factura_detalle_precio').each(function(i, obj) {
+			var precio  = $(this).closest('tr').find('.factura_detalle_precio').val();
+			var bonificado  = $(this).closest('tr').find('.factura_detalle_bonificado').val();
+			var subtotal = precio - bonificado;
+			if(subtotal>=0){
+				$(this).closest('tr').find('.factura_detalle_subtotal').val(subtotal);
+				$(this).closest('tr').find('.factura_detalle_bonificado').css({'border-color':''});
+			} else {
+				$(this).closest('tr').find('.factura_detalle_bonificado').css({'border-color':'red'});
+				$(this).closest('tr').find('.factura_detalle_subtotal').val(0);
+			}
+
+		});
+		calcuclarTotales();
+	});
+	$('#tablaDetalle tbody').on('keyup','.factura_detalle_subtotal',function(){
+		if( $(this).val()=='' ){
+			$(this).val(0);
+		} else {
+			var numero = $(this).val().replace(/^0+/, '');
+			if( numero=='' ){
+				$(this).val(0);
+			} else {
+				$(this).val(numero);
+			}
+		}
+		$('.factura_detalle_precio').each(function(i, obj) {
+			var subtotal  = $(this).closest('tr').find('.factura_detalle_subtotal').val();
+			var bonificado  = $(this).closest('tr').find('.factura_detalle_bonificado').val();
+			$(this).closest('tr').find('.factura_detalle_precio').val(subtotal - bonificado);
+		});
+		calcuclarTotales();
+	});
+
+	$('#tablaDetalle tbody').on('keydown','.factura_detalle_precio, .factura_detalle_bonificado, .factura_detalle_subtotal', function(e){
+		-1!==$.inArray(e.keyCode,[46,8,9,27,13,110,190])||(/65|67|86|88/.test(e.keyCode)&&(e.ctrlKey===true||e.metaKey===true))&&(!0===e.ctrlKey||!0===e.metaKey)||35<=e.keyCode&&40>=e.keyCode||(e.shiftKey||48>e.keyCode||57<e.keyCode)&&(96>e.keyCode||105<e.keyCode)&&e.preventDefault()
+	});
+
+	$('#divSubtotal').hide();
+	$('#factura_subtotal').on('change', function() {
+		var number = formatNumberFromCurrency($(this).val());
+		if(number>0){
+			$('#divSubtotal').slideDown();
+		} else {
+			$('#divSubtotal').slideUp();
+		}
+	});
+
+	$('#divBonificado').hide();
+	$('#factura_bonificado').on('change', function() {
+		var number = formatNumberFromCurrency($(this).val());
+		if(number>0){
+			$('#divBonificado').slideDown();
+		} else {
+			$('#divBonificado').slideUp();
+		}
+	});
+
+	$('#divImpuesto').hide();
+
+	$('#btnAgregar').on('click',function(){
+		var errores = false;
+
+		var fecha = $('#factura_fecha').datepicker('getDate');
+		var vto = $('#factura_fecha_vto').datepicker('getDate');
+		if(fecha>vto){
+			$.toast({
+        heading: 'Factura',
+        text: 'La fecha de vencimiento no puede ser menor que la fecha de la factura.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+			errores = true;
+		}
+		var total = formatNumberFromCurrency($('#factura_importe').val());
+		if(total<=0){
+			$.toast({
+        heading: 'Factura',
+        text: 'El importe total de la factura debe ser mayor que cero.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+			errores = true;
+		}
+		if(!$('#boxCliente').is(":visible") ){
+			$('#boxCliente').slideDown();
+			$.toast({
+        heading: 'Factura',
+        text: 'Seleccione o Agregue un cliente a quien va dirijido.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+			errores = true;
+		}
+  	var table = $('#tablaDetalle').DataTable();
+		var filas = table.rows().data();
+		if(filas.length==0){
+			$.toast({
+        heading: 'Factura',
+        text: 'Debe haber al menos un detalle.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+			errores = true;
+		}
+
+		if(errores){
+			return null;
+		}
+	 	bootbox.confirm({
+	    title: "Generar Factura?",
+	    message: "Desea generar la factura con todos sus detalles? Una vez generado podra elegir los medios de pago para la misma factura.",
+	    buttons: {
+	      cancel: {
+	        label: '<i class="fa fa-times"></i> Cancelar'
+	      },
+	      confirm: {
+	        label: '<i class="ion ion-checkmark-round"></i> Confirmar'
+	      }
+	    },
+	    callback: function (result) {
+	      if(result){
+					$('#submitForm').trigger('click');
+	      }
+	    }
+	  });
+	});
+
+	$('#btnAgregarDetalle').on('click',function(){
+		agregarDetalle('','','','','','');
+	});
+
+	$('#tablaDetalle').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+        targets:[0],
+        width:"15%",
+      },
+      {
+        targets:[2,3,4],
+        width:"10%",
+      },
+      {
+      	targets:[5],
+        className: 'text-center',
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Por favor agregue un Detalle",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#tablaDetalle tbody').on( 'click', 'a.btnBorrarDetalle', function () {
+		var table = $('#tablaDetalle').DataTable();
+    table.row( $(this).parents('tr') )
+        .remove()
+        .draw();
+	});
+
+});
+
+function agregarDetalle(codigo,descripcion,precio,cantidad,bonificado,subtotal){
+	if(precio.length==0){
+		precio = 0;
+	}
+	if(cantidad.length==0){
+		cantidad = 1;
+	}
+	if(bonificado.length==0){
+		bonificado = 0;
+	}
+	if(subtotal.length==0){
+		subtotal = 0;
+	}
+	var table = $('#tablaDetalle').DataTable();
+	table.row.add([
+		'<input type="text" class="form-control factura_detalle_codigo" name="factura_detalle_codigo[]" value="'+codigo+'" >'
+		,
+  	'<input type="text" class="form-control factura_detalle_descripcion" name="factura_detalle_descripcion[]" value="'+descripcion+'" required>'
+		,
+		'<input type="number" class="form-control factura_detalle_precio" name="factura_detalle_precio[]" style="text-align:right;" value="'+precio+'" required>'
+		,
+		'<input type="number" class="form-control factura_detalle_cantidad" name="factura_detalle_cantidad[]" value="1" style="text-align:right;" value="'+cantidad+'" readonly="">'
+		,
+		'<input type="number" class="form-control factura_detalle_bonificado" name="factura_detalle_bonificado[]" style="text-align:right;" value="'+bonificado+'" required>'
+		,
+		'<input type="number" class="form-control factura_detalle_subtotal" name="factura_detalle_subtotal[]" style="text-align:right;" value="'+subtotal+'" required>'
+		,
+		'<a class="btn btn-success btnBorrarDetalle"><span class="ion ion-minus-round"></span></a>'
+		])
+	.draw()
+  .node();
+}
+
+function calcuclarTotales(){
+	var subtotal = 0;
+	var bonificado = 0;
+	$('.factura_detalle_precio').each(function(i, obj) {
+		subtotal  += Number($(this).closest('tr').find('.factura_detalle_subtotal').val());
+		bonificado  += Number($(this).closest('tr').find('.factura_detalle_bonificado').val());
+	});
+
+	if(subtotal>0){
+		$('#factura_subtotal').val(formatCurrency(subtotal));
+		$('#factura_subtotal').trigger('change');
+		$('#factura_bonificado').val(formatCurrency(bonificado));
+		$('#factura_bonificado').trigger('change');
+
+		$('#factura_importe').val(formatCurrency(subtotal));
+	} else {
+		$('#divBonificado').slideUp();
+		$('#divSubtotal').slideUp();
+
+		$('#factura_importe').val(formatCurrency(0));
+	}
+	
+}
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+
+function formatNumberFromCurrency(total){
+	return Number(total.replace('.','').replace(',','.').replace(/[^0-9\.-]+/g,""));
+}
+
+</script>
+{% endblock %}

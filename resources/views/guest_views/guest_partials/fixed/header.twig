@@ -1,0 +1,25 @@
+<header class="ciromark d-none d-lg-block">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-6 header-logo-col">
+				<a href="{{path_for('home')}}" onClick="ga('send', 'event', 'pagina_home', 'logo', 'header');" title="Ir a la página principal">					
+					<img src="{{static_assets}}/images/logo.png" class="header-logo" alt="Ciro Automotores">
+				</a>
+			</div>
+			<div class="col-6">
+				<table class="header_phone float-right">
+					<tbody>
+						<tr>
+							<td class="align-middle">
+								<small>¿Tenés alguna consulta? Contactanos!</small>
+								<a class="text-white " onClick="ga('send', 'event', 'pagina_home', 'whatsapp', 'header');" target="_blank" href="https://api.whatsapp.com/send?phone=543874898080&text={% if auth.individuo %}Hola,%20mi%20nombre%20es%20{{auth.individuo.nombre|url_encode}}%20{{auth.individuo.apellido|url_encode}}{% else %}Hola{% endif %}.%20Tengo%20una%20consulta." title="Contactate ya mismo con nosotros.">
+									<i class="fa fa-whatsapp" aria-hidden="true"></i> +54 387 4898080
+								</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</header>

@@ -1,0 +1,285 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+
+</style>
+{% endblock %}
+{% block title %}Clientes{% endblock %}
+{% block header_title %}Clientes{% endblock %}
+{% block breadcrumb %}
+	<li class="breadcrumb-item active">
+    Clientes
+  </li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  {% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Lista general de los clientes de Ciro:</h3>
+        <div class="card-tools dropdown pull-right">
+          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span> Acciones
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{{path_for('cliente.nuevo-cliente')}}">Agregar Cliente</a>
+          </div>
+        </div>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive" >
+					<table class="table table-hover" width="100%" id="tablaCliente">
+						<thead>
+							<tr>
+								<th>Creado</th>
+								<th>Apellido y Nombre</th>
+								<th>Documento</th>
+								<th>Email</th>
+								<th>Teléfono</th>
+								<th>Provincia</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+  $.fn.dataTable.moment( 'DD/MM/YYYY' );
+  var tablaCliente = $('#tablaCliente').DataTable( {
+    order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    ajax:{
+      url:"{{path_for('cliente.consultar')}}",
+    },
+    columns: [
+      {
+        name: 'created_at',
+        data: function(data,type,dataToSet){
+          var fecha = moment(data.created_at, 'YYYY-MM-DD').format('DD/MM/YYYY');
+          var creado = respuestaDiferenciaFecha(moment(data.created_at, 'YYYY-MM-DD HH:mm:ss'));
+          var autor = capitalizar(data.individuo.apellido)+' '+capitalizar(data.individuo.nombre);
+          return '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Creado '+creado+'<br>por '+autor+'">'+fecha+'</label>';
+        },
+      },
+      {
+        name: 'apellido',
+        data: function(data,type,dataToSet){
+          return capitalizar(data.apellido)+' '+capitalizar(data.nombre);
+        },
+      },
+      {
+        name: 'documento',
+        data: function(data,type,dataToSet){
+        	return data.tipo_documento.nombre+' '+data.documento;
+        }
+      },
+      {
+        name: 'email',
+        data: 'email',
+      },
+      {
+        name: 'telefono',
+        data: 'telefono',
+      },
+      {
+        name: 'id_provincia',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.provincia!=null){
+          	respuesta = data.provincia.nombre;
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'opciones',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+					var editar = "{{path_for('cliente.editar', {  'id': 99 })}}".replace('99',data.id);
+          var ver = "{{path_for('cliente.ver', {  'id': 99 })}}".replace('99',data.id);
+          var eliminar = 'onclick="eliminar(99);"'.replace('99',data.id);
+          var respuesta = '<div class="dropdown">'+
+              '<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">'+
+                '<span class="caret"></span>'+
+                '<span class="sr-only">Toggle Dropdown</span>'+
+              '</button>'+
+              '<div class="dropdown-menu" role="menu">'+
+								'<a class="dropdown-item" href="'+ver+'"><span class="ion ion-eye"></span> Ver</a></li>'+
+                '<a class="dropdown-item" href="'+editar+'"><span class="ion ion-edit"></span> Editar</a></li>'+
+                '<a class="dropdown-item" '+eliminar+' ><span class="ion ion-close-round"></span> Eliminar</a></li>'+
+              '</div>'+
+            '</div>';
+
+          return respuesta;
+        },
+        className: 'text-center',
+      }
+    ],
+    columnDefs:[
+      {
+        targets:[0,6],
+        width:"5%",
+      },
+      {
+        targets:[6],
+        orderable: false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+});
+
+function eliminar(id_cliente){
+  var route = "{{path_for('cliente.eliminar', { 'id': 99 })}}".replace('99',id_cliente);
+  bootbox.confirm({
+    title: "Eliminar el Cliente?",
+    message: "Desea eliminar el cliente? Los dateros y comprobantes relacionados NO seran eliminados.",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: '<i class="ion ion-trash-a"></i> Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result){
+        $.ajax({
+          type: "get",
+          url: route,
+          success: function(data,status){
+            var table = $('#tablaCliente').DataTable();
+            table.ajax.reload(null, true);
+            $.toast({
+              heading: 'Cliente',
+              text: data.message,
+              showHideTransition: 'slide',
+              icon: 'success',
+              position: 'bottom-right',
+            });
+          },
+          error: function(xhr, ajaxOptions,e) {
+            $.toast({
+              heading: 'Cliente',
+              text: 'A ocurrido un problema. Por favor intente mas tarde.',
+              showHideTransition: 'slide',
+              icon: 'error',
+              position: 'bottom-right',
+              hideAfter: false,
+            });
+          }
+        });
+      }
+    }
+  });
+}
+
+function respuestaDiferenciaFecha(momentDate){
+  var minutos = moment().diff(momentDate,'minutes');
+  var respuesta = '';
+  if (minutos == 0){
+    respuesta = ' ahora';
+  } else if(minutos>60){
+    var horas = Math.floor(minutos / 60);
+    if(horas>24){
+      dias = Math.floor(horas / 24);
+      if(dias>30){
+        meses = Math.floor(dias / 30);
+        if(meses>2){
+          respuesta = ' hace '+meses + ' meses';
+        } else {
+          respuesta = momentDate.format('DD/MM/YYYY');
+        }
+      } else {
+        if(horas == 1){
+          respuesta = ' ayer';
+        } else {
+          respuesta = ' hace '+dias + ' dias';
+        }
+      }
+    } else {
+      if(horas == 1){
+        respuesta = ' hace 1 hora';
+      } else {
+        respuesta = ' hace '+horas + ' horas';
+      }
+    }
+  } else if(minutos>0) {
+    if( minutos <5){
+      respuesta = ' hace instantes';
+    } else {
+      respuesta = ' hace '+minutos + ' minutos';
+    }
+  } else {
+    minutos = minutos * (-1);
+    if(minutos>60){
+      var horas = Math.floor(minutos / 60);
+      if( horas > 24){
+        dias = Math.floor(horas / 24);
+        if(dias == 1){
+          respuesta = ' mañana';
+        } else {
+          respuesta = ' en '+dias+' dias';
+        }
+      } else if (horas == 1) {
+        respuesta = ' en 1 hora';
+      } else {
+        respuesta = ' en '+ horas + ' horas';
+      }
+    } else {
+      if(minutos < 5){
+        respuesta = ' en instante';
+      } else {
+        respuesta = ' en '+ minutos + ' minutos';
+      }
+    }
+  }
+  return respuesta;
+}
+
+function capitalizar(str){
+  return str.substr(0,1).toUpperCase()+str.substr(1);
+}
+</script>
+{% endblock %}

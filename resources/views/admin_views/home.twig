@@ -1,0 +1,737 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+  <style>
+  #chartdiv {
+    width: 100%;
+    height: 500px;
+  }
+  .amcharts-chart-div a {display:none !important;}
+  </style>
+
+  {% if mostrar_msg == 0 %}
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+  {% endif %}
+
+{% endblock %}
+{% block title %}Dashboard - Estadísticas{% endblock %}
+{% block header_title %}Dashboard - Estadísticas{% endblock %}
+{% block content %}
+<div class="row">
+    {% include 'admin_views/admin_partials/flash.twig' %}
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header no-border">
+                <div class="d-flex justify-content-between">
+                  <h3 class="card-title">Mis llamadas</h3>
+                  <a href="{{ path_for('prospectos.listado.index') }}">Todos los prospectos</a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="d-flex">
+                  <p class="d-flex flex-column">
+                    <span class="text-bold text-lg">820</span>
+                    <span>Llamadas en el año</span>
+                  </p>
+                  {#<p class="ml-auto d-flex flex-column text-right">
+                    <span class="text-success">
+                      <i class="fa fa-arrow-up"></i> 12.5%
+                    </span>
+                    <span class="text-muted">En comparación con el mes pasado</span>
+                  </p>#}
+                </div>
+                <!-- /.d-flex -->
+
+                <div class="position-relative mb-4">
+                  <canvas id="visitors-chart" height="200"></canvas>
+                </div>
+
+                <div class="d-flex flex-row justify-content-end">
+                  <span class="mr-2">
+                    <i class="fa fa-square text-primary"></i> Mi promedio
+                  </span>
+
+                  <span>
+                    <i class="fa fa-square text-gray"></i> Promedio vendedores
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- /.card -->
+
+            <div class="card">
+              <div class="card-header no-border">
+                <h3 class="card-title">Últimos movimientos unidades</h3>
+                {#<div class="card-tools">
+                  <a href="#" class="btn btn-tool btn-sm">
+                    <i class="fa fa-download"></i>
+                  </a>
+                  <a href="#" class="btn btn-tool btn-sm">
+                    <i class="fa fa-bars"></i>
+                  </a>
+                </div>#}
+              </div>
+              <div class="card-body p-0">
+                <table class="table table-striped table-valign-middle">
+                  <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Vehículo</th>
+                    <th>Estado</th>
+                    <th>Vendedor</th>
+                    <th>Info</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    {% for vehiculo in ultimos_vehiculos %}
+                    <tr>
+                      <td>
+                        {{ vehiculo.updated_at }}
+                      </td>
+                      <td>
+                        {{ vehiculo.vehiculo.modelo }}
+                      </td>
+                      <td>{% if vehiculo.id_estado == 1 %}Disponible{% elseif vehiculo.id_estado == 2 %}Señado{% elseif vehiculo.id_estado == 3 %}Vendido{% endif %}</td>
+                      <td>
+                        <small class="text-success mr-1">
+                          <i class="fa fa-arrow-up"></i>
+                          {{ vehiculo.individuo.nombre }} {{ vehiculo.individuo.apellido }}
+                        </small>
+                      </td>
+                      <td>
+                        <a class="text-muted">
+                          <i class="fa fa-plus" data-toggle="tooltip" data-placement="top" title="{{ vehiculo.descripcion }}"></i>
+                        </a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col-md-6 -->
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header no-border">
+                <div class="d-flex justify-content-between">
+                  <h3 class="card-title">Ventas</h3>
+                  <a href="javascript:void(0);">Todas las ventas</a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="d-flex">
+                  <p class="d-flex flex-column">
+                    <span class="text-bold text-lg">{{ ventas_este_mes }}</span>
+                    <span>Unidades vendidas este mes</span>
+                  </p>
+                  <p class="ml-auto d-flex flex-column text-right">
+                      {% if ventas_mes_pasado < ventas_este_mes %}
+                        <span class="text-success">
+                          <i class="fa fa-arrow-up"></i> {{ ventas_este_mes - ventas_mes_pasado }} ventas
+                        </span>
+                      {% elseif ventas_mes_pasado == ventas_este_mes %}
+                        <span class="text-info">
+                          <i class="fa fa-arrow-h"></i> {{ ventas_este_mes - ventas_mes_pasado }} ventas
+                        </span>
+                      {% elseif ventas_mes_pasado > ventas_este_mes %}
+                        <span class="text-danger">
+                          <i class="fa fa-arrow-down"></i> - {{ ventas_mes_pasado - ventas_este_mes }} ventas
+                        </span>
+                      {% endif %}
+                    <span class="text-muted">En comparación con el mes pasado</span>
+                  </p>
+                </div>
+                <!-- /.d-flex -->
+
+                <div class="position-relative mb-4">
+                  <canvas id="sales-chart" height="200"></canvas>
+                </div>
+
+                <div class="d-flex flex-row justify-content-end">
+                  <span class="mr-2">
+                    <i class="fa fa-square text-primary"></i> Sucursal Salta
+                  </span>
+
+                  <span>
+                    <i class="fa fa-square text-gray"></i> Sucursal Oran
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- /.card -->
+
+            {#<div class="card">
+              <div class="card-header no-border">
+                <h3 class="card-title">Online Store Overview</h3>
+                <div class="card-tools">
+                  <a href="#" class="btn btn-sm btn-tool">
+                    <i class="fa fa-download"></i>
+                  </a>
+                  <a href="#" class="btn btn-sm btn-tool">
+                    <i class="fa fa-bars"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+                  <p class="text-success text-xl">
+                    <i class="ion ion-ios-refresh-empty"></i>
+                  </p>
+                  <p class="d-flex flex-column text-right">
+                    <span class="font-weight-bold">
+                      <i class="ion ion-android-arrow-up text-success"></i> 12%
+                    </span>
+                    <span class="text-muted">CONVERSION RATE</span>
+                  </p>
+                </div>
+                <!-- /.d-flex -->
+                <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+                  <p class="text-warning text-xl">
+                    <i class="ion ion-ios-cart-outline"></i>
+                  </p>
+                  <p class="d-flex flex-column text-right">
+                    <span class="font-weight-bold">
+                      <i class="ion ion-android-arrow-up text-warning"></i> 0.8%
+                    </span>
+                    <span class="text-muted">SALES RATE</span>
+                  </p>
+                </div>
+                <!-- /.d-flex -->
+                <div class="d-flex justify-content-between align-items-center mb-0">
+                  <p class="text-danger text-xl">
+                    <i class="ion ion-ios-people-outline"></i>
+                  </p>
+                  <p class="d-flex flex-column text-right">
+                    <span class="font-weight-bold">
+                      <i class="ion ion-android-arrow-down text-danger"></i> 1%
+                    </span>
+                    <span class="text-muted">REGISTRATION RATE</span>
+                  </p>
+                </div>
+                <!-- /.d-flex -->
+              </div>
+            </div>#}
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+</div>
+
+{% if mostrar_msg == 0 %}
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">¡Bienvenido a CiroAdmin v2, {{ auth.individuo.nombre }}!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="info-box bg-success-gradient">
+              <span class="info-box-icon"><i class="fa fa-rocket fa-lg"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">¡Novedades!</span>
+                <span class="info-box-number">v2.0 Beta (Lunes 10 de Septiembre)</span>
+                <div class="progress">
+                  <div class="progress-bar" style="width: 100%"></div>
+                </div>
+                <span class="progress-description">
+                  Desde los laboratorios del Pinky les presentamos la nueva actualización del sistema.<br>Les mando un saludo, Nacho! 
+                </span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+        </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-6">
+          <div id="accordion">
+            <!-- we are adding the .class so bootstrap.js collapse plugin detects it -->
+            <div class="card card-primary">
+              <div class="card-header">
+                <h4 class="card-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" class="collapsed" aria-expanded="false">
+                  1 - Interfaz gráfica mejorada 
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseOne" class="panel-collapse in collapse" style="">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <span class="info-box-icon bg-primary" style="height: 100%;"><i class="fa fa-desktop"></i></span>
+                    </div>
+                    <div class="col-md-9">
+                      Nueva interfaz gráfica reordenada para mayor comodidad, con un super buscador integrado, modulos divididos por tipo, gráficos y colores más amigables a la vista, entre otros...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card card-danger">
+              <div class="card-header">
+                <h4 class="card-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" class="collapsed" aria-expanded="false">
+                  2 - Nueva Aplicación Movil (APP)
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseTwo" class="panel-collapse collapse" style="">
+                <div class="card-body">
+                  <div class="row">
+                      <div class="col-md-3">
+                        <span class="info-box-icon bg-danger" style="height: 100%;"><i class="fa fa-mobile fa-lg"></i></span>
+                      </div>
+                      <div class="col-md-9">
+                         Contamos con una nueva aplicación movil para que puedas realizar todas las operaciónes que normalmente realizas desde la página web pero desde tu celular, de una forma mucho más comoda.<br>Para descargarla ingresa desde el navegador de tu celular a <span class="badge badge-info">ciroautomotores.com.ar/app</span>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+            <div class="card card-success">
+              <div class="card-header">
+                <h4 class="card-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" class="collapsed" aria-expanded="false">
+                    3- Nuevo sistema de prospectos
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseThree" class="panel-collapse collapse">
+                <div class="card-body">
+                  <div class="row">
+                      <div class="col-md-3">
+                        <span class="info-box-icon bg-success" style="height: 100%;"><i class="fa fa-list fa-lg"></i></span>
+                      </div>
+                      <div class="col-md-9">
+                         Un nuevo sistema de prospectos que prioriza los que solicitan una llamada urgente, serán los <span class="badge badge-success">prospectos calientes</span> los cuales enviaran notificaciones a la aplicación móvil y a su computadora.
+                      </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-md-9">
+                       Indicadores de rendimiento para compararse con los otros vendedores y romper siempre con el último record.<br>
+                    </div>
+                    <div class="col-md-3">
+                      <span class="info-box-icon bg-success" style="height: 100%;"><i class="fa fa-dashboard fa-lg"></i></span>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-md-3">
+                      <span class="info-box-icon bg-success" style="height: 100%;"><i class="fa fa-calendar fa-lg"></i></span>
+                    </div>
+                    <div class="col-md-9">
+                      Nuevo seguimiento de las citas pactadas, los prospectos podrán convertirse en clientes y posteriormente en dateros al concretar la venta.<br>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div id="accordion">
+            <!-- we are adding the .class so bootstrap.js collapse plugin detects it -->
+            <div class="card card-primary">
+              <div class="card-header">
+                <h4 class="card-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" class="collapsed" aria-expanded="false">
+                    4- Sistema de correo empresarial
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseFour" class="panel-collapse in collapse" style="">
+                <div class="card-body">
+                  <div class="row">
+                      <div class="col-md-3">
+                        <span class="info-box-icon bg-success" style="height: 100%;"><i class="fa fa-envelope fa-lg"></i></span>
+                      </div>
+                      <div class="col-md-9">
+                         Ahora tendrás un correo empresarial con el dominio de la empresa, de manera que podras enviarle mails a los clientes de una forma más profesional, y realizar el seguimiento como si fuese un chat!<br> Tu casilla es <span class="badge badge-success">{{ auth.individuo.nombre|lower }}{{ auth.individuo.apellido|lower }}@ciroautomotores.com.ar</span><br>Podrás acceder a el desde el icono de correo al lado del buscador.                      
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card card-danger">
+              <div class="card-header">
+                <h4 class="card-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive" class="collapsed" aria-expanded="false">
+                    5- Tiempo de sesión aumentado
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseFive" class="panel-collapse collapse" style="">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <span class="info-box-icon bg-success" style="height: 100%;"><i class="fa fa-clock-o fa-lg"></i></span>
+                    </div>
+                    <div class="col-md-9">
+                        Se aumentarón los tiempos de sesión de 3 a 6 horas para que no tengas que ver ese molesto cartel de "INICIAR SESIÓN" de manera tan repetida.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card card-success">
+              <div class="card-header">
+                <h4 class="card-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseSix" class="collapsed" aria-expanded="false">
+                    6 - Reporte de Bugs(Errores)
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseSix" class="panel-collapse collapse" style="">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <span class="info-box-icon bg-success" style="height: 100%;"><i class="fa fa-bug fa-lg"></i></span>
+                    </div>
+                    <div class="col-md-9">
+                        Se agregó un botón <a style="color: #FFF;" class="btn btn-success btn-sm"><i class="fa fa-bug"></i></a> en la barra superior del sistema en donde podrán subir sus errores que seran solucionados de manera más rápida!
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">¡Cerrar y no volver a ver más este cartel!</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+
+{% if mostrar_msg == 0 %}
+setTimeout( function() { 
+  $('#exampleModal').modal('show');
+}, 1000);
+{% endif %}
+
+frasedeldia();
+
+
+$(function () {
+  'use strict'
+  const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Novimebre", "Diciembre"];
+
+  var ticksStyle = {
+    fontColor: '#495057',
+    fontStyle: 'bold'
+  }
+
+  var mode      = 'index'
+  var intersect = true
+
+  var $salesChart = $('#sales-chart')
+ 
+  var ventas_salta = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  {% for mes in ventas_mes %} 
+    {% if mes.localidad == 1 %}
+    ventas_salta[{{mes.mes}}-1] = {{ mes.cantidad }};
+    {% endif %}
+  {% endfor %} 
+
+   var ventas_oran = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  {% for mes in ventas_mes %} 
+    {% if mes.localidad == 2 %}
+    ventas_oran[{{mes.mes}}-1] = {{ mes.cantidad }};
+    {% endif %}
+  {% endfor %} 
+
+  var salesChart  = new Chart($salesChart, {
+    type   : 'bar',
+    data   : {
+      labels  : ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      datasets: [
+      {
+        type: 'bar',
+        label: 'Ventas Salta',
+        backgroundColor: window.chartColors.blue,
+        stack: 'Stack 0',
+        data: ventas_salta,
+      }, 
+      {
+        type: 'bar',
+        label: 'Ventas Oran',
+        backgroundColor: window.chartColors.black,
+        stack: 'Stack 1',
+        data: ventas_oran,
+      }, 
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      tooltips           : {
+        mode     : mode,
+        intersect: intersect
+      },
+      hover              : {
+        mode     : mode,
+        intersect: intersect
+      },
+      legend             : {
+        display: false
+      },
+      scales             : {
+        yAxes: [{
+          stacked: true,
+        }],
+        xAxes: [{
+          stacked: true,
+          display  : true,
+          gridLines: {
+            display: false
+          },
+          ticks    : ticksStyle
+        }]
+      }
+    }
+  });
+
+    window.onload = function() {
+      var ctx = document.getElementById('canvas').getContext('2d');
+      window.myBar = new Chart(ctx, {
+        type: 'bar',
+        data: barChartData,
+        options: {
+          responsive: true,
+          title: {
+            display: true,
+            text: 'Chart.js Combo Bar Line Chart'
+          },
+        }
+      });
+    };
+
+  var array_llamadas = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  {% for llamada in llamadas %} 
+    array_llamadas[{{llamada.mes}}] = {{ llamada.cantidad }};
+  {% endfor %} 
+
+  var $visitorsChart = $('#visitors-chart')
+  var visitorsChart  = new Chart($visitorsChart, {
+    data   : {
+      labels  : ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      datasets: [{
+        type                : 'line',
+        label              : 'Llamadas',
+        data                : array_llamadas,
+        backgroundColor     : 'transparent',
+        borderColor         : window.chartColors.black,
+        pointBorderColor    : window.chartColors.black,
+        pointBackgroundColor: window.chartColors.black,
+        fill                : false
+        // pointHoverBackgroundColor: '#007bff',
+        // pointHoverBorderColor    : '#007bff'
+      },
+      {
+          type                : 'line',
+          label              : 'Nuevos Oran',
+          data                : [
+          {% for mes in stock %}
+            {{ mes.nuevos_oran }},
+          {% endfor %}
+          ],
+          backgroundColor     : 'tansparent',
+          borderColor         : window.chartColors.blue,
+          pointBorderColor    : window.chartColors.blue,
+          pointBackgroundColor: window.chartColors.blue,
+          fill                : false
+          // pointHoverBackgroundColor: '#ced4da',
+          // pointHoverBorderColor    : '#ced4da'
+      },
+      {
+          type                : 'line',
+          label              : 'Vendidos Salta',
+          data                : [
+          {% for mes in stock %}
+            {{ mes.vendidos_salta }},
+          {% endfor %}
+          ],
+          backgroundColor     : 'tansparent',
+          borderColor         : window.chartColors.red,
+          pointBorderColor    : window.chartColors.red,
+          pointBackgroundColor: window.chartColors.red,
+          fill                : false
+      },
+      {
+          type                : 'line',
+          label              : 'Vendidos Oran',
+          data                : [
+          {% for mes in stock %}
+            {{ mes.vendidos_oran }},
+          {% endfor %}
+          ],
+          backgroundColor     : 'tansparent',
+          borderColor         : window.chartColors.green,
+          pointBorderColor    : window.chartColors.green,
+          pointBackgroundColor: window.chartColors.green,
+          fill                : false
+      }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      tooltips           : {
+        mode     : mode,
+        intersect: intersect
+      },
+      hover              : {
+        mode     : mode,
+        intersect: intersect
+      },
+      legend             : {
+        display: false
+      },
+      scales             : {
+        yAxes: [{
+          // display: false,
+          gridLines: {
+            display      : true,
+            lineWidth    : '4px',
+            color        : 'rgba(0, 0, 0, .2)',
+            zeroLineColor: 'transparent'
+          },
+          ticks    : $.extend({
+            beginAtZero : true,
+          }, ticksStyle)
+        }],
+        xAxes: [{
+          display  : true,
+          gridLines: {
+            display: false
+          },
+          ticks    : ticksStyle
+        }]
+      }
+    }
+  })
+});
+
+window.chartColors = {
+  red: 'rgb(255, 50, 50)',
+  orange: 'rgb(255, 159, 64)',
+  yellow: 'rgb(255, 205, 86)',
+  green: 'rgb(75, 192, 192)',
+  blue: 'rgb(50, 50, 255)',
+  purple: 'rgb(153, 102, 255)',
+  black: 'rgb(10, 10, 10)',
+  grey: 'rgb(201, 203, 207)'
+};
+
+window.randomScalingFactor = function() {
+    return Math.round(Samples.utils.rand(-100, 100));
+};
+
+Samples.utils.srand(Date.now());
+
+
+
+
+function frasedeldia()
+{
+  var frases = [ 
+  "Hacer negocios es como montar una bicicleta. Te tienes que mantener en movimiento para no caer. – Frank Lloyd Wright",
+  "Las ventas dependen de la actitud del vendedor, no de la actitud del prospecto. – William Clement Stone",
+  "A nadie le importa el número de campañas publicitarias que implementes, ellos solo recordarán la impresión que les generes. – William Bernbach",
+  "Pretende e imagina que cada persona que conozcas tiene un letrero colgando que dice “HAZME SENTIR IMPORTANTE”. Esto no solo te hará exitoso en ventas, te hará exitoso en la vida – Mary Kay Ash",
+  "Cada venta tiene cinco obstáculos a vencer: La no necesidad, la falta de dinero, la falta de prisa, la carencia de deseo y la desconfianza – Zig Ziglar",
+  "Cada Lunes estoy una venta más cerca y una idea más lejos de ser millonario – Larry D. Turner",
+  "Hazlo o no lo hagas, pero no lo intentes – Yoda",
+  "La confianza en sí mismo es el primer secreto del éxito- Ralph Waldo Emerson",
+  "Cuando un individuo o una empresa determina que el éxito ha sido alcanzado, el progreso se detiene – Thomas J. Watson Jr",
+  "Cada elección que tomes tendrá un resultado final – Zig Ziglar",
+  "Si vives para los fines de semana y vacaciones, algo está muy mal en tu vida – Gary Vaynerchuk",
+  "Conviértete en la persona que atraiga los resultados que buscas -Jim Cathcart",
+  "Por cada venta que pierdes por ser demasiado insistente, estas perdiendo 100 por no serlo – Zig Ziglar",
+  "Tu actitud, no tu aptitud, determina tu altitud – Zig Ziglar",
+  "Ama las ventas y las ventas te amaran a ti – Ventas2.0",
+  "No se trata de tener las oportunidades correctas, se trata de manejar las oportunidades correctamente – Mark Hunter",
+  "No existe ninguna poción mágica que te haga un vendedor más rápido y eficiente, a menos que tu opción sea el trabajo duro – Jeffrey Gitomer",
+  "La diferencia entre una persona exitosa y los demás no está en la falta de fortalezas o en la falta de conocimiento, está en la falta de voluntad – Vince Lombardi",
+  "Cada producto no está hecho para todos y no todos están hechos para cada producto – Liz Lange",
+  " Las personas exitosas son las que piensan e inventan cosas para que el resto del mundo se mantenga ocupado en ellas – Don Marquis",
+  "90% de las ventas es por convicción y el 10% por persuasión – Shiv Khera",
+  "La mayoría de las personas piensan que “vender” es lo mismo que “hablar”. Pero los vendedores más efectivos saben que “escuchar” es la parte más importante de su trabajo – Roy Bartell",
+  "Haz un consumidor, no una venta – Jatherine Barchetti",
+  "Cuando no puedas cerrar una venta, intenta abrir una relación – Patricia Fripp",
+  "Establecer metas es el primer paso para convertir lo invisible en visible. – Tony Robbins",
+  "No intentes convertirte en una persona de éxito, mejor intenta convertirte en una persona de valor – Albert Einstein",
+  "Crea tu futuro con tu futuro, no con tu pasado – Wener Erhar",
+  "La excelencia no es una habilidad. Es una actitud – Ralph Marston",
+  "El miedo es el destructor de sueños y el asesino de las ambiciones – Jeffrey benjamin",
+  "A veces no es necesario hacer cosas extraordinarias para obtener resultados extraordinarios – Warren Buffett",
+  "La innovación es lo que distingue un líder de un seguidor – Steve Jobs",
+  "Toma riesgos. Si ganas, serás feliz; Si pierdes, serás sabio. – Anónimo",
+  "Nunca permitas que lo que no puedes hacer te impida hacer lo que puedes hacer – John Wooden",
+  "El liderazgo es acción no posición. – Donald McGannon",
+  "Involucrarse con tus consumidores consiste en satisfacer sus necesidades, no las tuyas – Tony Robbins",
+  "La gente no compra por razones lógicas, compra por razones emocionales – Zig Ziglar",
+  "El fracaso derrota a los perdedores e inspira a los ganadores - Robert T. Kiyosaki.",
+  "Tus clientes más insatisfechos son tu mayor fuente de aprendizaje. Bill Gates",
+  "Un mar calmado no hace buenos marineros - Proverbio inglés",
+  "Los clientes no esperan que seas perfecto, ellos esperan que arregles las cosas cuando estas se complican - Donald Porter",
+  "La motivación es lo que te hace empezar. El hábito es lo que te hace continuar - Jim Ryum",
+  "La mejor publicidad es la que hacen los clientes satisfechos – Philip Kotler",
+  "Hacer preguntas es una muestra de que estas pensando – Rabindranath Tagore",
+  "Duda y perderás – Mel Brooks",
+  "Un gramo de realizaciones vale más que una tonelada de promesas- Mae West",
+  "Lo que hagas, hazlo tan bien que ellos quieran verlo otra vez y traer a sus amigos- Walt Disney",
+  "Todo lo que quieres está afuera de tu zona de confort – Robert Allen",
+  "El producto menos redituable que se ha manufacturado son las excusas – John Mason",
+  "Todo el mundo vive de vender algo. – Robert Louis Stevenson",
+  "El miedo es el asesino del crecimiento – Gary Vaynerchuck",
+  "La mejor fuente de conocimientos son tus clientes insatisfechos - Bill Gates, Fundador de Microsoft",
+  "Los buenos vendedores son los que cuentan historias - Seth Godín, Gurú del marketing Digital"
+  ];
+
+  var frasenr = parseInt(getRandomArbitrary(1, frases.length));
+  var frase = frases[frasenr];
+  $.toast({
+      heading: '¡Frase del día!',
+      text: frase,
+      showHideTransition: 'slide',
+      icon: 'success',
+      position: 'bottom-right',
+      timeout: 10000,
+  });
+}
+
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+</script>
+<script src="https://adminlte.io/themes/dev/AdminLTE/plugins/chart.js/Chart.min.js"></script>
+{% endblock %}

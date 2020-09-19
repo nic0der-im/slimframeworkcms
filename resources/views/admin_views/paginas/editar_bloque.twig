@@ -1,0 +1,147 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+	<link rel="stylesheet" href="{{ base_url() }}/asources/css/vehiculos.css">
+{% endblock %}
+{% block title %}Editar bloque{% endblock %}
+{% block header_title %}Editar bloque{% endblock %}
+{% block breadcrumb %}<li><a href="{{path_for('paginas.index')}}">Páginas</a></li><li class="active"><a href="{{path_for('paginas.index')}}">Editar bloque</a></li>{% endblock %}
+{% block content %}
+	<div class="row publicacion create">
+		<form name="bloque_post" method="POST" action="{{path_for('paginas.bloques.editarpost')}}">
+			<div class="col-sm-12">
+				<div class="row">					
+					<div class="col-sm-12">
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Descripción del bloque:</h3>
+								<input type="hidden" name="bloque_id" id="bloque_id" value="{{ bloque.id }}">
+								<input type="hidden" name="pagina_id" id="pagina_id" value="{{ bloque.id_pagina }}">
+							</div>
+							<div class="box-body">
+								<div class="form-group">									
+									<div class="row">
+										<div class="col-sm-12">
+											<label for="bloque_tipo">Tipo de bloque:</label>
+											<select class="form-control" name="bloque_tipo" id="bloque_tipo" >
+												<option value="0" >Normal</option>
+												<option value="1" >Imagen</option>
+											</select>
+										</div>
+										<div class="col-sm-12">
+											<label for="bloque_titulo">Titulo del bloque:</label>
+											<input type="text" class="form-control" name="bloque_titulo" id="bloque_titulo" placeholder="Titulo del bloque" value="{{ bloque.titulo }}">
+										</div>
+										<div class="col-sm-12">
+											<label for="bloque_link">Link del bloque:</label>
+											<div class="input-group" >
+                				<span class="input-group-addon"><i class="fa fa-image "></i></span>
+												<input type="text" class="form-control" name="bloque_link" id="bloque_link" placeholder="Link de la imagen del bloque" value="{{ bloque.imagen }}">
+											</div>
+										</div>
+										<div class="col-sm-12">
+											<label for="bloque_link_title">Etiqueta title de la imagen:</label>
+											<input type="text" class="form-control" name="bloque_link_title" id="bloque_link_title" placeholder="Usado para la descripcion de la imagen" value="{{ bloque.imagen_title }}">
+										</div>
+										<div class="col-sm-12">
+											<label for="bloque_boton">Titulo del BOTON del bloque:</label>
+											<input type="text" class="form-control" name="bloque_boton" id="bloque_boton" placeholder="Titulo del boton del bloque" value="{{ bloque.completo }}">
+										</div>
+										<div class="col-sm-12">
+											<label for="bloque_contenido">Contenido</label>
+											<textarea class="form-control"  name="bloque_contenido" id="bloque_contenido" placeholder="Contenido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la publicación.<br>Por ejemplo: <b>[terminaresto]</b>">{{ bloque.parrafo }}</textarea>											
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<input type="button" name="btn btn-default pull-right" value="Vista previa" id="previa">
+						<button class="btn btn-primary btn-flat pull-right" type="submit">Editar bloque</button>
+					</div>
+				</div>
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+{% endblock %}
+{% block custom_js %}
+<script src="https://cdn.ckeditor.com/4.7.3/standard-all/ckeditor.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#bloque_tipo').val({{bloque.tipo}});
+	CKEDITOR.replace( 'bloque_contenido', {
+		height: 200,
+		toolbarGroups: [
+			{"name":"basicstyles","groups":["basicstyles"]},
+			{"name":"links","groups":["links"]},
+			{"name":"paragraph","groups":["list","blocks", "align"]},
+			{"name":"document","groups":["mode"]},
+			{"name":"insert","groups":["insert"]},
+			{"name":"styles","groups":["styles"]},
+			{"name":"about","groups":["about"]}
+		],
+		// Remove the redundant buttons from toolbar groups defined above.
+		removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar'
+	});
+
+	$('#previa').on('click',function(){
+		var text = CKEDITOR.instances['bloque_contenido'].getData();
+		var img = $('#bloque_link').val();
+		var titulo = '';
+		if($('#bloque_titulo').val()){
+			titulo = '<h3>'+$('#bloque_titulo').val()+'</h3>';
+		}
+		var css =
+						'<html lang="en" class="no-js">'+
+						'<head>'+
+						'<link rel="stylesheet" href="{{base_url()}}/css/0km/main.css" />'+
+						'<link rel="stylesheet" href="/css/0km/base.css" />'+
+            '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">'+
+            '</head>';
+		var w = window.open(null,null,"height="+screen.height+",width="+screen.width+",fullscreen=yes,status=yes,toolbar=no,menubar=no,location=no");
+		var bloque = '';
+		if($('#bloque_tipo').val()==1){
+			bloque =
+				'<body id="body" data-spy="scroll" data-target=".header">'+
+				'<div class="promo-bloque" style="background-image: url('+img+');">'+
+            '<div class="centered">'+
+                '<h2>'+titulo+'</h2>'+
+                text +
+            '</div>'+
+        '</div>'+
+	      '<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript">'+
+	      '</scr'+'ipt>'+
+				'<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous">'+
+				'</scr'+'ipt>'+
+	      '</body>'+
+	      '</html>';
+		} else {
+			bloque =
+				'<body id="body" data-spy="scroll" data-target=".header">'+
+				'<div id="products">'+
+		      '<div class="container content-lg">'+
+			      '<div class="container-fluid no-padding">'+
+				      '<div class="row row-space-4">'+
+					      '<div class="col-md-6">'+
+					      titulo+
+					      text+
+					      '</div>'+
+					      '<div class="col-md-6">'+
+								'<img src="'+img+'" alt="" class="img-responsive">'+
+								'</div>'+
+							'</div>'+
+			      '</div>'+
+		      '</div>'+
+	      '</div>'+
+	      '<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript">'+
+	      '</scr'+'ipt>'+
+				'<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous">'+
+				'</scr'+'ipt>'+
+	      '</body>'+
+	      '</html>';
+	    }
+	  //$(w.document.body).html(css+bloque);
+	  w.document.write(css+bloque);
+	});
+});
+</script>
+{% endblock %}

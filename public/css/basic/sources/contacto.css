@@ -1,0 +1,9 @@
+.fw-ta {
+	min-height: 300px;
+}
+
+@media(max-width: 968px) {
+	.fw-ta {
+		min-height: 200px; 
+	}
+}

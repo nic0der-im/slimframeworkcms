@@ -1,0 +1,15 @@
+@media (min-width: 768px) {
+  .row.equal {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+    
+/* add this for full height column content 
+.equal > div[class*='col-'] {  
+  display: flex;
+  flex-direction: column;
+}
+*/
+
+  

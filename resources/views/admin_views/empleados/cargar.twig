@@ -1,0 +1,125 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+{% endblock %}
+{% block title %}Creación de empleados{% endblock %}
+{% block header_title %}Creación de empleados{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('empleados.index')}}">Empleados</a>
+</li>
+<li class="breadcrumb-item active">
+	Nuevo
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<form action="{{path_for('empleados.cargar')}}" method="POST">
+			<div class="card card-success">
+				<div class="card-header">
+					<h3 class="card-title text-bold">Crear un usuario</h3>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-lg-6">
+							<div class="card card-info">
+								<div class="card-header">
+									<h3 class="card-title text-bold">1- Datos del empleado:</h3><br>
+									Si desea dar de alta a un nuevo empleado proporcione los datos en el siguiente formulario:
+								</div>
+								<div class="card-body">
+									<div class="form-group {{ errors.car_nombre ? ' has-error' : '' }}">
+										<label for="car_nombre" class="sr-only">Nombre</label>
+										<input type="text" id="car_nombre" name="car_nombre" class="form-control" placeholder="Nombre" value="{{ old.car_nombre }}">
+										{% if errors.car_nombre %}
+											<span class="help-block">{{ errors.car_nombre | first }}</span>
+										{% endif %}
+									</div>
+
+									<div class="form-group{{ errors.car_apellido ? ' has-error' : '' }}">
+										<label for="car_apellido" class="sr-only">Apellido</label>
+										<input type="text" id="car_apellido" name="car_apellido" class="form-control" placeholder="Apellido" value="{{ old.car_apellido }}">
+										{% if errors.car_apellido %}
+											<span class="help-block">{{ errors.car_apellido | first }}</span>
+										{% endif %}
+									</div>
+
+									<div class="form-group{{ errors.car_email ? ' has-error' : '' }}">
+										<label for="car_email" class="sr-only">Dirección de correo electrónico</label>
+										<input type="text" id="as" name="car_email" class="form-control" placeholder="Dirección de correo electrónico" value="{{ old.car_email }}">
+										{% if errors.car_email %}
+											<span class="help-block">{{ errors.car_email | first }}</span>
+										{% endif %}
+									</div>
+
+									<div class="form-group{{ errors.car_phone ? ' has-error' : '' }}">
+										<label for="car_phone" class="sr-only">Teléfono</label>
+										<input type="tel" id="car_phone" name="car_phone" class="form-control" placeholder="Teléfono" value="{{ old.car_phone }}">
+										{% if errors.car_phone %}
+											<span class="help-block">{{ errors.car_phone | first }}</span>
+										{% endif %}
+									</div>
+
+									<div class="form-group{{ errors.car_password ? ' has-error' : '' }}">
+										<label for="car_password" class="sr-only">Contraseña</label>
+										<input type="password" id="car_password" name="car_password" class="form-control" placeholder="Contraseña">
+										{% if errors.car_password %}
+											<span class="help-block">{{ errors.car_password | first }}</span>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6">
+							<div class="card card-warning">
+								<div class="card-header">
+									<h3 class="card-title text-bold">2- Sucursal y puesto del empleado:</h3><br>
+									Seleccione la sucursal a la cual corresponda el empleado nuevo y su respectivo puesto de trabajo
+								</div>
+								<div class="card-body">
+									<label for="sel1">Selecione la sucursal:</label>
+									<select class="form-control select2" name="empleado-crear-sucursal" id="sel1">
+										{% for agencia in agencias %}
+									    <option value="{{agencia.id}}">{{agencia.nombre}}</option>
+										{% endfor %}
+									</select>
+									<br>
+									<label for="sel2">Selecione el puesto:</label>
+									<select class="form-control select2" name="empleado-crear-puesto" id="sel2">
+									    {% for puesto in puestos %}
+									    <option value="{{puesto.id_puesto}}">{{puesto.nombre}}</option>
+										{% endfor %}
+									</select>
+									<br>
+									<label for="sel3">Nivel de acceso:</label>
+									<select class="form-control select2" name="empleado-crear-nivel_acceso" id="sel3">
+									    {% for i in 1..10 %}
+									    <option value="{{ i }}">{{ i }}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+					<button type="submit" class="btn btn-primary btn-block">Crear Usuario</button>
+				</div>
+			</div>
+			{{ csrf.field | raw}}
+		</form>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.select2').select2([
+			minimumResultsForSearch: -1,
+	    theme: "bootstrap",
+	    width: '100%',
+		]);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.bootstrap.min.css">
+<style type="text/css">
+.orden {
+  cursor: move;
+}
+</style>
+{% endblock %}
+{% block title %}Listado de bloque{% endblock %}
+{% block header_title %}{{ pagina.titulo }}: Listado de bloques{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item" >
+	<a href="{{path_for('paginas.index')}}">Paginas</a>
+</li>
+<li class="breadcrumb-item active" >
+	<a href="{{path_for('paginas.bloques', {	'id_pagina': pagina.id })}}">Bloques</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+	<div class="card">
+  	<div class="card-header">
+      <h3 class="card-title">Orden</h3>
+      <div class="card-tools">
+      	<button type="button" class="btn btn-info" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="caret"></span> Acciones
+	      </button>
+	      <div class="dropdown-menu" >
+					<a class="dropdown-item" href="{{path_for('paginas.bloques.crear', {'id_pagina': pagina.id })}}">Agregar Bloque</a>
+	      </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+    	<div class="table-responsive" >
+        <table class="table table-hover" id="tablaBloques">
+        	<thead>
+        		<tr>
+	            <th></th>
+        			<th></th>
+	            <th>Orden</th>
+	            <th>Tipo</th>
+	            <th>Nombre del bloque:</th>
+	            <th class="text-right"></th>
+          	</tr>
+        	</thead>
+          <tbody>
+          {% set i = 0 %}
+          {% for bloque in bloques %}
+          {% set i = i + 1 %}
+          <tr>
+          	<td class="priority">
+		  				{{ i }}
+		  			</td>
+          	<td >
+            	{{ bloque.id }}
+            </td>
+            <td class="orden" >
+            	{{ i }}
+            </td>
+            <td>
+            	{{ bloque.tipo == 0 ? 'Normal':'Imagen' }}
+            </td>
+            <td>
+            	{% if bloque.titulo|length > 0 %}{{bloque.titulo}}{% else %}SIN TITULO{% endif %}
+          	</td>
+            <td class="text-right">
+            	<div class="dropdown">
+								<button type="button" class="btn btn-primary btn-sm dropdown-toggle " data-toggle="dropdown">
+									<span class="caret"></span>
+									<span class="sr-only">Toggle Dropdown</span>
+								</button>
+								<div class="dropdown-menu" role="menu">
+									<a class="dropdown-item" href="{{path_for('paginas.bloques.editar', {'id_pagina': pagina.id,'id': bloque.id })}}">Editar bloque</a>
+			   					<a class="dropdown-item" href="{{path_for('paginas.bloques.eliminar', {'id_pagina': pagina.id,'id': bloque.id })}}" onclick="return confirm('¿Estas seguro que quieres eliminar este bloque? No hay vuelta atras capo.');">Eliminar bloque</a>
+								</div>
+							</div>
+		  			</td>
+          </tr>
+      		{% endfor %}
+        </tbody>
+      	</table>
+      </div>
+    </div>
+    <div class="card-footer">
+    	<form method="POST" action="{{path_for('paginas.bloques.orden',{'id_pagina':pagina.id})}}">
+    		<input type="hidden" name="bloque_orden" id="bloque_orden">
+    		<input type="hidden" name="bloque_id_pagina" id="bloque_id_pagina" value="{{pagina.id}}" >
+        <button type="submit" id="submitGuardarOrden" class="d-none"></button>
+				{{ csrf.field | raw }}
+      </form>
+      {% if bloques %}
+      	<a id="btnGuardarOrden" class="btn btn-primary btn-flat pull-right">Guardar Orden</a>
+      {% endif %}
+        <a href="{{path_for('paginas.editar', { 'id': pagina.id })}}" class="btn btn-info btn-flat pull-right">Editar página</a>
+        <a href="{{path_for('paginas.ver', {'id': pagina.id, 'titulo': pagina.titulo|trim|replace({' ':'-'})|e|lower })}}" class="btn btn-warning btn-flat pull-right" >Visualizar</a>
+    </div>
+  </div>
+{% endblock %}
+{% block custom_js %}
+<script src="https://cdn.datatables.net/responsive/2.2.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.1/js/responsive.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+
+	var tabla = $('#tablaBloques').DataTable( {
+    "bLengthChange": false,
+    rowReorder: {
+      selector: 'tr .orden',
+    },
+    searching: false,
+    paging: false,
+    "columnDefs": [
+              {
+                targets: [ 2,3,5 ],
+								width: "5%",
+              },
+              {
+              	targets:[1,2,3,4,5],
+              	orderable:false,
+              },
+              {
+              	targets:[0,1],
+              	visible:false,
+              },
+          ],
+    "language": {
+        "sProcessing":     "Procesando...",
+        "sLengthMenu":     "Mostrar _MENU_ registros",
+        "sZeroRecords":    "No se encontraron resultados",
+        "sEmptyTable":     "Ningún dato disponible en esta tabla",
+        "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+        "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+        "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+        "sInfoPostFix":    "",
+        "sSearch":         "Buscar:",
+        "sUrl":            "",
+        "sInfoThousands":  ",",
+        "sLoadingRecords": "Cargando...",
+        "oPaginate": {
+            "sFirst":    "Primero",
+            "sLast":     "Último",
+            "sNext":     "Siguiente",
+            "sPrevious": "Anterior"
+        },
+        "oAria": {
+            "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+        }
+    }
+  });
+
+  $('#btnGuardarOrden').on('click',function(){
+  	var data = $('#tablaBloques').DataTable().rows().data();
+  	var orden = '';
+  	for(var i=0;i<data.length;i++){
+  		orden = orden + data[i][1] + ','+data[i][2]+';';
+  	}
+  	$('#bloque_orden').val(orden.slice(0,-1));
+		$('#submitGuardarOrden').trigger('click');
+  });
+
+});
+</script>
+{% endblock %}

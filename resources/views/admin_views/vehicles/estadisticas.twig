@@ -1,0 +1,220 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+<style type="text/css">
+.amcharts-chart-div a {display:none !important;}
+</style>
+{% endblock %}
+{% block title %}Estadisticas{% endblock %}
+{% block header_title %}
+	Estadisticas Stock Vehiculos
+{% endblock %}
+{% block breadcrumb %}
+	<li class="breadcrumb-item active">
+		Estadisticas
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row" >
+  <div class="col-md-12" >
+    <div class="card card-success" >
+      <div class="card-body" >
+        <div class="col-md-12" >
+          <div id="graficoStock" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
+        </div>
+        <div class="col-md-6">
+          <div class="card card-danger">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover" width="100%" id="tablaStock">
+                  <thead>
+                    <tr>
+                      <th>
+                        Mes
+                      </th>
+                      <th data-orderable="false">
+                        Stock
+                      </th>
+                      <th data-orderable="false">
+                        Usados Nuevos
+                      </th>
+                      <th data-orderable="false">
+                        Usados Vendidos
+                      </th>
+                      <th data-orderable="false">
+                        Indice Rotacion
+                      </th>
+                      <th data-orderable="false">
+                        Dias Permanencia
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in stock %}
+                    <tr>
+                      <td>
+                        {{item.mes}}
+                      </td>
+                      <td>
+                        {{item.stock}}
+                      </td>
+                      <td>
+                        {{item.nuevos}}
+                      </td>
+                      <td>
+                        {{item.vendidos}}
+                      </td>
+                      <td>
+                        {{item.indice_rotacion|number_format(2, ',', '')}}
+                      </td>
+                      <td>
+                        {{item.permanencia_stock|number_format(2, ',', '')}}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer" >
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+<script src="https://www.amcharts.com/lib/3/plugins/responsive/responsive.min.js"></script>
+<script src="https://www.amcharts.com/lib/3/lang/es.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	
+  $.fn.dataTable.moment( 'MM/YYYY' );
+  $('#tablaStock').DataTable( {
+    order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    searching: false,
+    info: false,
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Aun no hay prospectos para Revision.",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+});
+
+AmCharts.makeChart("graficoStock",{
+  "type": "serial",
+  "categoryField": "mes",
+  "dataDateFormat": "MM/YYYY",
+  balloonDateFormat: "MMMM",
+  language:'es',
+  marginLeft: 5,
+  marginRight: 5,
+  autoMarginOffset: 0,
+  "categoryAxis": {
+    "parseDates": true,
+    "gridPosition": "start",
+    "gridAlpha": 0,
+    "tickPosition": "start",
+    "tickLength": 20,
+    equalSpacing:true,
+  },
+  "graphs": [
+    {
+      "balloonText": "[[title]] [[category]]: [[value]]",
+      labelText:"[[value]]",
+      "title": "Nuevos",
+      "type": "column",
+      "fillAlphas": 0.8,
+      "lineAlpha": 0.2,
+      "alphaField": "alpha",
+      "valueField": "nuevos",
+      lineColor: "#3C8DBC",
+      "fixedColumnWidth": 20,
+    },
+    {
+      "balloonText": "[[title]] [[category]]: [[value]]",
+      labelText:"[[value]]",
+      "title": "Vendidos",
+      "type": "column",
+      "fillAlphas": 0.8,
+      "lineAlpha": 0.2,
+      "alphaField": "alpha",
+      "valueField": "vendidos",
+      "lineColor": "#00A65A",
+      "fixedColumnWidth": 20,
+    },
+    {
+      "balloonText": "[[title]] [[category]]: [[value]]",
+      "bullet": "round",
+      "title": "Nuevos en Salta",
+      "valueField": "nuevos_salta"
+    },
+    {
+      "balloonText": "[[title]] [[category]]: [[value]]",
+      "bullet": "round",
+      "title": "Nuevos en Oran",
+      "valueField": "nuevos_oran"
+    },
+    {
+      "balloonText": "[[title]] [[category]]: [[value]]",
+      "bullet": "square",
+      "title": "Vendidos en Salta",
+      "valueField": "vendidos_salta",
+    },
+    {
+      "balloonText": "[[title]] [[category]]: [[value]]",
+      "bullet": "square",
+      "title": "Vendidos en Oran",
+      "valueField": "vendidos_oran",
+    }
+  ],
+  "legend": {
+    "enabled": true,
+    "useGraphSettings": true
+  },
+  "titles": [
+    {
+      "id": "Title-1",
+      "size": 15,
+      "text": "Stock Usados"
+    }
+  ],
+  "dataProvider": {{stock|json_encode|raw}},
+  "export": {
+    "enabled": true
+  }
+});
+
+</script>
+{% endblock %}

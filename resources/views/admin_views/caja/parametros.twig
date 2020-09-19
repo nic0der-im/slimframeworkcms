@@ -1,0 +1,312 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+<style type="text/css">
+	input[type='number'] {
+    -moz-appearance:textfield;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+	}
+</style>
+{% endblock %}
+{% block title %}Parametros{% endblock %}
+{% block header_title %}Configurar tus parametros{% endblock %}
+{% block content %}
+<form class="form" id="formFactura" method="POST" action="{{path_for('cliente.nuevo-cliente')}}">
+	<div class="row">
+		<input type="hidden" name="id_ciudad" id="id_ciudad">
+		<div class="col-md-12">
+			<div class="row">
+				<div class="col-md-12 col-lg-8">
+					<div class="card card-info">
+						<div class="card-header">
+							<h3 class="card-title text-bold">Opciones</h3>
+						</div>
+						<div class="card-body">
+							<div class="form-horizontal" action="/action_page.php">
+							  <div class="form-group">
+							    <label class="control-label col-sm-10" >Sucursal Actual <i>{{sucursal.sucursal}} ({{sucursal.descripcion}})</i>. Puede cambiar de Sucursal</label>
+							    <div class="col-sm-2">
+										<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalSucursal">
+											Cambiar
+										</button>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label class="control-label col-sm-6" >Tipos de Transaccion: </label>
+							    <div class="col-sm-6">
+							    	<a class="btn btn-primary text-white" id="btnNuevoTipoTransaccion" >Agregar</a>
+        						<a class="btn btn-primary text-white" id="btnEditarTipoTransaccion" >Editar</a>
+							    </div>
+							  </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{{ csrf.field | raw }}
+	</div>
+</form>
+<div class="modal fade" id="modalSucursal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+				<h4 class="modal-title">Cambio de Sucursal</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form class="form-group" method="POST" action="{{path_for('caja.sucursal')}}" id="formCambiarSucursal">
+        	<div class="row">
+        		<div class="col-sm-12">
+              <div class="form-group">
+                <label>Listado de mis sucursales habilitadas</label>
+                <select class="form-control" name="empleado_sucursales" id="empleado_sucursales" >
+                  {% for index in sucursales %}
+                  	{% if index.id==sucursal.id %}
+                  		<option value="{{index.id}}" selected>{{index.sucursal}} ({{index.descripcion}})</option>
+                  	{% else %}
+                  		<option value="{{index.id}}">{{index.sucursal}} ({{index.descripcion}})</option>
+                  	{% endif %}
+                	{% endfor %}
+                </select>
+              </div>
+            </div>
+        	</div>
+        	{{ csrf.field | raw }}
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" id="btnCambiarSucursal">Continuar</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalTipoTransaccion">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+				<h4 class="modal-title" id="titleTipoTransaccion" ></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form class="form-group" method="POST" id="formTipoTransaccion" >
+          <input type="hidden" name="id_sucursal" id="id_sucursal" value="{{sucursal.id}}">
+          <div class="row" id="formObtenerTipoTransaccion">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="tipo_transaccion_id" class="control-label">Tipo de Transaccion</label>
+                <select class="form-control select2" id="tipo_transaccion_id" name="tipo_transaccion_id" >
+                  <option value="-1" selected></option>
+                  {% for index in tiposTransaccion %}
+                    <option value="{{index.id}}" >{{index.nombre}}{{ index.padre == 0 ? ' (Categoria)':'' }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <hr class="col-xs-12">
+          </div>
+
+          <div class="row" id="formModificarTipoTransaccion">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="tipo_transaccion_nombre" class="control-label">Nombre de Tipo</label>
+                <input type="text" class="form-control" id="tipo_transaccion_nombre" name="tipo_transaccion_nombre" placeholder="Ej: TARJETA" required>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="tipo_transaccion_ioe" class="control-label">Habilitado para </label>
+                <select class="form-control" name="tipo_transaccion_ioe" id="tipo_transaccion_ioe" required>
+                  <option disabled selected></option>
+                  <option value="-1">Ambos</option>
+                  <option value="0">Ingresos</option>
+                  <option value="1">Egresos</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-12" id="formCategoria">
+              <div class="form-group">
+                <label for="tipo_transaccion_categoria" class="control-label">Categoria</label>
+                <select class="form-control" id="tipo_transaccion_categoria" name="tipo_transaccion_categoria" required>
+                </select>
+                <span>Seleccione NINGUNA si quiere crear una nueva categoria</span>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="tipo_transaccion_sucursales" class="control-label">Sucursales</label>
+                <select class="form-control select2" multiple="multiple" name="tipo_transaccion_sucursales[]" id="tipo_transaccion_sucursales" >
+                    <option value="-1">TODOS</option>
+                  {% for index in sucursales %}
+                    <option value="{{index.id}}">{{index.sucursal}} ({{index.descripcion}})</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+          {{ csrf.field | raw }}
+          <button type="submit" id="submitTipoTransaccion" class="hide"></button>
+        </form>
+      </div>
+      <div class="modal-footer" id="formBtnTipoTransaccion">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+        <a class="btn btn-danger" id="btnEliminarTipoTransaccion" onclick="return confirm('¿Desea eliminar el Tipo de Transaccion? Si es una categoria, los referenciados tambien son eliminados.');">Eliminar</a>
+        <a class="btn btn-primary" id="btnTipoTransaccion">Continuar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).on('ready', function(){
+	$('#btnCambiarSucursal').on('click',function(){
+		$('#formCambiarSucursal').submit();
+	});
+
+	$('.select2').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('#empleado_sucursales').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+	//TIPO TRANSACCICON
+  $('#btnNuevoTipoTransaccion').on('click',function(){
+    $('#formTipoTransaccion').attr('action', "{{ path_for('tipostransaccion.crear') }}" );
+    $('#formCategoria').hide();
+    $('#formObtenerTipoTransaccion').hide();
+    $('#formModificarTipoTransaccion').show();
+    $('#modalTipoTransaccion').modal('show');
+    $('#titleTipoTransaccion').html('Agregar nuevo Tipo de Transaccion');
+    $('#tipo_transaccion_nombre').val('');
+    $('#tipo_transaccion_ioe').val('');
+    $('#tipo_transaccion_sucursales').val([]).trigger("change");
+    $('#btnEliminarTipoTransaccion').hide();
+  });
+
+  $('#btnEditarTipoTransaccion').on('click',function(){
+    $("#tipo_transaccion_id").find('option:eq(0)').prop('selected', true);
+    $('#formTipoTransaccion').attr('action', "{{ path_for('tipostransaccion.editar') }}" );
+    $('#formCategoria').hide();
+    $('#formModificarTipoTransaccion').hide();
+    $('#formBtnTipoTransaccion').hide();
+    $('#btnEliminarTipoTransaccion').hide();
+    $('#formObtenerTipoTransaccion').show();
+    $('#modalTipoTransaccion').modal('show');
+    $('#titleTipoTransaccion').html('Elejir un Tipo de Transaccion para editar');
+  });
+
+  $('#tipo_transaccion_ioe').on('change',function(){
+    id = this.value;
+    $('#formCategoria').slideUp(
+      null,
+      function(){
+        $('#tipo_transaccion_categoria').find('option').remove().end();
+        if(id.length > 0 ){
+          $.ajax({
+            type: "get",
+            url:  "{{ path_for('categoria.obtener') }}?tipo="+id,
+            success: function(data,status){
+              $('#tipo_transaccion_categoria').append($('<option>', {
+                value: 0,
+                text : 'NINGUNA'
+              }));
+              var ambos = '';
+              if(id>=0){
+                ambos = ' (Ambos)'
+              }
+              $.each(data, function (i, item) {
+                $('#tipo_transaccion_categoria').append($('<option>', {
+                  value: item.id,
+                  text : item.nombre_tipo + (item.tipo!=0?ambos:'')
+                }));
+              });
+              $('#formCategoria').slideDown();
+            },
+            error: function(xhr, ajaxOptions,e) {
+                console.log("error :" + e)
+                $("#tipo_transaccion_ioe").find('option:eq(0)').prop('selected', true);
+            }
+          });
+        }
+      }
+    );
+  });
+
+  $('#tipo_transaccion_id').on('change',function(){
+    id = this.value;
+    var route = "{{path_for('tipostransaccion.eliminar',{'id':9999})}}".replace('9999',id);
+    $('#btnEliminarTipoTransaccion').attr('href',route);
+    $('#formBtnTipoTransaccion').slideUp();
+    $('#formModificarTipoTransaccion').slideUp(
+      null,
+      function(){
+        if(id>0){
+          $.ajax({
+            type: "get",
+            url:  "{{ path_for('tipostransaccion.obtener') }}?id="+id,
+            success: function(data,status){
+              $('#formModificarTipoTransaccion').slideDown();
+              $('#formBtnTipoTransaccion').slideDown();
+              $('#btnEliminarTipoTransaccion').slideDown();
+              $('#tipo_transaccion_nombre').val(data.nombre_tipo);
+              $('#tipo_transaccion_ioe').val(data.tipo);
+              var ambos = '';
+              if(data.tipo>=0){
+                ambos = ' (Ambos)'
+              }
+              $.ajax({
+                type: "get",
+                url:  "{{ path_for('categoria.obtener') }}?tipo="+data.tipo,
+                success: function(response,status){
+                  $('#tipo_transaccion_categoria').append($('<option>', {
+                    value: 0,
+                    text : 'NINGUNA'
+                  }));
+                  $.each(response, function (i, item) {
+                    $('#tipo_transaccion_categoria').append($('<option>', {
+                      value: item.id,
+                      text : item.nombre_tipo + (item.tipo==-1?ambos:'')
+                    }));
+                  });
+                  $('#tipo_transaccion_categoria').val(data.padre);
+                  $('#formCategoria').slideDown();
+                },
+                error: function(xhr, ajaxOptions,e) {
+                    console.log("error :" + e)
+                    $("#tipo_transaccion_ioe").find('option:eq(0)').prop('selected', true);
+                }
+              });
+              $('#tipo_transaccion_sucursales').val(data.sucursales.split(',')).trigger("change");
+            },
+            error: function(xhr, ajaxOptions,e) {
+                console.log("error :" + e)
+                $("#tipo_transaccion_id").find('option:eq(0)').prop('selected', true);
+            }
+          });
+        }
+      }
+    );
+  });
+
+  $('#btnTipoTransaccion').on('click',function(){
+    $('#submitTipoTransaccion').trigger('click');
+  });
+
+});
+
+</script>
+{% endblock %}

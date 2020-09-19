@@ -1,0 +1,84 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Notificaciones{% endblock %}
+{% block header_title %}Mis notificaciones:{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	<a href="{{path_for('notificaciones.index')}}">Mis notificaciones</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row ">
+	{% if auth.empleado.master == -1 %}
+		{% include 'admin_views/admin_partials/vista_programador.twig' %}
+	{% endif %}
+	<div class="col-md-12">
+		<div class="card">
+	    <div class="card-body p-0">
+      	<table class="table table-hover" width="100%">
+       	 	<tbody>
+       	 		<tr>
+              <th style="width: 85%">Todas mis notificaciones:</th>
+              <th style="width: 15%"></th>
+            </tr>
+       	 		{% for notificacion in notificaciones_totales %}
+
+							{% if notificacion.prioridad >= 8 %}
+								{% set color = "bg-danger" %}
+							{% elseif notificacion.prioridad > 4 and notificacion.prioridad < 8 %}
+								{% set color = "bg-success" %}
+							{% elseif notificacion.prioridad <= 4 %}
+								{% set color = "bg-primary" %}
+							{% endif %}
+
+							{% if notificacion.id_puesto == 1 %}
+								{% set icono = "fa-list" %}
+								{% set link = path_for('prospectos.index') %}
+							{% elseif notificacion.id_puesto == 2 %}
+								{% set icono = "fa-ticket" %}
+								{% set link = path_for('tickets.index') %}
+							{% elseif notificacion.id_puesto == 3 %}
+								{% set icono = "fa-envelope-o" %}
+								{% set link = path_for('correo.index') %}
+							{% elseif notificacion.id_puesto == 4 %}
+								{% set icono = "fa-info-circle" %}
+							{% elseif notificacion.id_puesto == 5 %}
+								{% set icono = "fa-birthday-cake" %}
+							{% elseif notificacion.id_puesto == 6 %}
+								{% set icono = "fa-check-square-o" %}
+							{% endif %}
+
+
+						<tr>
+							<td>
+								<h4>
+									<span class="badge {{color}} mr-1 "><i class="fa {{icono}} "></i></span>{{ notificacion.titulo }}
+								</h4>
+								<p>{{ notificacion.mensaje }}</p>
+							</td>
+							<td>
+								{{ notificacion.created_at|date('d/m/Y')}} {{notificacion.created_at|date('H:i')}}
+								<br>
+								{% if notificacion.url is not empty %}
+									{% set link = notificacion.url %}
+									<a class="btn btn-info m-3" href="{{ link }}" onclick="notificacion_abierta({{ notificacion.id }});">
+										VER
+									</a>
+								{% endif %}
+							</td>
+						</tr>
+						{% endfor %}
+      		</tbody>
+	  		</table>
+	    </div>
+	  </div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+{% endblock %}

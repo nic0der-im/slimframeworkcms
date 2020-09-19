@@ -1,0 +1,932 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+
+	input[type='number'] {
+  -moz-appearance:textfield;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+	    -webkit-appearance: none;
+	}
+
+	@media (min-width: 768px) {
+		.form-inline .form-control {
+		    display: inline-block;
+		    width: 100%;
+		    vertical-align: middle;
+		}
+	}
+</style>
+{% endblock %}
+{% block title %}Crear Cuenta Corriente{% endblock %}
+{% block header_title %}
+<div>
+	Cuenta Corriente para {{sucursal.sucursal}} ({{sucursal.descripcion}})
+</div>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('cuenta.index')}}">Cuenta Corriente</a>
+</li>
+<li class="breadcrumb-item active">
+	<a href="{{path_for('cuenta.crear')}}">Nueva</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+
+<form class="form" id="formFactura" method="POST" action="{{path_for('cuenta.crear.post')}}">
+<input type="hidden" name="id_proveedor" id="id_proveedor" value="{{old?old.id_proveedor:0}}">
+<input type="hidden" name="id_cliente" id="id_cliente" value="{{old?old.id_cliente:0}}">
+<input type="hidden" name="id_tipo" id="id_tipo" value="{{old?old.id_tipo:1}}">
+<div class="row" id="divGenerarMovimiento">
+	<div class="col-md-12" >
+		<div class="card card-success" id="boxMovimiento" >
+			<div class="card-header">
+				<h3 class="card-title">Tipos de Cuenta</h3>
+			</div>
+			<div class="card-body p-1">
+    		<div class="nav-tabs-custom tabs">
+			    <ul class="nav nav-tabs ui-sortable-handle">
+			      <li class="nav-item active">
+			        <a class="nav-link active" id="tabCliente" href="#cliente" data-toggle="tab" aria-expanded="false" role="tab">Cliente</a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" id="tabProveedor" href="#proveedor" data-toggle="tab" aria-expanded="false" role="tab">Proveedor</a>
+			      </li>
+			      {#<li class="nav-item">
+			        <a class="nav-link" id="tabBanco" href="#banco" data-toggle="tab" aria-expanded="false" role="tab">Banco</a>
+			      </li>#}
+			    </ul>
+			    <div class="tab-content ">
+			      <div class="tab-pane {{old?(old.id_tipo==1?'active':''):'active'}}" id="cliente" role="tabpanel">
+			      	<div class="row">
+			      		<div class="col-lg-12" >
+									<div class="form-group" id="bloodhoundCliente">
+						        <label for="cliente_buscador" class="col-sm-2 control-label"></label>
+										<div class="row">
+											<div class="col-lg-11 col-md-11 col-sm-10 col-10">
+												<input type="text" class="form-control typeahead" id="cliente_buscador" name="cliente_buscador" value="{{old.cliente_buscador}}" style="font-family:Arial, FontAwesome" placeholder="&#xF002; Nombre Completo o Documento">
+											</div>
+											<div class="col-lg-1 col-md-1 col-sm-1 col-1">
+					          		<a class="btn btn-info" id="btnNuevoCliente" data-toggle="tooltip" title="Agregar Cliente" >
+					          			+<i class="fa fa-user"></i>
+					          		</a>
+					          	</div>
+										</div>
+				      		</div>
+									<div class="row" id="boxCliente">
+										<div class="col-md-3" >
+											<div class="row">
+												<div class="col-md-5">
+													<div class="form-group">
+						                <label for="cliente_tipo_documento">Tipo</label>
+						                <select class="form-control select2" id="cliente_tipo_documento" name="cliente_tipo_documento" >
+						                	{% for item in tipoDocumento %}
+						                		{% if old.cliente_tipo_documento == item.id %}
+						                  	<option value="{{item.id}}" selected="" >{{item.nombre}}</option>
+						                			{% else %}
+						                  	<option value="{{item.id}}" >{{item.nombre}}</option>
+						                		{% endif %}
+						                	{% endfor %}
+						                </select>
+													</div>
+												</div>
+												<div class="col-md-7">
+						            	<div class="form-group">
+						              	<label for="cliente_documento">Documento</label>
+						            		<input type="text" class="form-control" id="cliente_documento" name="cliente_documento" data-validation="digit" value="{{old.cliente_documento}}" >
+						            		{% if errors.cliente_documento %}
+															<i class="help-block no-margin">{{ errors.cliente_documento | first }}</i>
+														{% endif %}
+						            	</div>
+						          	</div>
+											</div>
+										</div>
+										<div class="col-md-2">
+			              	<div class="form-group">
+			                	<label for="cliente_apellido">Apellido</label>
+			              		<input type="text" class="form-control" id="cliente_apellido" name="cliente_apellido" value="{{old.cliente_apellido}}" >
+			              		{% if errors.cliente_apellido %}
+												<i class="help-block no-margin">{{ errors.cliente_apellido | first }}</i>
+												{% endif %}
+			              	</div>
+	            			</div>
+						        <div class="col-md-2">
+						          <div class="form-group">
+						            	<label for="cliente_nombre">Nombre</label>
+						          		<input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" value="{{old.cliente_nombre}}">
+				              	{% if errors.cliente_nombre %}
+													<i class="help-block no-margin">{{ errors.cliente_nombre | first }}</i>
+												{% endif %}
+						          </div>
+						        </div>
+						        <div class="col-md-3">
+				          		<div class="form-group">
+					            	<label for="cliente_domicilio">Domicilio</label>
+					          		<input type="text" class="form-control" id="cliente_domicilio" name="cliente_domicilio" value="{{old.cliente_domicilio}}">
+					          		{% if errors.cliente_domicilio %}
+												<i class="help-block no-margin">{{ errors.cliente_domicilio | first }}</i>
+												{% endif %}
+			              	</div>
+				            </div>
+				            <div class="col-md-2">
+				              <div class="form-group">
+				                <label for="cliente_email">Email</label>
+				              	<input type="email" class="form-control" id="cliente_email" name="cliente_email" value="{{old.cliente_email}}">
+				              	{% if errors.cliente_email %}
+												<i class="help-block no-margin">{{ errors.cliente_email | first }}</i>
+												{% endif %}
+						           </div>
+						        </div>
+									</div>
+								</div>
+							</div>
+			      </div>
+			      <div class="tab-pane {{old.id_tipo==2?'active':''}}" id="proveedor" role="tabpanel">
+			      	<div class="row">
+								<div class="col-md-12" >
+									<div class="form-group" id="bloodhoundProveedor">
+						        <label for="proveedor_buscador" class="col-sm-2 control-label"></label>
+										<div class="row">
+											<div class="col-lg-11 col-md-11 col-sm-10 col-10">
+												<input type="text" class="form-control typeahead" id="proveedor_buscador" name="proveedor_buscador" value="{{old.proveedor_buscador}}" style="font-family:Arial, FontAwesome" placeholder="&#xF002; Razon Social o Documento" value="{{old.proveedor_buscador}}">
+											</div>
+											<div class="col-lg-1 col-md-1 col-sm-1 col-1">
+						          	<a class="btn btn-info" id="btnNuevoProveedor" data-toggle="tooltip" title="Agregar Proveedor" >
+						          		+<i class="fa fa-user"></i>
+						      			</a>
+						          </div>
+										</div>
+					        </div>
+									<div id="boxProveedor">
+										<div class="row">
+											<div class="col-md-3" >
+												<div class="row">
+													<div class="col-md-5">
+														<div class="form-group">
+							                <label for="id_tipo_documento">Tipo</label>
+							                <select class="form-control select2" id="proveedor_tipo_documento" name="proveedor_tipo_documento" >
+							                	{% for item in tipoDocumento %}
+							                		{% if old.proveedor_tipo_documento == item.id %}
+							                  	<option value="{{item.id}}" selected="" >{{item.nombre}}</option>
+							                			{% else %}
+							                  	<option value="{{item.id}}" >{{item.nombre}}</option>
+							                		{% endif %}
+							                	{% endfor %}
+							                </select>
+								            </div>
+													</div>
+													<div class="col-md-7">
+									      		<div class="form-group">
+								            	<label for="documento">Documento</label>
+								          		<input type="text" class="form-control" id="proveedor_documento" name="proveedor_documento" data-validation="digit" value="{{old.documento}}" >
+								          		{% if errors.documento %}
+																	<i class="help-block no-margin">{{ errors.documento | first }}</i>
+																{% endif %}
+							          		</div>
+							            </div>
+												</div>
+											</div>
+							        <div class="col-md-4">
+							          <div class="form-group">
+							            <label for="razon_social">Razon Social</label>
+							          	<input type="text" class="form-control" id="proveedor_razon_social" name="proveedor_razon_social" value="{{old.razon_social}}" >
+							          	{% if errors.razon_social %}
+														<i class="help-block no-margin">{{ errors.razon_social | first }}</i>
+														{% endif %}
+							          </div>
+							        </div>
+							        <div class="col-md-3">
+							          <div class="form-group">
+							            <label for="domicilio">Domicilio</label>
+							          	<input type="text" class="form-control" id="proveedor_domicilio" name="proveedor_domicilio" value="{{old.domicilio}}">
+							          	{% if errors.domicilio %}
+														<i class="help-block no-margin">{{ errors.domicilio | first }}</i>
+														{% endif %}
+							          </div>
+							        </div>
+							        <div class="col-md-2">
+							          <div class="form-group">
+							            <label for="email">Email</label>
+							          	<input type="email" class="form-control" id="proveedor_email" name="proveedor_email" value="{{old.email}}">
+							          	{% if errors.email %}
+														<i class="help-block no-margin">{{ errors.email | first }}</i>
+													{% endif %}
+							          </div>
+							        </div>
+						    		</div>
+									</div>
+								</div>
+			      	</div>
+			    	</div>
+			      {# <div class="tab-pane {{old.id_tipo==3?'active':''}}" id="banco" role="tabpanel">
+			      	<div class="row">
+			      		<div class="col-md-12">
+			      			<div class="form-group">
+				      			<label class="control-label" >Los de tipo BANCO no son enlazados a ningun usuario o proveedor.</label>
+				      		</div>
+			      		</div>
+			      	</div>
+			      </div>#}
+					</div>
+					<hr>
+	       			<div class="col-md-12" >
+				  		<div class="form-group">
+			            	<label class="control-label" for="movimiento_descripcion">Nombre de la cuenta corriente</label>
+			            	<input class="form-control" type="text" name="cuenta_nombre" id="cuenta_nombre" value="" required>
+			          	</div>
+	       			</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-12">
+		<div class="card card-success collapsed-card" id="boxVendidos">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Listado de vehículos disponibles</h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-widget="collapse" id="btnColapsarVendidos"><i class="fa fa-minus"></i>
+          </button>
+				</div>
+    	</div>
+			<div class="card-body vehicle-box">
+				<div class="table-responsive">
+					<table id="tablaVehiculos" class="table table-bordered responsive nowrap" cellspacing="0" width="100%">
+						<thead>
+							<tr>
+								<th>
+									Agregado
+								</th>
+								<th>
+									Seleccionar
+								</th>
+								<th>
+									Dominio
+								</th>
+								<th>
+									Marca
+								</th>
+								<th>
+									Modelo
+								</th>
+								<th>
+									Año
+								</th>
+								<th>
+									Km
+								</th>
+								<th>
+									Localidad
+								</th>
+								<th>
+									Precio<br>Contado
+								</th>
+								<th>
+									Precio<br>Lista
+								</th>
+								<th>
+									Entrega<br>Minima
+								</th>
+								<th>
+									Credito
+								</th>
+								<th>
+									Color
+								</th>
+								<th>
+								 	Cilindrada
+								</th>
+								<th>
+									Tipo Motor
+								</th>
+								<th>
+									Transmisión
+								</th>
+								<th>
+									Cant. Puertas
+								</th>
+								<th>
+									Ubicación
+								</th>
+								<th>
+									Estado
+								</th>
+								<th>
+									Ex Dueño
+								</th>
+								<th>
+									Precios
+								</th>
+								<th>
+									Foto
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-12">
+		<button type="submit" class="btn btn-flat btn-primary btn-block">Crear cuenta corriente</button>
+	</div>
+</div>
+{{ csrf.field | raw }}
+</form>
+
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+var colapsado = 0;
+
+$("#btnColapsarVendidos").click(function() {
+
+	if(colapsado == 0) {
+		colapsado = 1;
+
+		$('#ordenTabla').select2({
+	  	minimumResultsForSearch: -1,
+	    theme: "bootstrap",
+	    width: '100%',
+	  });
+
+		$.fn.dataTable.moment( 'DD/MM/YYYY' );
+
+		var ordenTabla = 'created_at';
+
+		$('#ordenTabla').on('select2:select',function(){
+			var orden = Number(this.value);
+			var tablaVehiculos = $('#tablaVehiculos').DataTable();
+	  	var head_item = tablaVehiculos.columns(0).header();
+			if(orden == 0){
+	  		$(head_item).html('Agregado');
+			} else {
+	  		$(head_item).html('Modificado');
+			}
+	  	tablaVehiculos.ajax.reload(null, true);
+		});
+
+		var tablaVehiculos = $('#tablaVehiculos').DataTable( {
+			order:[[0,'desc']],
+	    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+	    processing: true,
+	    serverSide: true,
+	    autoWidth: false,
+	    responsive: {
+	      details: {
+	        renderer: function ( api, rowIdx, columns ) {
+	        	var rowspan = 0;
+	        	var primero = true;
+	          var data = $.map( columns, function ( col, i ) {
+	          	var render = '';
+	          	if(col.hidden){
+	          		rowspan = rowspan + 1;
+	          		render = '<tr class="active" data-dt-row="'+col.rowIndex+'" data-dt-column="'+col.columnIndex+'">'+
+	                '<td><b>'+col.title+':'+'</b></td> '+
+	                '<td>'+col.data+'</td>';
+	              if(primero){
+	              	render += '{imagen}';
+	              	primero = false;
+	              }
+	              render += '</tr>';
+	          	}
+	            return render;
+	          } ).join('');
+	          var imagen = '<td rowspan="'+rowspan+'" class="danger">SIN IMAGENES</td>';
+	          if(columns[21].data){
+	          	imagen = '<td rowspan="'+rowspan+'">'+columns[21].data+'</td>';
+	          }
+	          var body = data.replace('{imagen}',imagen);
+	          var tabla = '<table class="table nowrap" cellspacing="0" width="100%">{body}</table>'
+	          return data ?
+	            $('<table/>').append( tabla.replace('{body}',body) ) :
+	            false;
+	        }
+	      }
+	    },
+	    ajax:{
+	      url:"{{path_for('vehicle.disponibles')}}",
+	      data: function(d){
+	        d.codigo = $('#codigo').val();
+	        d.orden = $('#ordenTabla').val();
+	      },
+	    },
+	    columns: [
+	      {
+	        name: ordenTabla,
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	var orden = Number($('#ordenTabla').val());
+	        	if(orden == 0){
+		      		var momentDate = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss');
+		      		var creado = '';
+		      		if(data.individuo){
+		      			creado = ' data-html="true" data-toggle="tooltip" title="Por '+formatTitle(data.individuo.apellido)+' '+formatTitle(data.individuo.nombre)+'" ';
+		      		}
+		      		respuesta = '<label class="control-label" '+creado+' >'+momentDate.format('DD/MM/YYYY')+'</label>';
+		      	} else {
+		      		var momentDate = moment(data.updated_at, 'YYYY-MM-DD HH:mm:ss');
+		      		respuesta = '<label class="control-label historial_modificado" >'+momentDate.format('DD/MM/YYYY')+'</label>';
+		      	}
+	      		return respuesta;
+	        },
+	      },
+
+
+	     {
+	     	name: 'opciones',
+	        data: function(data,type,row)
+	        {
+	            respuesta = '';
+	          	var funcion = 'actualizar_veh(' + data.id + ',\'' + data.modelo + '\' );';
+	          	var boton = '<a class="btn btn-xs btn-flat btn-info pull-right" onclick="'+ funcion + '">Seleccionar</a>';
+	          	return boton;
+	        }
+	      },
+	      {
+	        name: 'dominio',
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	if(data.get_usado!=null){
+	      			var momentDate = moment(data.updated_at, 'YYYY-MM-DD HH:mm:ss');
+	      			var usuario = '';
+	      			if(Object.keys(data.historial).length>0){
+	      				var ultimo = data.historial.length - 1;
+	      				usuario = '<br>por '+formatTitle(data.historial[ultimo].individuo.apellido)+' '+formatTitle(data.historial[ultimo].individuo.nombre);
+	      			}
+		    			respuesta = '<div class="" data-html="true" data-toggle="tooltip" title="Modificado el<br>'+momentDate.format('DD/MM/YYYY')+usuario+'">'+data.get_usado.dominio+'</div>';
+		      	}
+		      	return respuesta;
+	        },
+	      },
+	      {
+	        name: 'id_marca',
+	        data: 'get_marca.nombre',
+	      },
+	      {
+	        name: 'modelo',
+	        data: 'modelo',
+	      },
+	      {
+	        name: 'year',
+	        data: 'year',
+	      },
+	      {
+	        name: 'kilometraje',
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	if(data.get_usado!=null){
+	        		respuesta = data.get_usado.kilometraje;
+	        	}
+	        	return respuesta;
+	        },
+	      },
+	      {
+	        name: 'id_localidad',
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	if(data.get_localidad!=null){
+	        		if(data.get_localidad.id==1){
+	        			respuesta = 'SALTA';
+	        		} else if(data.get_localidad.id==2){
+	        			respuesta = 'ORAN';
+	        		} else {
+	        			respuesta = data.get_localidad.nombre;
+	        		}
+	        	}
+	        	return respuesta;
+	        },
+	      },
+	      {
+	        name: 'precio_venta',
+	        data: 'precio_venta',
+	        render: function(data,type,row){
+	          return formatCurrency(data);
+	        },
+	      },
+	      {
+	        name: 'precio_lista',
+	        data: 'precio_lista',
+	        render: function(data,type,row){
+	          return formatCurrency(data);
+	        },
+	      },
+	      {
+	        name: 'calculo_entrega_minima',
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	if(data.calculo_entrega_minima>0){
+	        		respuesta = formatCurrency(data.calculo_entrega_minima);
+	        	} else {
+	        		respuesta = formatCurrency(data.entrega_minima);
+	        	}
+	        	return respuesta;
+	        },
+	      },
+	      {
+	        name: 'calculo_credito',
+	        data: 'calculo_credito',
+	        render: function(data,type,row){
+	          return formatCurrency(data);
+	        },
+	      },
+	      {
+	        name: 'color',
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	if(data.get_usado!=null){
+	        		respuesta = data.get_usado.color;
+	        	}
+	        	return respuesta;
+	        },
+	      },
+	      {
+	        name: 'motor',
+	        data: 'motor',
+	        render: function(data,type,row){
+	          return (data).toFixed(1);
+	        },
+	      },
+	      {
+	        name: 'id_tipo_motor',
+	        data: 'get_tipo_motor.nombre',
+	      },
+	      {
+	        name: 'id_transmision',
+	        data: 'get_transmision.nombre',
+	      },
+	      {
+	        name: 'cantidad_puertas',
+	        data: 'cantidad_puertas',
+	      },
+	      {
+	        name: 'id_ubicacion',
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	if(data.get_ubicacion!=null){
+	        		respuesta = data.get_ubicacion.nombre;
+	        	}
+	        	return respuesta;
+	        },
+	      },
+	      {
+	      	name: 'estado',
+	      	data: function(data,type,row){
+	      		var estadoLista = '<span class="badge label-info">'+data.get_estado_lista.nombre+'</span>';
+	      		var publicado = (data.publicado)? '<span class="badge label-info">Publicado</span>': '<span class="badge label-danger">Sin publicar</span>';
+	      		var vehiculo_estado = '';
+	      		if(data.get_tipos_estado!=null){
+		      		if(data.id_estado == 1){
+		      			vehiculo_estado = '<span class="badge label-info">'+data.get_tipos_estado.nombre+'</span>';
+		      		} else if (data.id_estado == 2){
+		      			vehiculo_estado = '<span class="badge label-warning">'+data.get_tipos_estado.nombre+'</span>';
+		      		} else {
+		      			vehiculo_estado = '<span class="badge label-success">'+data.get_tipos_estado.nombre+'</span>';
+		      		}
+		      	}
+	      		return estadoLista+'&nbsp;'+publicado+'&nbsp;'+vehiculo_estado;
+		      }
+	      },
+	      {
+	        name: 'exowner',
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	if(data.get_usado!=null){
+	        		respuesta = data.get_usado.exowner;
+	        	}
+	        	return respuesta;
+	        },
+	      },
+	      {
+	        name: 'Precios',
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	if(data.get_usado!=null){
+	        		respuesta = '<label class="control-label">Toma:</label> '+formatCurrency(data.get_usado.precio_toma)+
+	        		'<br><label class="control-label">Revista:</label> '+formatCurrency(data.get_usado.precio_revista)+
+	        		'<br><label class="control-label">Reparacion:</label> '+formatCurrency(data.get_usado.precio_reparacion_estimado);
+	        	}
+	        	return respuesta;
+	        },
+	      },
+	      {
+	        name: 'foto',
+	        data: function(data,type,row){
+	        	var respuesta = '';
+	        	if(Object.keys(data.get_fotos).length>0){
+	        		respuesta =
+	        		'<div class="col-lg-4 col-md-6 col-sm-12">'+
+		        		'<div class="card card-default vehicle-box">'+
+		        			'<div class="carousel vehicle-carousel slide">'+
+			        			'<ol class="carousel-indicators">'+
+											'<li ></li>'+
+										'</ol>'+
+		        				'<div class="carousel-inner" role="listbox">'+
+											'<div class="item active">'+
+												'<img src="'+data.get_fotos[0].archivo+'">'+
+											'</div>'+
+										'</div>'+
+									'</div>'+
+								'</div>'+
+							'</div>';
+	        	}
+	        	return respuesta;
+	        },
+	      },
+	    ],
+	    scrollCollapse: true,
+	    fixedColumns:   {
+	    	leftColumns: 1,
+	      rightColumns: 1
+	    },
+	    oSearch: {
+	    	"sSearch": " "
+		},
+	    columnDefs:[
+	      {
+	        targets:[0,1,2,3,4,5,6,7,6,9,10,11,12,13],
+	        orderable: false,
+	      },
+	      {
+	      	targets:[0,1,2,4,5,6,7,8,9,10,11],
+	      	width: '15px',
+	      },
+	      {
+	      	targets: [8,9,10,11],
+	      	responsivePriority: 2,
+	      },
+	      {
+	      	targets: [7],
+	      	responsivePriority: 3,
+	      	className: 'precio_contado',
+	      },
+	      {
+	      	targets:[3],
+	      	width: "35%",
+	      },
+	      {
+	        targets:[8,9,10],
+	        className: 'text-right',
+	      },
+	      {
+	      	targets:[21],
+	      	visible:false,
+	      },
+	    ],
+	    createdRow: function (row, data, index) {
+	      if(data.id_estado==1){
+	      	if(Object.keys(data.get_fotos).length==0){
+	        	$(row).addClass('vehiculo_fotos');
+	      	}
+	      } else if(data.id_estado==2){
+	        $(row).addClass('vehiculo_señado');
+	      } else if (data.id_estado == 3){
+	      	$(row).addClass('vehiculo_vendido');
+	      }
+	    },
+			"language": {
+			    "sProcessing":     "Procesando...",
+			    "sLengthMenu":     "Mostrar _MENU_ registros",
+			    "sZeroRecords":    "No se encontraron resultados",
+			    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+			    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+			    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+			    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+			    "sInfoPostFix":    "",
+			    "sSearch":         "Buscar:",
+			    "sUrl":            "",
+			    "sInfoThousands":  ",",
+			    "sLoadingRecords": "Cargando...",
+			    "oPaginate": {
+			        "sFirst":    "Primero",
+			        "sLast":     "Último",
+			        "sNext":     "Siguiente",
+			        "sPrevious": "Anterior"
+			    },
+			    "oAria": {
+			        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+			        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+			    }
+			}
+		});
+
+		tablaVehiculos.on( 'draw', function () {
+	    console.log( 'Redraw occurred at: '+new Date().getTime() );
+		});
+
+	  $('#btnCodigo0').on('click',function(){
+	  	$('#codigo').val(0);
+	  	tablaVehiculos.ajax.reload(null, true);
+	  });
+	  $('#btnCodigo1').on('click',function(){
+	  	$('#codigo').val(1);
+	  	tablaVehiculos.ajax.reload(null, true);
+	  });
+	  $('#btnCodigo2').on('click',function(){
+	  	$('#codigo').val(2);
+	  	tablaVehiculos.ajax.reload(null, true);
+	  });
+	  $('#btnCodigo3').on('click',function(){
+	  	$('#codigo').val(3);
+	  	tablaVehiculos.ajax.reload(null, true);
+	  });
+	}
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+	$('#boxCliente').hide();
+	$('#boxProveedor').hide();
+
+  $('.select2').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('#tabCliente').on('click',function(){
+		$('#id_tipo').val(1);
+	});
+	$('#tabProveedor').on('click',function(){
+		$('#id_tipo').val(2);
+	});
+	$('#tabBanco').on('click',function(){
+		$('#id_tipo').val(3);
+	});
+
+  var cliente = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.todos')}}?consulta=%QUERY",
+	    wildcard: '%QUERY'
+	  }
+	});
+
+	$('#bloodhoundCliente .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'cliente_buscador',
+	  display: 'nombre',
+	  source: cliente,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.apellido +' '+response.nombre+'('+response.documento+')</p>';
+      },
+		  empty:'No existe el cliente. Por favor cree uno nuevo.',
+	  }
+	}).on('typeahead:selected', function(event, selection) {
+		$('#id_cliente').val(selection.id);
+		$('#cliente_tipo_documento').val(selection.id_tipo_documento).trigger('change');
+		$('#cliente_documento').val(selection.documento);
+		$('#cliente_apellido').val(selection.apellido);
+		$('#cliente_nombre').val(selection.nombre);
+		$('#cliente_domicilio').val(selection.domicilio);
+		$('#cliente_email').val(selection.email);
+		if(selection.id_tipo_responsable != 0) { $('#cliente_tipo_responsable').val(selection.id_tipo_responsable).trigger('change'); }
+		$('#boxCliente').slideDown();
+	});
+
+	$('#cliente_buscador').on('keydown',function(){
+		var key = event.keyCode || event.charCode;
+    if( key == 8 || key == 46 ){
+    	$('#id_cliente').val(0);
+			$('#boxCliente').slideUp(null,function(){
+				$('#cliente_tipo_documento').val(0).trigger('change');
+				$('#cliente_documento').val('');
+				$('#cliente_apellido').val('');
+				$('#cliente_nombre').val('');
+				$('#cliente_domicilio').val('');
+				$('#cliente_email').val('');
+			});
+    } else {
+			var inp = String.fromCharCode(event.keyCode);
+	    if (/[a-zA-Z0-9-_ ]/.test(inp)){
+	    	$('#boxCliente').slideUp();
+	    }
+    }
+
+	});
+
+	$('#btnNuevoCliente').on('click',function(){
+		$('#id_cliente').val(0);
+		$('#boxCliente').slideUp(null,function(){
+			$('#cliente_buscador').typeahead('val', '');
+			$('#cliente_tipo_documento').val(0).trigger('change');
+			$('#cliente_documento').val('');
+			$('#cliente_apellido').val('');
+			$('#cliente_nombre').val('');
+			$('#cliente_domicilio').val('');
+			$('#cliente_email').val('');
+			$('#boxCliente').slideDown();
+		});
+	});
+
+  var proveedor = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('proveedor.todos')}}?consulta=%QUERY",
+	    wildcard: '%QUERY'
+	  }
+	});
+
+	$('#bloodhoundProveedor .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'proveedor_buscador',
+	  display: 'nombre',
+	  source: proveedor,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.razon_social +'('+response.documento+')</p>';
+      },
+		  empty:'No existe el proveedor. Por favor cree uno nuevo.',
+		  }
+	}).on('typeahead:selected', function(event, selection) {
+		$('#id_proveedor').val(selection.id);
+		$('#proveedor_tipo_documento').val(selection.id_tipo_documento).trigger('change');
+		$('#proveedor_documento').val(selection.documento);
+		$('#proveedor_razon_social').val(selection.razon_social);
+		$('#proveedor_domicilio').val(selection.domicilio);
+		$('#proveedor_email').val(selection.email);
+
+		$('#boxProveedor').slideDown();
+	});
+
+	$('#proveedor_buscador').on('keydown',function(){
+		var key = event.keyCode || event.charCode;
+    if( key == 8 || key == 46 ){
+    	$('#id_proveedor').val(0);
+			$('#boxProveedor').slideUp(null,function(){
+				$('#proveedor_tipo_documento').val(0).trigger('change');
+				$('#proveedor_documento').val('');
+				$('#proveedor_razon_social').val('');
+				$('#proveedor_domicilio').val('');
+				$('#proveedor_email').val('');
+			});
+    } else {
+			var inp = String.fromCharCode(event.keyCode);
+	    if (/[a-zA-Z0-9-_ ]/.test(inp)){
+	    	$('#boxProveedor').slideUp();
+	    }
+    }
+
+	});
+
+	$('#btnNuevoProveedor').on('click',function(){
+		$('#id_proveedor').val(0);
+		$('#boxProveedor').slideUp(null,function(){
+			$('#proveedor_buscador').typeahead('val', '');
+			$('#proveedor_tipo_documento').val(0).trigger('change');
+			$('#proveedor_documento').val('');
+			$('#proveedor_razon_social').val('');
+			$('#proveedor_domicilio').val('');
+			$('#proveedor_email').val('');
+			$('#proveedor_tipo_responsable').val(5).trigger('change');
+			$('#boxProveedor').slideDown();
+		});
+	});
+
+});
+
+function formatCurrency(total) {
+    var neg = false;
+    if(total < 0) {
+        neg = true;
+        total = Math.abs(total);
+    }
+    var respuesta = parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+    return (neg ? "-$" : '$') + respuesta.substring(0, respuesta.length - 3);
+	}
+function formatTitle(str){
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
+function actualizar_veh(id, modelo)
+{
+  	$('#cuenta_nombre').attr('value', modelo);
+	$.toast({
+  		heading: 'Base de datos',
+  		text: 'Se asoció un vehículo de la base de datos a la cuenta corriente',
+  		showHideTransition: 'slide',
+  		icon: 'success',
+  		position: 'bottom-right',
+	});
+  	return 1;
+}
+
+</script>
+{% endblock %}

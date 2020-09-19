@@ -1,0 +1,42 @@
+.container-fluid {
+	max-width: 1220px;
+}
+
+clear {
+	content: "";
+	display: table;
+}
+
+.clear:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+html, body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+	flex: 1;
+}
+
+main .container-fluid {
+  margin-top: 1em;
+}
+
+.left-col {
+  padding-right: 0px;
+  margin-bottom: 1em;
+}
+
+@media(max-width: 968px) {
+  .left-col {
+    padding-right: 15px;
+    margin-bottom: 0px;
+    display: none;
+  }
+}
+

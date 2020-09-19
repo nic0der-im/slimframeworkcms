@@ -1,0 +1,261 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+td.details-control {
+    background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+tr.details td.details-control {
+    background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
+}
+</style>
+{% endblock %}
+{% block title %}Informe Libro de Mayores{% endblock %}
+{% block header_title %}Informe Libro de Mayores{% endblock %}
+{% block breadcrumb %}
+{% endblock %}
+{% block content %}
+
+  <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Seleccione la sucursal y el periodo para continuar:</h3>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+          <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
+            <div class="row">
+        <div class="col-md-6">
+          <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-car"></i></span>
+                    </div>
+                    <select class="form-control" id="select_sucursal">
+                      {% for sucursal in sucursales %}
+                        {% if sucursal.id == 1 %}
+                          <option value="{{sucursal.id}}" selected>{{sucursal.sucursal}} ({{sucursal.descripcion}})</option>
+                        {% else %}
+                          <option value="{{sucursal.id}}">{{sucursal.sucursal}} ({{sucursal.descripcion}})</option>
+                        {% endif %}
+                      {% endfor %}
+                      <option value="99">GENERAL (TODOS)</option>
+                    </select>
+                  </div>
+        </div>
+        <div class="col-md-6">
+          <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                      </div>
+                <input type="text" class="form-control pull-right" id="datepicker" value="07">
+             </div>
+        </div>
+      </div>   
+            <div class="row">
+                <div class="col-sm-12">
+                  <table id="example1" class="table table-bordered table-striped dataTable tabla_informe_ingreso_salta" role="grid" aria-describedby="example1_info">
+                    <thead>
+                      <th data-orderable="false"></th>
+                      <th data-orderable="false">Nombre Cuenta</th>
+                      <th data-orderable="false">Cantidad Transacciones</th>
+                      <th data-orderable="false">Ingresos</th>
+                      <th data-orderable="false">Egresos</th>
+                      <th data-orderable="false">Saldo</th>
+                  </thead>
+                    <tbody></tbody>
+                  </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card-body -->
+      </div>
+
+  {% include 'admin_views/admin_partials/flash.twig' %}
+
+  </div>
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript">
+var sucursal = 1;
+var mes = 7;
+
+$("#select_sucursal").change(function() {
+  sucursal = $(this).children(":selected").attr("value");
+    recargar_tabla(mes, sucursal);
+});
+
+$('#datepicker').change(function () {
+    mes = $('#datepicker').val(); 
+    recargar_tabla(mes, sucursal);
+});
+
+
+function format ( d , cuenta_id ) {
+
+  $tabla = $('<div class="table-responsive" style="max-height: 400px !important; overflow: scroll !important;"><table class="table table-bordered" style="    background-color: #3c8dbc !important;"><thead><th>Fecha</th><th>Descripción</th><th>Ingresos</th><th>Egresos</th><th>Saldo</th></thead><tbody class="cuerpo_tabla"></tbody></table></div>');
+
+  var contenido = '';
+  var saldo = 0;
+  var nro = 0;
+
+  $.ajax({
+        url: "{{ base_url() }}/administracion/cajas/comprobante/informe-cuenta-transacciones/" + mes + "/" + sucursal + "/" + cuenta_id,
+        dataType: 'json',
+        type: 'get',
+        cache:false,
+        success: function(data)
+        {
+          var event_data = '';
+            $.each(data.data, function(index, value)
+            {
+              nro += 1;
+              event_data += '<tr>';
+              event_data += '<td>'+value.fecha+ ' [' + nro + ']</td>';
+              if(value.periodo > 0)
+              { 
+                event_data += '<td>'+value.razon_social+' - ' + value.observaciones + ' - ' + value.detalle + ' - PERIODO: [' + value.periodo + ']</td>' ;
+              }
+              else
+              {
+                event_data += '<td>'+value.razon_social+' - ' + value.observaciones + ' - ' + value.detalle + '</td>' ;
+              }
+              if(Number(value.tipo) == 1) // Venta
+              {
+                console.log(event_data.tipo);
+                event_data += '<td>$'+value.total+'</td>';
+                event_data += '<td> - </td>';
+                saldo += Dec2(Number(value.total));
+              }
+              else if(Number(value.tipo == 2)) 
+              {
+                console.log(event_data.tipo);
+                event_data += '<td> - </td>';
+            event_data += '<td>$'+value.total+'</td>';
+                saldo -= Dec2(Number(value.total));
+              }
+
+          event_data += '<td>$'+Dec2(saldo)+'</td>';
+          event_data += '</tr>';
+      });
+      $tabla.find('.cuerpo_tabla').append(event_data);
+        },
+    });
+    return $tabla;
+}
+
+// variable datatable global:
+var dt = $('.tabla_informe_ingreso_salta').DataTable({
+  "bPaginate": false,
+    "bLengthChange": false,
+    "bInfo": false,
+    "searching": false,
+});
+
+// datapicker:
+$('#datepicker').datepicker({
+    format: 'mm',
+});
+
+  // Array to track the ids of the details displayed rows
+var detailRows = [];
+
+$('.tabla_informe_ingreso_salta tbody').on( 'click', 'tr td.details-control', function () {
+    var tr = $(this).closest('tr');
+    var row = dt.row( tr );
+    var idx = $.inArray( tr.attr('id'), detailRows );
+
+    if ( row.child.isShown() ) {
+        tr.removeClass( 'details' );
+        row.child.hide();
+
+        // Remove from the 'open' array
+        detailRows.splice( idx, 1 );
+    }
+    else {
+        tr.addClass( 'details' );
+        row.child( format(row.data(), row.data().id_tra ) ).show();
+
+        // Add to the 'open' array
+        if ( idx === -1 ) {
+            detailRows.push( tr.attr('id') );
+        }
+    }
+} );
+
+// On each draw, loop over the `detailRows` array and show any child rows
+dt.on( 'draw', function () {
+    $.each( detailRows, function ( i, id ) {
+        $('#'+id+' td.details-control').trigger( 'click' );
+    } );
+});
+
+function recargar_tabla()
+{
+  // al seleccionar un mes se carga la tabla:
+    dt.destroy();
+    dt = $('.tabla_informe_ingreso_salta').DataTable( 
+    {
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{ base_url() }}/administracion/cajas/comprobante/informe-cuenta-consulta/"+ mes +"/" + sucursal },
+      columns: 
+      [
+          {
+            "class":          "details-control",
+            "orderable":      false,
+            "data":           null,
+            "defaultContent": ""
+          },
+        {
+          name: 'nombre',
+          data: 'nombre_tipo'
+        },
+        { 
+          name: 'cantidad',
+          data: 'cantidad'
+        },
+        { 
+          name: 'ingreso',
+          data: function(data){
+            return "$"+Dec2(data.ingreso);
+          }
+        },
+        { 
+          name: 'egreso',
+          data: function(data){
+            return "$"+Dec2(data.egreso);
+          }
+        },
+        { 
+          name: 'saldo',
+          data: function(data){
+            return "$"+Dec2(data.ingreso-data.egreso);
+          }
+        },
+      ],
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bInfo": false,
+      "searching": false,
+  });
+}
+
+function Dec2(num) {
+  num = String(num);
+  if(num.indexOf('.') !== -1) {
+    var numarr = num.split(".");
+    if (numarr.length == 1) {
+      return Number(num);
+    }
+    else {
+      return Number(numarr[0]+"."+numarr[1].charAt(0)+numarr[1].charAt(1));
+    }
+  }
+  else {
+    return Number(num);
+  }  
+}
+
+</script>
+{% endblock %}

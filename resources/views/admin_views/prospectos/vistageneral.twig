@@ -1,0 +1,661 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link href="{{ base_url() }}/asources/css/prospectos.css" rel="stylesheet">
+
+<style type="text/css">
+table tbody tr td ul {
+	background-color: white !important;
+}
+
+table tbody tr td ul {
+  background-color: white !important;
+}
+
+.table thead th {
+  border-bottom: 0px solid #dee2e6 !important; 
+}
+
+.table thead th {
+    border-bottom: 0px solid #dee2e6 !important; 
+}
+.table thead th {
+    border-bottom: 0px solid #dee2e6 !important; 
+}
+.table td, .table th {
+    border-top: 0px solid #dee2e6 !important; 
+}
+.table td, .table th {
+    border-top: 0px solid #dee2e6 !important; 
+}
+</style>
+{% endblock %}
+{% block title %}Listado General{% endblock %}
+{% block header_title %}Listado General{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item" >
+	<a href="{{path_for('prospectos.todos')}}">Prospectos</a>
+</li>
+<li class="breadcrumb-item active" >
+	Todos
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<input type="hidden" class="getinfoprospecto" value="{{path_for('prospecto.getInfo')}}">
+	<div class="col-lg-12">
+		<div class="card card-success card-outline">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Lista de prospectos</h3>
+				<div class="card-tools">
+        	<a class="btn btn-box-tool" data-toggle="tooltip" title="Refrescar" id="btnRefrescar"><i class="fa fa-refresh"></i></a>
+        </div>
+			</div>
+			<div class="box-body p-0">
+				<div class="table-responsive">
+					<table class="table table-hover" id="tablaProspectos" width="100%">
+						<thead>
+							<th>Fecha</th>
+							<th>Tipo</th>
+							<th>Nombre</th>
+							<th>Localidad</th>
+							<th>Sniper</th>
+							<th>Vendedor</th>
+							<th style="max-width: 10vw;">Telefono</th>
+							<th style="width: 15vw;">Observaciones</th>
+							<th></th>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-hover" width="100%" id="tablaRevision">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Fecha</th>
+								<th>Sniper</th>
+								<th>Vendedor</th>
+								<th>Telefono</th>
+								<th>Razon</th>
+								<th data-orderable="false"></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in revision %}
+							<tr>
+								<td>
+									{{item.id}}
+								</td>
+								<td>
+									{{item.update_at|date('d/m/Y h:m')}}
+								</td>
+								<td>
+									{{item.getSniperNombre.apellido}} {{item.getSniperNombre.nombre}}
+								</td>
+								<td>
+									{{item.getVendedorNombre.apellido}} {{item.getVendedorNombre.nombre}}
+								</td>
+								<td>
+									{{item.telefono}}
+								</td>
+								<td>
+									{% set ultimo = item.getHistorial|length %}
+									{{item.getHistorial[ultimo-1].observaciones}}
+								</td>
+								<td>
+									<a class="btn bg-warning btn-sm" href="{{path_for('prospectos.editar',{id:item.id})}}">EDITAR</a>
+									<a class="btn bg-danger btn-sm" onclick="eliminar({{item.id}});">ELIMINAR</a>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade modal-prospecto" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header bg-green">
+				<h4 class="modal-title"><i class="fa fa-phone"></i> Menú de prospecto</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<ul class="nav nav-tabs">
+					<li class="active mp-nt-fs" ><a href="#informacion_del_prospecto" data-toggle="tab" aria-expanded="true" data-toggle2="focus_tooltip" title="Si necesitas, puedes consultar nuevamente la información del prospecto haciendo clic aquí.">Información del prospecto</a></li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane in active" id="informacion_del_prospecto">
+						<div class="mp_prospecto_box mpfs_prospecto_box">
+							<div class="mpfs_prospecto_box_content">
+								<div class="mpfs_pb_imagen_box">
+									<img src="{{base_url}}/images/default-avatar.png">
+								</div>
+								<div class="mpfs_pb_nombre"></div>
+								<div class="mpfs_pb_localidad"></div>
+							</div>
+							<hr>
+							<div class="mpfs_pb_observaciones"></div>
+							<i>Prospectado por <span class="mpfs_pb_sniper"></span> el <span class="mpfs_pb_fecha"></span></i>
+							<div class="row" id="divSugeridos">
+								<hr>
+								<div class="col-xs-12" id="labelSugeridos">
+								</div>
+							</div>
+							<hr>
+							<div class="table-responsive">
+								<table class="table table-condensed table-striped no-margin" width="100%" id="tablaProspectoHistorial">
+									<caption>
+										<h4 class="text-center" colspan="6">Historial de llamados</h4>
+									</caption>
+									<thead>
+										<th>#</th>
+										<th>Fecha</th>
+										<th>Estado</th>
+										<th>Valor</th>
+										<th>Duración</th>
+										<th>Observaciones</th>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<br>
+						<br>
+						<div class="action-buttons clear">
+							<form name="nuevo_prospecto" action="{{path_for('prospectos.transferir')}}" method="POST">
+								<div class="row transferir_btn">
+									<div class="col-md-3">
+										<label for="">Transferir&nbsp;prospecto:</label>
+									</div>
+									<div class="col-md-6">
+										<select class="form-control" name="np_vendedor" id="np_vendedor" placeholder="Vendedor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Elige un vendedor para transferir el prospecto.">
+											<option value="0">LIBERAR</option>
+											<option value="SALTA">LIBERAR EN SALTA</option>
+											<option value="ORAN">LIBERAR EN ORAN</option>
+										{% for u in agencias %}
+											<option value="{{ u.id_usuario }}">[{{ u.agencia.nombre | upper}}] {{ u.individuo.nombre }} {{ u.individuo.apellido }}</option>
+										{% endfor %}
+										</select>
+									</div>
+									<div class="col-md-2">
+										<button class="btn btn-primary btn-flat pull-right btn-block" type="submit">Transferir</button>
+									</div>
+									<input hidden name="mpss_pb_id_prospecto" id="mpss_pb_id_prospecto">
+
+									<input hidden name="mpss_pb_time" id="mpss_pb_time">
+								</div>
+								{{ csrf.field | raw }}
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	$('.sidebar-toggle').prop('title', 'Click para mostrar la barra lateral');
+	$.fn.dataTable.moment( 'DD/MM/YYYY HH:mm' );
+	var tablaProspectos = $('#tablaProspectos').DataTable( {
+		order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+		processing: true,
+		serverSide: true,
+		ajax:{
+			url:"{{path_for('prospectos.listado')}}",
+		},
+		columns: [
+        {
+        	name: 'created_at',
+        	data: 'created_at',
+        	render: function(data,type,row){
+        		var momentDate = moment(data, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm');
+        		return momentDate;
+        	},
+        },
+        {
+        	name: 'estado',
+        	data: function(data,type,dataToSet){
+        		var respuesta = '';
+        		var title = ' data-toggle="tooltip" data-html="true" ';
+        		if(data.ultimo_no_proceso!=null){
+        			var modificado = respuestaDiferenciaFecha(moment(data.ultimo_no_proceso.updated_at, 'YYYY-MM-DD HH:mm:ss'));
+        			var valor = respuestaDiferenciaFecha(moment(data.ultimo_no_proceso.valor_estado, 'YYYY-MM-DD HH:mm:ss'));
+        			title = title + ' title="Modificado '+modificado+'<br>Valor '+valor+'" ';
+	        	} else {
+	        		title = title + ' title="Sin Cambios" ';
+	        	}
+        		switch(data.estado) {
+					    case 0:
+				        respuesta = '<span class="badge label-warning" '+title+'>Sin atender</span>';
+				        break;
+					    case 1:
+				        respuesta = '<span class="badge label-info" '+title+'>Llamar&nbsp;<br>&nbsp;más tarde</span>';
+				        break;
+			        case 2:
+				        respuesta = '<span class="badge label-primary" '+title+'>Cita pactada</span>';
+				        break;
+			        case 3:
+				        respuesta = '<span class="badge label-danger" '+title+'>Perdido</span>';
+				        break;
+			        case 4:
+				        respuesta = '<span class="badge label-success" '+title+'>Concretado</span>';
+				        break;
+			        case 5:
+			        case 6:
+				        respuesta = '<span class="badge label-default" '+title+'>Proceso</span>';
+				        break;
+			        default:
+				        respuesta = '<span class="badge label-default" '+title+'>'+data.prospecto_estado.nombre+'</span>';
+				        break;
+						}
+						return respuesta;
+        	},
+        },
+        {
+        	name:'nombre',
+        	data: function(data,type,dataToSet){
+        		return data.nombre +' '+data.apellido;
+        	},
+        },
+        {
+        	name:'localidad',
+        	data: 'localidad' ,
+        },
+        {
+        	name: 'nombreSnipper',
+        	data: function(data,type,dataToSet){
+        		return data.get_sniper_nombre.nombre +' '+data.get_sniper_nombre.apellido;
+        	},
+        },
+        {
+        	name: 'nombreVendedor',
+        	data: function(data,type,dataToSet){
+        		if(data.get_vendedor_nombre!=null){
+        			return data.get_vendedor_nombre.nombre +' '+data.get_vendedor_nombre.apellido;
+        		} else {
+      				var agencia = '';
+    					if(data.id_agencia>0){
+    						agencia = '&nbsp;<br>&nbsp;en '+data.agencia.nombre;
+    					}
+      				if(data.ultimo!=null){
+      					if(data.ultimo.individuo!=null){
+      						return '<span class="badge label-warning" data-toggle="tooltip" data-html="true" title="Ultimo:<br>'+data.ultimo.individuo.nombre+' '+data.ultimo.individuo.apellido+'" >LIBRE'+agencia+'</span>';
+      					} else {
+      						return '<span class="badge label-warning" data-toggle="tooltip" data-html="true" title="Ultimo:<br>Desconocido" >LIBRE'+agencia+'</span>';
+      					}
+      				} else {
+      					return '<span class="badge label-warning" data-toggle="tooltip" title="Nuevo Libre" >LIBRE'+agencia+'</span>';
+      				}
+        		}
+        	},
+        },
+        {
+        	name: 'telefono',
+        	data: function(data,type,row){
+        		var numero = digits(data.telefono);
+        		if(numero.length>0){
+        			numero = phoneFormatter(numero);
+        		} else {
+        			numero = data.telefono;
+        		}
+        		return  numero;
+        	}
+        },
+        {
+        	name: 'observaciones',
+        	data: function(data,type,row){
+        		if(data.caracteristicas){
+							var labelSugeridos = '';
+							$.each(data.caracteristicas, function(index, value){
+								labelSugeridos = labelSugeridos + '&nbsp;<span class="badge label-info"> '+value.nombre+' </span>&nbsp;';
+							});
+							if(labelSugeridos.length>0){
+								labelSugeridos = '<b>Interes:</b> '+labelSugeridos;
+							}
+						}
+						return data.observaciones+'<br>'+labelSugeridos;
+        	}
+        },
+        {
+        	data: function(data,type,dataToSet){
+        		return '<a class="btn btn-flat btn-sm btn-block btn-llamar btn-success" data-toggle="modal" data-target=".modal-prospecto" onclick="llamar('+data.id+');">INFO</button><a class="btn btn-flat btn-sm btn-block bg-warning" href="administracion/prospectos/'+data.id+'/editar">EDITAR</a><a class="btn btn-flat btn-sm btn-block btn-danger" onclick="eliminar('+data.id+');">ELIMINAR</a>' ;
+        	},
+        }
+    ],
+		columnDefs:[
+			{
+				targets:[0,1,3,8],
+				width:"3%",
+			},
+			{
+				targets:[2,4,5,6],
+				width:"7%",
+			},
+			{
+				targets:[4,5,8],
+				orderable: false,
+			}
+		],
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	$('#tablaRevision').DataTable( {
+  	lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    searching: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+      	targets:[0,1,2,3,4],
+        width:"5%",
+      },
+			{
+      	targets:[6],
+        width:"13%",
+				className:"nowrap",
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Aun no hay prospectos para Revision.",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#tablaProspectoHistorial').DataTable( {
+  	lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    searching: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+      	targets:[1,2,3],
+        width:"5%",
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "No se han realizado llamados anteriormente.",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  function colapsar() {
+  	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+
+		} else {
+			$('a[data-widget="pushmenu"]').trigger('click');
+		}
+  };
+
+	setTimeout(colapsar, 500);
+
+	$('#btnRefrescar').on('click',function(){
+    tablaProspectos.ajax.reload(null, true);
+  });
+});
+
+function llamar(id){
+	$('#mpss_pb_id_prospecto').val(id);
+	var data = 'id_prospecto='+id;
+	$.ajax({
+		url: "{{path_for('prospecto.getInfo')}}",
+		data: data,
+		method: 'GET',
+		cache: false,
+		dataType: 'json',
+		success: function(response) {
+			$('.mpfs_pb_nombre').html(response.nombre + ' ' + response.apellido);
+			$('.mpfs_pb_observaciones').html(response.observaciones);
+			$('.mpfs_pb_sniper').html(response.get_sniper_nombre.nombre + ' ' + response.get_sniper_nombre.apellido);
+			$('.mpfs_pb_fecha').html(moment(response.created_at).format('DD/MM/YYYY [@] H:mm'));
+			$('.mpfs_pb_localidad').html(response.localidad);
+			$('.mpss_pb_telefono').html(response.telefono);
+
+			if(response.estado < 5)
+				{
+					$('.transferir_btn').show();
+				}
+				else
+				{
+					$('.transferir_btn').hide();
+				}
+
+			if(response.get_historial) {
+				var table = $('#tablaProspectoHistorial').DataTable();
+  			table.clear().draw();
+				for (var i = response.get_historial.length - 1; i >= 0; i--) {
+  				var item = response.get_historial[i];
+	        var title = ' data-toggle="tooltip" data-html="true" ';
+					if(item.individuo!=null){
+						title = title + 'title="Cambiado por:<br>'+item.individuo.apellido+' '+item.individuo.nombre+'"';
+					} else {
+						title = title + ' title="Cambiado por Desconocido" ';
+					}
+					var respuesta = '';
+      		switch(item.estado) {
+				    case 0:
+			        respuesta = '<span class="badge label-warning" '+title+'>Sin atender</span>';
+			        break;
+				    case 1:
+			        respuesta = '<span class="badge label-info" '+title+'>Llamar <br> más tarde</span>';
+			        break;
+		        case 2:
+			        respuesta = '<span class="badge label-primary" '+title+'>Cita pactada</span>';
+			        break;
+		        case 3:
+			        respuesta = '<span class="badge label-danger" '+title+'>Perdido</span>';
+			        break;
+		        case 4:
+			        respuesta = '<span class="badge label-success" '+title+'>Concretado</span>';
+			        break;
+		        case 5:
+		        case 6:
+			        respuesta = '<span class="badge label-default" '+title+'>Proceso</span>';
+			        break;
+		        case 7:
+			        	respuesta = '<span class="badge label-danger" '+title+'>Revision</span>';
+				        break;
+					}
+					table.row.add([
+						i+1,
+						moment(item.created_at).format('DD/M hh:mm'),
+	         	respuesta,
+	         	moment(item.valor_estado).format('DD/M hh:mm'),
+	         	item.duracion_llamada,
+	         	item.observaciones
+						])
+					.draw()
+				  .node();
+	    	}
+			}
+
+			$('#divSugeridos').hide();
+			if(response.caracteristicas){
+				var labelSugeridos = '';
+				var search = '';
+				$.each(response.caracteristicas, function(index, value){
+					labelSugeridos = labelSugeridos + '&nbsp;<span class="badge label-info"> '+value.nombre+' </span>&nbsp;';
+					search= search +' '+ value.nombre;
+				});
+				if(labelSugeridos.length>0){
+					$('#divSugeridos').show();
+					$('#labelSugeridos').html('<b>Interes:</b> '+labelSugeridos);
+					$('#tablaVehiculos').DataTable().search( search.trim() ).draw();
+				}
+			}
+		}
+	});
+}
+function eliminar(id){
+	bootbox.confirm("Esta seguro que desea dar como Perdido el Prospecto? seguira apareciendo en el listado general.",
+		function(result){
+			var route = "{{path_for('prospectos.eliminar',{id:99},{return_to:current_path_wb})}}".replace('99',id);
+			if(result){
+				window.location.href = route;
+			}
+	});
+}
+
+function respuestaDiferenciaFecha(momentDate){
+	var minutos = moment().diff(momentDate,'minutes');
+	var respuesta = '';
+	if (minutos == 0){
+		respuesta = ' ahora';
+	} else if(minutos>60){
+		var horas = Math.floor(minutos / 60);
+		if(horas>24){
+			dias = Math.floor(horas / 24);
+			if(dias>30){
+				meses = Math.floor(dias / 30);
+				if(meses>2){
+					respuesta = ' hace '+meses + ' meses';
+				} else {
+					respuesta = momentDate.format('DD/MM/YYYY');
+				}
+			} else {
+				if(horas == 1){
+					respuesta = ' ayer';
+				}	else {
+					respuesta = ' hace '+dias + ' dias';
+				}
+			}
+		} else {
+			if(horas == 1){
+				respuesta = ' hace 1 hora';
+			} else {
+				respuesta = ' hace '+horas + ' horas';
+			}
+		}
+	} else if(minutos>0) {
+		if( minutos <5){
+			respuesta = ' hace instantes';
+		} else {
+			respuesta = ' hace '+minutos + ' minutos';
+		}
+	} else {
+		minutos = minutos * (-1);
+		if(minutos>60){
+			var horas = Math.floor(minutos / 60);
+			if( horas > 24){
+				dias = Math.floor(horas / 24);
+				if(dias == 1){
+					respuesta = ' mañana';
+				} else {
+					respuesta = ' en '+dias+' dias';
+				}
+			} else if (horas == 1) {
+				respuesta = ' en 1 hora';
+			} else {
+				respuesta = ' en '+ horas + ' horas';
+			}
+		} else {
+			if(minutos < 5){
+				respuesta = ' en instante';
+			} else {
+				respuesta = ' en '+ minutos + ' minutos';
+			}
+		}
+	}
+	return respuesta;
+}
+function digits(number){
+	return number.replace(/[^0-9]/gi, '');
+}
+function phoneFormatter(number) {
+  number = number.replace(/[^\d]/g, '')
+  if (number.length == 7) {
+    number = number.replace(/(\d{3})(\d{4})/, "$1-$2");
+  } else if (number.length == 10) {
+    number = number.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
+  } else if (number.length > 12 && number.length < 14) {
+  	number = number.replace(/(\d+)(\d{3})(\d{3})(\d{4})/, "+$1($2) $3-$4");
+  } else {
+  	number = number.replace(/(\d+)(\d{3})(\d{4})/, "($1) $2-$3");
+  }
+  return number;
+}
+	</script>
+{% endblock %}

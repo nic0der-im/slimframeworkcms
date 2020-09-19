@@ -1,0 +1,39 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+{% endblock %}
+{% block title %}CRM - Facebook - Respondedor {% endblock %}
+{% block header_title %}CRM - Facebook - Respondedor{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('crm.index')}}">CRM</a>
+</li>
+<li class="breadcrumb-item active">
+	<a href="{{path_for('crm.index')}}">Facebook</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card card-success">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Configuración de tokens de acceso:</h3>
+			</div>
+			<div class="card-body">
+				<form class="form-signup" action="{{ path_for('crm.facebook.respondedor.obtener') }}" method="get">
+					<div class="form-group">
+						<label for="token_id" class="sr-only">Token ID:</label>
+						<input type="text" id="token_id" name="token_id" class="form-control" placeholder="Token ID:">
+					</div>
+					<button type="submit" class="btn btn-primary btn-block">Recolectar posts</button>
+					{{ csrf.field | raw}}
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+{% endblock %}

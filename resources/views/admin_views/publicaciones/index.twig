@@ -1,0 +1,155 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+</style>
+{% endblock %}
+{% block title %}Listado de publicaciones{% endblock %}
+{% block header_title %}
+Listado de publicaciones <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#myModal"><i class="fa fa-plus" aria-hidden="true"></i> Crear Publicaciónes Masivas</button>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	Publicaciónes
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-body">
+				<div class="table-responsive" >
+					<table class="table table-hover " width="100%" id="tablaPublicaciones">
+						<thead class="thead-dark">
+							<tr>
+								<th>Fecha</th>
+								<th>Titulo</th>
+								<th data-orderable="false">ESTADOS</th>
+								<th data-orderable="false">Opciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in publicaciones %}
+							<tr>
+								<td>
+									{{item.created_at|date('d/m/Y')}}
+								</td>
+								<td>
+									{{item.titulo}}
+								</td>
+								<td>
+									{% if item.mostrar == 1 %}
+									<span class="badge label-info">Publicación activa</span>
+									{% else %}
+									<span class="badge label-warning">Publicación finalizada</span>
+									{% endif %}
+									<br>
+									Vehiculo:
+									{% if item.vehiculo.id_estado == 1 %}
+									<span class="badge label-info">{{item.vehiculo.getTiposEstado.nombre}}</span>
+									{% elseif item.vehiculo.id_estado == 2 %}
+									<span class="badge label-warning">{{item.vehiculo.getTiposEstado.nombre}}</span>
+									{% else %}
+									<span class="badge label-success">{{item.vehiculo.getTiposEstado.nombre}}</span>
+									{% endif %}
+								</td>
+								<td>
+									<div class="dropdown ">
+										<button type="button" class="btn btn-sm btn-primary dropdown-toggle " data-toggle="dropdown">
+											<span class="caret"></span>
+											<span class="sr-only">Toggle Dropdown</span>
+										</button>
+										<div class="dropdown-menu dropdown-menu-right bg-blue" role="menu">
+											<a class="dropdown-item" href="{{path_for('publicaciones.editar', {	'id': item.id })}}">Editar publicación</a>
+								    	<a class="dropdown-item" href="{{path_for('publicaciones.eliminar', {	'id': item.id })}}" onclick="return confirm('¿Estas seguro que quieres eliminar esta publicación? No hay vuelta atras capo.');">Eliminar publicación</a>
+										</div>
+									</div>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="myModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+	  <form name="ticket-crear-form" method="POST" action="{{path_for('publicaciones.creargenerico')}}">
+	  <!-- Modal content-->
+	  <div class="modal-content">
+	      <div class="modal-header">
+	        <h4 class="modal-title">Crear publicaciones genéricas:</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+	      </div>
+	      <div class="modal-body">
+	      	Se crearan publicaciones genéricas a los vehículos que no esten publicados y tengan fotos disponibles con el siguiente contenido:
+			<div class="row">
+				<div class="col-sm-12">
+					<textarea class="form-control"  name="pub_crear_contenido" id="pub_crear_contenido" placeholder="Contenido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la publicación.<br>Por ejemplo: <b>[terminaresto]</b>"></textarea>
+				</div>
+			</div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="submit" class="btn btn-flat btn-sm btn-info pull-right" name="ticket_responder_boton" value="1"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Crear publicaciones</button>
+	      </div>
+	  </div>
+	  {{ csrf.field | raw }}
+	  </form>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(function(){
+
+	$.fn.dataTable.moment( 'DD/MM/YYYY' );
+	$('#tablaPublicaciones').DataTable( {
+		order:[[0,'desc']],
+	  lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	CKEDITOR.replace( 'pub_crear_contenido', {
+		height: 200,
+		toolbarGroups: [
+			{"name":"basicstyles","groups":["basicstyles"]},
+			{"name":"links","groups":["links"]},
+			{"name":"paragraph","groups":["list","blocks", "align"]},
+			{"name":"document","groups":["mode"]},
+			{"name":"insert","groups":["insert"]},
+			{"name":"styles","groups":["styles"]},
+			{"name":"about","groups":["about"]}
+		],
+		// Remove the redundant buttons from toolbar groups defined above.
+		removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar'
+	});
+});
+</script>
+{% endblock %}

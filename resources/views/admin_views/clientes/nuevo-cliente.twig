@@ -1,0 +1,364 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+	input[type='number'] {
+    -moz-appearance:textfield;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+	}
+</style>
+{% endblock %}
+{% block title %}Cliente{% endblock %}
+{% block header_title %}Datos del cliente{% endblock %}
+{% block breadcrumb %}
+  <li class="breadcrumb-item">
+    <a href="{{path_for('cliente.index')}}" > Clientes </a>
+  </li>
+	<li class="breadcrumb-item active">
+    {% if old.id > 0 %}
+      Editar
+    {% else %}
+      Nuevo
+    {% endif %}
+  </li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row cliente-upload">
+	{% if old.id > 0 %}
+	<form class="form" id="formFactura" method="POST" action="{{path_for('cliente.editar',{'id':old.id})}}">
+	{% else %}
+	<form class="form" id="formFactura" method="POST" action="{{path_for('cliente.nuevo-cliente')}}">
+	{% endif %}
+		<input type="hidden" name="id_ciudad" id="id_ciudad">
+		<input type="hidden" name="id_carpeta" id="id_carpeta" value="{{id_carpeta?id_carpeta:0}}">
+		{% if return_to %}
+		<input type="hidden" name="return_to" id="return_to" value="{{return_to}}">
+		{% endif %}
+		<div class="col-md-12">
+			<div class="row">
+				<div class="col-sm-12 col-md-8">
+					<div class="card card-info">
+						<div class="card-header with-border">
+							<h3 class="card-title text-bold">Información básica</h3>
+						</div>
+						<div class="card-body">
+							<div class="form-group">
+								<div class="row">
+									<div class="col-md-6">
+										<label for="nombre">Nombre <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+    									</div>
+											<input type="text" class="form-control" name="nombre" id="cliente_nombre" placeholder="Nombre" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el nombre del cliente.<br>Por ejemplo: <b>Ciro</b>" value="{{old.nombre}}">
+										</div>
+									</div>
+									<div class="col-md-6">
+										<label for="apellido">Apellido <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+    									</div>
+											<input type="text" class="form-control" name="apellido" id="cliente_apellido" placeholder="Apellido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el apellido del cliente.<br>Por ejemplo: <b>Parietti</b>" value="{{old.apellido}}">
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-3">
+										<label for="id_tipo_documento">Tipo Documento <small class="text-muted">(*)</small></label>
+										<select class="form-control select2" id="cliente_tipo_documento" name="id_tipo_documento" style="width: 100%;" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Seleccioná el tipo de documento del cliente.<br>Por ejemplo: <b>DNI</b>" >
+		                	{% for item in tipoDocumento %}
+		                		{% if old.id_tipo_documento == item.id %}
+		                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+		                			{% else %}
+		                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+		                		{% endif %}
+		                	{% endfor %}
+		                </select>
+									</div>
+									<div class="col-md-4">
+										<label for="documento">Número de documento <small class="text-muted">(*)</small></label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+    									</div>
+											<input type="number" class="form-control" name="documento" id="cliente_documento" placeholder="Número de documento" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el número de documento del cliente.<br>Por ejemplo: <b>20645312</b>" value="{{old.documento}}">
+										</div>
+									</div>
+									<div class="col-md-4">
+										<label for="fecha_nacimiento">Fecha de nacimiento</label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+    									</div>
+											<input type="text" class="form-control datepicker" name="fecha_nacimiento" id="cliente_fecha_nacimiento" placeholder="Fecha de nacimiento" autocomplete="off" value="{{old.format_fecha_nacimiento}}">
+										</div>
+									</div>
+									<div class="col-md-4">
+				            <div class="form-group">
+				              <label for="id_tipo_responsable">Condicion Responsable</label>
+				              <select class="form-control select2" id="id_tipo_responsable" name="id_tipo_responsable" style="width: 100%;" tabindex="-1" >
+				              	{% for item in tipoResponsable %}
+				              		{% if old.id_tipo_responsable == item.id %}
+				                	<option value="{{item.id}}" selected="" >{{item.nombre|title}}</option>
+				              			{% else %}
+				                	<option value="{{item.id}}" >{{item.nombre|title}}</option>
+				              		{% endif %}
+				              	{% endfor %}
+				              </select>
+				            </div>
+				          </div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card card-info">
+						<div class="card-header with-border">
+							<h3 class="card-title text-bold">Información de contacto</h3>
+						</div>
+						<div class="card-body">
+							<div class="form-group">
+								<div class="row">
+									<div class="col-md-4">
+										<label class="control-label" for="telefono">Teléfono</label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-phone" aria-hidden="true"></i></span>
+    									</div>
+											<input type="text" class="form-control phoneFormatter" name="telefono" id="cliente_telefono" placeholder="Teléfono" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el teléfono del cliente.<br>Por ejemplo: <b>3874898080</b>" value="{{old.telefono}}">
+										</div>
+									</div>
+									<div class="col-md-4">
+										<label class="control-label" for="celular">Celular</label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-mobile-phone" aria-hidden="true"></i></span>
+    									</div>
+											<input type="text" class="form-control phoneFormatter" name="celular" id="cliente_celular" placeholder="Celular" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el numero de Celular del cliente.<br>Por ejemplo: <b>3874898080</b>" value="{{old.celular}}">
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-8">
+										<label for="email">Dirección de correo electrónico <small class="text-muted">(*)</small> </label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+    									</div>
+											<input type="email" class="form-control" name="email" id="cliente_email" placeholder="Dirección de correo electrónico" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá el email del cliente.<br>Por ejemplo: <b>ciroparietti@gmail.com</b>" value="{{old.email}}">
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<label for="domicilio">Calle</label>
+										<div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+    									</div>
+											<input type="text" class="form-control" name="domicilio" id="cliente_domicilio" placeholder="Domicilio" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el domicilio del cliente.<br>Por ejemplo: <b>España</b>" value="{{old.domicilio}}">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<label for="numero">Numero</label>
+										<input type="text" class="form-control" name="numero" id="cliente_numero" placeholder="1129" autocomplete="off" value="{{old.numero}}">
+									</div>
+									<div class="col-md-3">
+										<label for="piso">Dpto</label>
+										<input type="text" class="form-control" name="piso" id="cliente_piso" placeholder="Dpto" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Si corresponde, ingresá el <br>dpto dondereside el cliente.<br>Por ejemplo: <b>5º B</b>" value="{{old.piso}}">
+									</div>
+									<div class="col-md-12">
+										<label for="domicilio_observaciones">Observaciones sobre el domicilio</label>
+										<input type="text" class="form-control" name="domicilio_observaciones" id="nuevo_cliente_domicilio_observaciones" placeholder="Observaciones sobre el domicilio" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="¿Alguna observación sobre el domicilio?" value="{{old.domicilio_observaciones}}">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-5">
+										<label for="id_provincia">Provincia</label>
+										<select class="form-control select2" id="cliente_provincia" name="id_provincia" style="width: 100%;" required data-toggle="tooltip" data-placement="auto" title="Ingresá la provincia donde reside el cliente.<br>Por ejemplo: <b>Salta</b>" >
+		                	{% for item in provincias %}
+		                		{% if old.id_provincia == item.id %}
+		                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+		                			{% else %}
+		                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+		                		{% endif %}
+		                	{% endfor %}
+		                </select>
+									</div>
+									<div class="col-md-7">
+										<div class="form-group" id="bloodhoundCiudad">
+											<label class="control-label" for="localidad">Localidad </label>
+											<input type="text" class="form-control typeahead" name="localidad" id="cliente_localidad" placeholder="Localidad" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá la localidad donde reside el cliente.<br>Por ejemplo: <b>Ciudad de Salta</b>" value="{{old.localidad}}" >
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<label class="control-label" for="cp">Codigo Postal <small class="text-muted">(*)</small></label>
+											<input type="number" class="form-control" name="cp" id="cliente_cp" placeholder="CP" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el Codigo Postal.<br>Por ejemplo: <b>4400</b>" value="{{old.cp}}" >
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card card-info">
+						<div class="card-header with-border">
+							<h3 class="card-title text-bold">Observaciones sobre el cliente</h3>
+						</div>
+						<div class="card-body">
+							<div class="form-group">
+								<div class="row">
+									<div class="col-md-12">
+										<label for="observaciones">Observaciones</label>
+										<textarea class="form-control" name="observaciones" id="cliente_observaciones">{{old.observaciones}}</textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card card-info">
+						<div class="card-header with-border">
+							<h3 class="card-title text-bold">Fin del formulario</h3>
+						</div>
+						<div class="card-body">
+							{% if return_to %}
+							<a class="btn btn-warning btn-flat" href="{{return_to}}">VOLVER</a>
+							{% endif %}
+							{% if old.id > 0 %}
+							<button class="btn btn-primary btn-flat pull-right" type="submit">Editar cliente</button>
+							{% else %}
+							<button class="btn btn-primary btn-flat pull-right" type="submit">Cargar cliente</button>
+							<button class="btn btn-default btn-flat pull-left" type="reset">Limpiar campos</button>
+							{% endif %}
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12 text-muted">
+							<small><b>(*)</b> Campos obligatorios.</small><br>
+						</div>
+					</div>
+				</div>
+        <div class="col-sm-12 col-md-4">
+					<div class="small-box bg-info">
+            <div class="inner">
+  						<h4><i class="fa fa-question-circle"></i> ¿Sabías esto?</h4>
+  						<p>Completar correctamente el formulario permitirá conocer al cliente y, por consiguiente, ofrecerle una atención personalizada.</p>
+            </div>
+            <p class="small-box-footer"><strong>#CiroAdminTips</strong></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		{{ csrf.field | raw }}
+	</form>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).on('ready', function(){
+	$('#cliente_tipo_documento').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#id_tipo_responsable').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#cliente_provincia').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  var ciudad = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.ciudad.consultar')}}?consulta=",
+	    wildcard: '%QUERY',
+	    replace: function (url, uriEncodedQuery) {
+        return url+uriEncodedQuery+"&id_provincia="+$('#cliente_provincia').val();
+      },
+	  }
+	});
+
+	$('#bloodhoundCiudad .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'localidad',
+	  display: 'nombre',
+	  source: ciudad,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.nombre +' ('+response.cp+')</p>';
+      },
+		  empty:'No existe la ciudad. Se procedera a crear uno nuevo para la provincia asignada.',
+		  }
+	}).on('typeahead:selected', function(event, selection) {
+		$('#id_ciudad').val(selection.id);
+		$('#cliente_cp').val(selection.cp);
+	});
+
+	$('#cliente_provincia').on('change',function(){
+		//Para que el typeahead pueda volver a cargar los datos cuando los campos esten vacios
+		//Primero se debe escribir algun caracter
+		//Segundo borrarlo, con esto se activara el trigger.
+		//La escritura como lectura son realizados en el objecto del input y el objeto del typeahead
+		$('#cliente_localidad').val('a').trigger('change');
+		$('#cliente_localidad').focus().typeahead('val','a').focus();
+		$('#cliente_localidad').val('').trigger('change');
+		$('#cliente_localidad').focus().typeahead('val','').focus();
+		$('#cliente_cp').val('');
+	});
+
+  $('#cliente_fecha_nacimiento').datepicker({
+		language:'es-ES',
+	  autoHide: true,
+	  autoPick: true,
+	  format: 'dd/mm/yyyy',
+	});
+
+	CKEDITOR.replace('cliente_observaciones', {
+		toolbar :
+		[
+			{ name: 'basicstyles', items : [ 'Bold','Italic' ] },
+			{ name: 'paragraph', items : [ 'NumberedList','BulletedList' ] }
+		]
+	});
+
+	$('#nuevo_cliente_nombre').focus();
+
+	$(phoneFormatter);
+
+	$('.phoneFormatter').trigger('input');
+
+});
+
+function phoneFormatter() {
+  $('.phoneFormatter').on('input', function() {
+    var number = $(this).val().replace(/[^\d]/g, '')
+    if (number.length == 7) {
+      number = number.replace(/(\d{3})(\d{4})/, "$1-$2");
+    } else if (number.length == 10) {
+      number = number.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
+    } else if (number.length > 12 && number.length < 14) {
+    	number = number.replace(/(\d+)(\d{3})(\d{3})(\d{4})/, "+$1($2) $3-$4");
+    } else {
+    	number = number.replace(/(\d+)(\d{3})(\d{4})/, "($1) $2-$3");
+    }
+    $(this).val(number)
+  });
+};
+</script>
+{% endblock %}

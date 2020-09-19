@@ -1,0 +1,594 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+<style type="text/css">
+.amcharts-chart-div a {display:none !important;}
+</style>
+{% endblock %}
+{% block title %}Tablero{% endblock %}
+{% block header_title %}
+Tablero de Ingresos {{sucursal.sucursal}} ({{sucursal.descripcion}})
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" >
+	Facturas
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+  <div class="col-lg-3 col-md-6">
+    <!-- small box -->
+    <div class="card small-box bg-info">
+      <div class="inner">
+        <h3 class="">$&nbsp;{{facturasTotal}}</h3>
+
+        <p>{{facturasCantidad}}&nbsp;Comprobantes Venta</p>
+        <div id="graficoVenta" style="position: absolute;width: 90%; height: 7rem; top:1rem"></div>
+      </div>
+      <a class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-md-6" style="height: 12em;">
+    <!-- small box -->
+    <div class="card small-box bg-success">
+      <div class="inner">
+        <h3>$&nbsp;{{recibosTotal}}</h3>
+
+        <p>{{recibosCantidad}}&nbsp;Recibos o Notas</p>
+        <div id="graficoPago" style="position: absolute; width: 90%; height: 7rem; top:1rem"></div>
+      </div>
+      <a class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-md-6">
+    <!-- small box -->
+    <div class="small-box bg-warning">
+      <div class="inner">
+        <h3>{{clientesPago}}</h3>
+
+        <p>Clientes en Pago</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-person-add"></i>
+      </div>
+      <a class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-md-6" >
+    <div class="card card-success" id="boxMovimiento" >
+      <div class="card-header">
+        <h3 class="card-title">Filtros</h3>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="recibo">Mostrar</label>
+              <select class="form-control filtrarTabla select2" name="recibo" id="recibo">
+                <option value="1">TODOS</option>
+                <option value="0">Comprobantes</option>
+                <option value="2">Comprobantes Impagos</option>
+                <option value="3">Comprobantes Pagos</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Listado de Ingresos o Facturas Emitidas</h3>
+    <div class="card-tools">
+      <button type="button" class="btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="caret"></span> Acciones
+      </button>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" href="{{path_for('comprobante.venta.nuevo')}}">Nueva Ingreso</a>
+        <div class="divider"></div>
+        <a class="dropdown-item" id="btnMostrarError">WS Errores</a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover" id="tablaFactura" width="100%">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Fecha</th>
+            <th>Descripcion</th>
+            <th>Cuenta</th>
+            <th>Importe</th>
+            <th>FechaVto</th>
+            <th>Opciones</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+  	</div>
+  </div>
+</div>
+<div class="modal fade" id="modalError">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Tablero de Errores ocurridos en el WS</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+					<div class="table-responsive">
+						<table class="table table-hover" width="100%">
+	            <thead>
+	              <tr>
+	                <td>
+	                  Fecha
+	                </td>
+	                <td>
+	                  Comprobante
+	                </td>
+	                <td>
+	                  Descripcion
+	                </td>
+	                <td>
+	                  Opciones
+	                </td>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              {% for item in errores %}
+	              <tr>
+	                <td>
+	                  {{item.created_at|date('d/m/Y')}}
+	                </td>
+	                <td>
+	                  {{item.id_comprobante}}
+	                </td>
+	                <td>
+	                  {{item.descripcion}}
+	                </td>
+	                <td>
+	                  {% if item.comprobante.reproceso == 1 %}
+	                  <a class="btn btn-sm btn-warning" href="{{path_for('comprobante.error',{'id':item.id_comprobante})}}">Reprocesar</a>
+	                  {% endif %}
+	                </td>
+	              </tr>
+	              {% endfor %}
+	            </tbody>
+	          </table>
+					</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	
+  $.fn.dataTable.moment( 'DD/MM/YYYY' );
+
+  var tablaFactura = $('#tablaFactura').DataTable( {
+    order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    ajax:{
+      url:"{{path_for('comprobante.venta.consultar')}}",
+      data: function(d){
+        d.recibo = $('#recibo').val();
+      },
+    },
+    columns: [
+      {
+        name: 'id',
+        data: 'id',
+      },
+      {
+        name: 'id_tipo_comprobante',
+        data: function(data,type,dataToSet){
+          var respuesta = data.tipo_comprobante.nombre;
+          switch(data.id_tipo_comprobante){
+            case 3:
+            case 8:
+            case 13:
+              respuesta = '<label class="control-label">'+data.tipo_comprobante.nombre+'</label>';
+            break;
+            case 99:
+              if(data.detalles[0].facturas.length>0){
+                respuesta = '<label class="control-label">RECIBO PAGO</label>';
+              } else {
+                respuesta = 'RECIBO POSITIVO';
+              }
+            break;
+          }
+          if(data.cae!=null){
+            respuesta += '<br>CAE: '+data.cae;
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'fecha',
+        data: function(data,type,dataToSet){
+          var fecha = moment(data.fecha, 'YYYY-MM-DD').format('DD/MM/YYYY');
+          var creado = respuestaDiferenciaFecha(moment(data.created_at, 'YYYY-MM-DD HH:mm:ss'));
+          return '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Creado '+creado+'">'+fecha+'</label>';
+        },
+      },
+      {
+        name: 'razon_social',
+        data: function(data,type,dataToSet){
+          //var respuesta = data.razon_social+' '+data.tipo_documento.nombre+' '+data.documento_numero;
+          var respuesta = data.razon_social + '<span class="float-right badge bg-primary">'+ data.detalles[0].descripcion + '</span>';
+          switch(data.id_tipo_comprobante){
+            case 3:
+            case 8:
+            case 13:
+            case 99:
+              if(data.detalles[0].facturas.length>0){
+                respuesta = data.observaciones;
+                if(data.id_tipo_comprobante==99 )
+                {
+                  respuesta += ' - '+data.detalles[0].facturas[0].movimiento.tipo.nombre;
+                }
+              }
+            break;
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'cuenta',
+        data: function(data,type,dataToSet){
+          if(data.tipo_transaccion != null)
+          {
+            return data.tipo_transaccion.nombre_tipo;
+          }
+          return "VARIOS";
+        },
+      },
+      {
+        name: 'total',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.pagado>0){
+            if(Number(data.pagado) >= Number(data.total)){
+              var last = data.detalles[0].recibos.length - 1;
+              var ultimo = data.detalles[0].recibos[last];
+              var pagado = 'Cancelado';
+              if(Number(data.pagado) > Number(data.total)){
+                pagado = 'Sobrepago';
+              }
+              respuesta = '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Cerrado<br>'+
+                respuestaDiferenciaFecha(moment(ultimo.updated_at, 'YYYY-MM-DD HH:mm:ss'))+'" >'+formatCurrency(data.total)+'<br><span class="badge label-danger">'+pagado+'</span></label>';
+            } else {
+              respuesta = '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Pagado '+formatCurrency(data.pagado)+'">'+formatCurrency(data.total)+'</label>';
+            }
+          } else if(data.id_tipo_comprobante==99 && data.detalles[0].facturas[0]) {
+            respuesta = '<label class="control-label" >'+formatCurrency(data.total)+'</label>';
+            if(data.detalles[0].facturas[0].movimiento.fecha_cobro){
+              respuesta+='<br><span class="badge label-danger">Cobrado</span>';
+            }
+          } else {
+            respuesta = formatCurrency(data.total);
+          }
+          return respuesta;
+        },
+        className: 'text-right',
+      },
+      {
+        name: 'fecha_vto',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.fecha_vto){
+            respuesta = moment(data.fecha_vto, 'YYYY-MM-DD').format('DD/MM/YYYY');
+          } else if( data.id_tipo_comprobante==99 && data.detalles[0].facturas[0] ){
+            if(data.detalles[0].facturas[0].movimiento.fecha_cobro){
+              respuesta = moment(data.detalles[0].facturas[0].movimiento.fecha_cobro, 'YYYY-MM-DD').format('DD/MM/YYYY');
+            } else {
+              respuesta = moment(data.detalles[0].facturas[0].movimiento.cheque_vto, 'YYYY-MM-DD').format('DD/MM/YYYY');
+            }
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'opciones',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          var href = "{{ path_for('comprobante.imprimir',{'id':99}) }}".replace('/99','/'+data.id);
+          respuesta += '<a class="btn btn-sm btn-info" target="_blank" data-toggle="tooltip" data-container="body" data-html="true" title="Imprimir" href="'+href+'"><span class="ion ion-printer"></span></a>';
+          if(data.detalles[0].facturas.length ==0 && Number(data.pagado)<Number(data.total)){
+            href = "{{ path_for('comprobante.factura.cobrar',{'id':99}) }}".replace('/99','/'+data.id);
+            respuesta += '<a class="btn btn-sm btn-warning" data-toggle="tooltip" data-container="body" data-html="true" title="Cancelar" href="'+href+'"><span class="ion ion-social-usd"></span></a>';
+            href = "{{ path_for('comprobante.factura.cobrar.efectivo',{'id':99}) }}".replace('/99','/'+data.id);
+            respuesta += '<a class="btn btn-sm btn-success" data-toggle="tooltip" data-container="body" data-html="true" title="Cancelar en Efectivo" href="'+href+'"><span class="ion ion-cash"></span></a>';
+            {#/*
+            if(data.cae==null){
+              href = "{{path_for('comprobante.factura.eliminar',{'id':99})}}".replace('99',data.id);
+              respuesta += '<a href="'+href+'" class="btn btn-sm btn-danger" data-toggle="tooltip" data-container="body" title="Eliminar"><i class="ion ion-trash-a"></i></a>';
+            }
+            */#}
+          } else {
+            if( (data.id_tipo_comprobante==99
+              || data.id_tipo_comprobante==3
+              || data.id_tipo_comprobante==8
+              || data.id_tipo_comprobante==13 )
+              && data.detalles[0].facturas.length>0){
+                var id_factura = data.detalles[0].facturas[0].factura_detalle.comprobante.id;
+                {#/*
+                var href = 'onclick="eliminarRecibo(99,88);"'.replace('99',id_factura).replace('88',data.id);
+                respuesta = '<a class="btn btn-sm btn-danger" data-toggle="tooltip" data-container="body" data-html="true" title="Eliminar" '+href+'"><span class="ion ion-trash-b"></span></a>';
+                */#}
+                var href = "{{ path_for('comprobante.factura.cobrar',{'id':99},{'recibo':88}) }}".replace('/99','/'+id_factura).replace('=88','='+data.id);
+                respuesta += '<a class="btn btn-sm btn-primary" data-toggle="tooltip" data-container="body" data-html="true" title="Ver Factura" href="'+href+'"><span class="ion ion-android-list"></span></a>';
+            } else if( data.detalles[0].recibos.length>0 && Number(data.pagado)>=Number(data.total)) {
+              var href = "{{ path_for('comprobante.factura.cobrar',{'id':99}) }}".replace('99',data.id);
+              respuesta += '<a class="btn btn-sm btn-primary" data-toggle="tooltip" data-container="body" data-html="true" title="Ver" href="'+href+'"><span class="ion ion-eye"></span></a>';
+              {#/*
+              if(data.cae==null){
+                href = "{{path_for('comprobante.factura.eliminar',{'id':99})}}".replace('99',data.id);
+                respuesta += '<a href="'+href+'" class="btn btn-sm btn-danger" data-toggle="tooltip" data-container="body" title="Eliminar"><i class="ion ion-trash-a"></i></a>';
+              }
+              */#}
+            }
+
+          }
+          return respuesta;
+        },
+        className: 'text-center',
+      }
+    ],
+    columnDefs:[
+      {
+        targets:[0,2,4,5,6],
+        width:"3%",
+      },
+      {
+        targets:[1],
+        width:"20%",
+      },
+      {
+        targets:[6, 7],
+        orderable: false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#recibo').select2({
+    minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('.filtrarTabla').on('change', function() {
+    tablaFactura.ajax.reload(null, true);
+  });
+
+  $('#btnMostrarError').on('click',function(){
+    $('#modalError').modal('show');
+  });
+
+});
+
+  AmCharts.makeChart( "graficoVenta", {
+    "type": "serial",
+    "theme": "light",
+    "dataProvider": {{graficoVenta|json_encode|raw}},
+    "categoryField": "id",
+    "autoMargins": false,
+    "marginLeft": 5,
+    "marginRight": 5,
+    "marginTop": 0,
+    "marginBottom": 5,
+    "graphs": [ {
+      "valueField": "total",
+      "showBalloon": false,
+      "lineColor": "#3286C6",
+      'lineThickness':4,
+      'lineAlpha':0.5,
+      "bullet": "round",
+    } ],
+    "valueAxes": [ {
+      "gridAlpha": 0,
+      "axisAlpha": 0
+    } ],
+    "categoryAxis": {
+      "gridAlpha": 0,
+      "axisAlpha": 0,
+      "startOnAxis": true
+    }
+  } );
+
+  AmCharts.makeChart( "graficoPago", {
+    "type": "serial",
+    "theme": "light",
+    "dataProvider": {{graficoPago|json_encode|raw}},
+    "categoryField": "id",
+    "autoMargins": false,
+    "marginLeft": 0,
+    "marginRight": 5,
+    "marginTop": 0,
+    "marginBottom": 0,
+    "graphs": [ {
+      "valueField": "total",
+      "showBalloon": false,
+      "lineColor": "#1B5038",
+      'lineThickness':4,
+      'lineAlpha':0.5,
+      "bullet": "round",
+    } ],
+    "valueAxes": [ {
+      "gridAlpha": 0,
+      "axisAlpha": 0
+    } ],
+    "categoryAxis": {
+      "gridAlpha": 0,
+      "axisAlpha": 0,
+      "startOnAxis": true
+    }
+  } );
+
+function eliminarRecibo(id_factura,id_recibo){
+  var route = "{{path_for('comprobante.factura.recibo.eliminar',{'id_factura':99,'id_recibo':88})}}".replace('99',id_factura).replace('88',id_recibo);
+  bootbox.confirm({
+    title: "Eliminar el Recibo?",
+    message: "Desea eliminar el recibo y todas sus referencias en caso de que tenga? Los movimientos asociados tambien seran borrados.",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: '<i class="ion ion-trash-a"></i> Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result){
+        $.ajax({
+          type: "get",
+          url: route,
+          success: function(data,status){
+            var table = $('#tablaFactura').DataTable();
+            table.ajax.reload(null, true);
+            var href = "{{ path_for('comprobante.factura.cobrar',{'id':99}) }}".replace('99',id_factura);
+            var link = '<a class="btn btn-sm btn-danger" href="'+href+'">Factura '+id_factura+'</a>';
+            $.toast({
+              heading: 'Recibo',
+              text: data.message+'<br>Desea ver la '+link,
+              showHideTransition: 'slide',
+              icon: 'success',
+              position: 'bottom-right',
+            });
+          },
+          error: function(xhr, ajaxOptions,e) {
+            $.toast({
+              heading: 'Recibo',
+              text: xhr.responseJSON.message,
+              showHideTransition: 'slide',
+              icon: 'error',
+              position: 'bottom-right',
+              hideAfter: false,
+            });
+          }
+        });
+      }
+    }
+  });
+}
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+function respuestaDiferenciaFecha(momentDate){
+  var minutos = moment().diff(momentDate,'minutes');
+  var respuesta = '';
+  if (minutos == 0){
+    respuesta = ' ahora';
+  } else if(minutos>60){
+    var horas = Math.floor(minutos / 60);
+    if(horas>24){
+      dias = Math.floor(horas / 24);
+      if(dias>30){
+        meses = Math.floor(dias / 30);
+        if(meses>2){
+          respuesta = ' hace '+meses + ' meses';
+        } else {
+          respuesta = momentDate.format('DD/MM/YYYY');
+        }
+      } else {
+        if(horas == 1){
+          respuesta = ' ayer';
+        } else {
+          respuesta = ' hace '+dias + ' dias';
+        }
+      }
+    } else {
+      if(horas == 1){
+        respuesta = ' hace 1 hora';
+      } else {
+        respuesta = ' hace '+horas + ' horas';
+      }
+    }
+  } else if(minutos>0) {
+    if( minutos <5){
+      respuesta = ' hace instantes';
+    } else {
+      respuesta = ' hace '+minutos + ' minutos';
+    }
+  } else {
+    minutos = minutos * (-1);
+    if(minutos>60){
+      var horas = Math.floor(minutos / 60);
+      if( horas > 24){
+        dias = Math.floor(horas / 24);
+        if(dias == 1){
+          respuesta = ' mañana';
+        } else {
+          respuesta = ' en '+dias+' dias';
+        }
+      } else if (horas == 1) {
+        respuesta = ' en 1 hora';
+      } else {
+        respuesta = ' en '+ horas + ' horas';
+      }
+    } else {
+      if(minutos < 5){
+        respuesta = ' en instante';
+      } else {
+        respuesta = ' en '+ minutos + ' minutos';
+      }
+    }
+  }
+  return respuesta;
+}
+</script>
+{% endblock %}

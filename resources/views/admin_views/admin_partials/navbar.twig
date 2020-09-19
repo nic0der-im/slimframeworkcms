@@ -1,0 +1,118 @@
+<aside class="main-sidebar sidebar-dark-primary elevation-4 fondo">
+	<a href="#" class="brand-link" style="background-color: #343a40 !important;">
+      <img src="{{static_assets}}/images/logo.png" alt="CiroAdmin Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+      <span style="text-shadow: 4px 4px 4px rgba(20, 20, 20, 0.8);" class="brand-text font-weight-bold">CiroAdmin v2</span>
+    </a>
+
+	<div class="sidebar" id="style-8" style="background-image: url("https://ciroautomotores.com.ar/img/sidebar.jpg") !important; background-size: cover;">
+		<div class="user-panel mt-3 pb-3 mb-3 d-flex">
+			<div class="image">
+				<img {% if auth.empleado.fotoperfil == NULL %} src="{{base_url}}/images/default-avatar.png" {% else %} src="{{base_url}}/perfil/{{auth.empleado.fotoperfil}}" {% endif %} class="img-circle elevation-3" style="width: 3rem !important;">
+			</div>
+			<div class="info">
+				<a href="#" class="d-block">{{ auth.individuo.nombre }} {{ auth.individuo.apellido }}<br><small><i class="fa fa-circle text-success"></i> {{ auth.empleado.puesto.nombre }}</small></a>
+			</div>
+		</div>
+		<nav class="mt-2">
+			<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+				<li class="nav-header"><div style="text-align: center; background-color: rgba(0, 0, 0, 0.8); border-radius: 6px;">GENERALES</div></li>
+				<li class="nav-item" >
+					<a class="nav-link" href="{{path_for('admin.index')}}">
+						<i class="nav-icon fa fa-dashboard"></i>
+						<p>Dashboard</p>
+					</a>
+				</li>
+				<li class="nav-item" >
+					<a class="nav-link" href="{{ path_for('perfil.index') }}">
+						<i class="nav-icon fa fa-user"></i>
+						<p>Mi Perfil</p>
+					</a>
+				</li>
+				{#<li class="nav-item" >
+					<a class="nav-link" href="{{path_for('home')}}">
+						<i class="nav-icon fa fa-arrow-left"></i>
+						<p>Ir a la página web</p>
+					</a>
+				</li>#}
+				<li class="nav-header"><div style="text-align: center; background-color: rgba(0, 0, 0, 0.8); border-radius: 6px;">TUS MODULOS</div></li>
+				{% for modulo in auth.modulos %}
+					{% if modulo.TengoAcceso %}
+						<li class="nav-item has-treeview">
+							<a class="nav-link" href="{{ path_for(modulo.enlace_modulo) }}">
+								<i class="nav-icon fa {{ modulo.icono_modulo }}"></i>
+								<p>
+									{{ modulo.nombre_modulo }}
+									<i class="right fa fa-angle-left"></i>
+								</p>
+							</a>
+							<ul class="nav nav-treeview" >
+								{% for enlace in modulo.getEnlaces %}
+									{% for permiso in auth.permisos %}
+										{% if permiso.id_enlace == enlace.id %}
+											{% if enlace.tipo_enlace == 1 %}
+												<li class="nav-item" >
+													<a href="{{path_for(enlace.url_name)}}" class="nav-link" >
+														<i class="fa fa-angle-right nav-icon"></i>
+														<p>{{ enlace.nombre }}</p>
+													</a>
+												</li>
+											{% endif %}
+										{% endif %}
+									{% endfor %}
+								{% endfor %}
+							</ul>
+						</li>
+					{% endif %}
+				{% endfor %}
+				<li class="nav-header"><div style="text-align: center; background-color: rgba(0, 0, 0, 0.8); border-radius: 6px;">CONFIGURACIÓN</div></li>
+				<li class="nav-item">
+		            <a class="nav-link">
+		              <i class="nav-icon fa fa-cogs"></i>
+		              <p>
+		                Configuración
+		              </p>
+		            </a>
+		        </li>
+         		<li class="nav-item">
+		            <a href="{{path_for('auth.signout')}}" class="nav-link">
+		              <i class="nav-icon fa fa-hand-paper-o"></i>
+		              <p>
+		                Desloguearse
+		              </p>
+		            </a>
+         		</li>
+			</ul>
+		</nav>
+	</div>
+</aside>
+
+{% block aditional_css %}
+<style type="text/css">
+
+.fondo {
+    background-image: url("https://ciroautomotores.com.ar/img/sidebar.jpg") !important;
+    background-size: cover;
+}
+
+#style-8::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+	/*border-radius: 10px;*/
+	background-color: #F5F5F5;
+}
+
+#style-8::-webkit-scrollbar
+{
+	width: 10px;
+}
+
+#style-8::-webkit-scrollbar-thumb
+{
+	/*border-radius: 10px;*/
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+	background-color: #555;
+}
+
+</style>
+{% endblock %}
+

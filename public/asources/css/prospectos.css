@@ -1,0 +1,309 @@
+.col-md-6, .col-sm-12 {
+	margin-bottom: 1em;
+}
+
+.fw-ta {
+	max-width: 100%;
+	min-width: 100%;
+	min-height: 100px;
+}
+
+.lp-input { 
+ min-width: 350px;
+ min-height: 100%;
+ font-size: 12px;
+}
+
+.prospectos .callout-header h3 {
+	color: #fff;
+	padding: 0px;
+	margin: 0px;
+	font-weight: bolder;	
+}
+
+.prospectos .callout-header small {
+	display: block;
+	color:#fff;
+	font-size: 16px;
+	font-weight: 300;
+}
+
+.prospectos .callout-header small b {
+	font-weight: 600;
+}
+
+.prospectos .callout-footer .btn {
+	background-color: rgba(0,0,0, .2);
+	border-radius: 20px;
+	border: none;
+	color: #fff;
+	font-weight: 300;
+	font-size: 1;
+	margin-top: 0.5em;
+}
+
+.prospectos .callout-footer .btn:hover {
+	background-color: rgba(255, 255, 255, .1);
+}
+
+.prospectos .ultimo_prospecto .callout-body:before {
+	display: block;
+	width: 100%;
+	background-color: rgba(0,0,0, .1);
+	height: 2px;
+	margin: 0.5em 0em;
+	content: '';
+}
+
+.prospecto_observacion {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: block;
+	white-space:nowrap;
+	width: auto;
+	max-width: 450px;
+}
+
+.prospectos .ultimo_prospecto .callout-body {	
+	font-size: 14px;
+}
+
+.prospectos .prospecto { width: 100%; display: block; }
+
+.prospectos .nombre {
+	font-size: 18px;
+	font-weight: 300;
+}
+
+.prospectos .nombre:before {
+	content: 'Nombre y apellido: ';
+	font-weight: 600;
+}
+
+.modal-prospecto .modal-header {
+	border: 0px;
+}
+
+.modal-prospecto .modal-header button {
+	margin-top: -3px;
+}
+
+.modal-prospecto .modal-header .modal-title {
+	font-weight: 600;
+	line-height: 1;
+}
+.modal-prospecto .modal-body {
+	padding: 0px;
+}
+
+.modal-prospecto .modal-body ul {
+	background-color: #23B372;
+	border: none;
+}
+
+.modal-prospecto .modal-body .nav-tabs>li {
+	margin: 0px;
+}
+.modal-prospecto .modal-body ul.nav-tabs li a {
+	border-radius: 0px;
+	margin: 0px;
+	border: none;
+	background-color: rgba(0, 132, 72, 0.62);
+	text-transform: uppercase;
+	font-weight: 300;
+	color: #fff;
+	font-size: 14px;
+}
+
+.modal-prospecto .modal-body ul.nav-tabs li.active a {
+	background-color: #008448;
+	color: #fff;
+	font-weight: 600;
+}
+
+.modal-prospecto .modal-body ul.nav-tabs li a:hover,
+.modal-prospecto .modal-body ul.nav-tabs li a:focus {
+	background-color: rgba(255,255,255, .1);
+}
+
+.modal-prospecto .modal-body ul.nav-tabs li.active a:hover,
+.modal-prospecto .modal-body ul.nav-tabs li.active a:focus
+{
+	border: none;
+	background-color: #008448;
+}
+
+.modal-prospecto .modal-body ul.nav-tabs li.disabled {
+	display: none;
+}
+
+.modal-prospecto .modal-body .tab-content .action_buttons {
+	padding-bottom: 1em;
+}
+
+.modal-prospecto .modal-body .tab-content .tab-pane {
+	padding: 1em;
+}
+
+.modal-prospecto .modal-body .tab-content .action_buttons .btn-success {
+	float: right;
+}
+
+.modal-prospecto .modal-body .mp_prospecto_box {
+	text-align: center;
+}
+
+.modal-prospecto .modal-body .mp_prospecto_box hr {
+	margin: 0.5em auto;
+	width: 98%;
+}
+
+.modal-prospecto .modal-body .mpfs_prospecto_box_content
+{
+	text-align: left;
+	display: inline-block;
+}
+.modal-prospecto .modal-body .mpss_prospecto_box_content {	
+	
+	text-align: left;
+}
+
+
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_observaciones:after,
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_observaciones:before {	
+	font-family: 'FontAwesome';
+	font-size: 14px;
+	display: inline-block;
+}
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_observaciones:after {
+	content: "\f10e";
+	padding-left: 0.3em;
+}
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_observaciones:before {
+	content: "\f10d";
+	padding-right: 0.3em;
+}
+
+
+
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_imagen_box {
+	float: left;
+	margin-right: 1em;
+}
+
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_imagen_box img {
+	width: 64px;
+	height: 64px;
+}
+
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_nombre {
+	font-weight: bold;	
+	font-size: 18px;
+	color: #333;
+	display: inline-block;
+	margin-top: .3em;
+}
+
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_localidad {
+	font-size: 14px;
+	display: block;
+	color: #333;	
+}
+
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_localidad:before {
+	content: 'de ';
+}
+
+.table_llamados td {
+	text-align: left;
+	font-size: 13px;
+}
+.modal-prospecto .modal-body .mpfs_pb_observaciones {
+	font-size: 16px;
+	line-height: 1.5;
+	text-align: justify;
+	word-break: keep-all;
+	width: 98%;
+	margin: auto;
+}
+
+.modal-prospecto .modal-body .mpfs_prospecto_box .mpfs_pb_fechahora {
+	font-size: 12px;
+	display: block;
+	color: #333;	
+}
+
+.mpss_pb_telefono {
+	font-size: 22px;
+	font-weight: bold;
+	text-align: center;
+}
+
+.mpss_pb_tiempo {
+	margin-bottom: .3em;
+	text-align: center;
+}
+
+.mpss_pb_tiempo_timer {
+	background-color: #f54a4a;
+	color: #fff;
+	font-weight: bold;
+	font-size: 1.5em;
+	display: inline;
+	text-align: center;
+	padding: 5px 10px;
+	border-radius: 25px;
+	
+}
+
+.mpss_pb_llamada_box,
+.mpss_pb_mas_tarde_box,
+.mpss_pb_cita_pactada_box,
+.mpss_pb_fourth,
+.mpss_pb_observaciones { display: none; }
+
+.pfs { display: inline-block; font-weight: bold; }
+
+.pfs:before, .pfs:after {
+	font-weight: normal;
+
+}
+
+.pfs_fechacontacto:before {
+	content: " fue prospectado el día ";	
+}
+.pfs_horacontacto:before {
+	content: " a las ";	
+}
+.pfs_horacontacto:after {
+	content: ".";	
+}
+.pfs_localidad:before {
+	content: " de ";	
+}
+.pfs_observaciones:before {
+	content: "Observaciones: ";
+	font-weight: bold;
+}
+
+.pfs_observaciones {
+	width: 100%;
+	font-weight: normal;
+}
+.pfs_pre_phone {
+	font-size: 14px;
+	color: #666;
+	display: block;
+}
+
+
+
+div.tooltip-inner {
+	max-width: 300px;
+}
+
+
+.widget-user-2 .widget-user-username {
+	font-size: inherit;
+	font-size: 100% !important;
+}

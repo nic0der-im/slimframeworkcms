@@ -1,0 +1,124 @@
+<nav class="navbar navbar-dark sticky-top p-0 main_navbar">
+	<div class="container-fluid">
+		<div class="collapse navbar-collapse d-none d-lg-block">
+			<ul class="navbar-nav mr-auto d-inline-flex">
+				<li class="nav-item" data-href="{{path_for('home')}}">
+					<a class="nav-link{% if 'vehiculos' in current_path or current_path|length == 1 %} navbar-hover{% endif %}" href="{{path_for('home')}}" title="Ir a la página principal" onClick="ga('send', 'event', 'pagina_home', 'inicio', 'menu');">Inicio</a>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Clic aquí para ver el listado de 0KM" onClick="ga('send', 'event', 'pagina_home', '0km_principal', 'menu');">
+						0KM
+					</a>
+					<div class="dropdown-menu">
+						{% for marca in vehiculos.marcas %}
+							{% if marca.paginas|length > 0 %}
+								<a class="dropdown-item" href="{{path_for('paginas.marca', {	'titulo': marca.nombre|trim|replace({' ':'-'})|e|lower})}}" onClick="ga('send', 'event', 'pagina_home', '0km_{{marca.nombre}}', 'menu');">{{marca.nombre}}</a>
+							{% endif %}
+						{% endfor %}
+					</div>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link{% if 'vendetuauto' in current_path %} navbar-hover{% endif %}" href="{{path_for('vendetuauto')}}" onClick="ga('send', 'event', 'pagina_home', 'vende_tu_auto', 'menu');">Vendé tu auto</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link{% if 'nosotros' in current_path %} navbar-hover{% endif %}" href="{{path_for('nosotros')}}" onClick="ga('send', 'event', 'pagina_home', 'nosotros', 'menu');">Nosotros</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link{% if 'preguntasfrecuentes' in current_path %} navbar-hover{% endif %}" href="{{path_for('faqs')}}" onClick="ga('send', 'event', 'pagina_home', 'preguntas_frecuentes', 'menu');">Preguntas frecuentes</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link{% if 'contacto' in current_path %} navbar-hover{% endif %}" href="{{path_for('contacto')}}" onClick="ga('send', 'event', 'pagina_home', 'contacto', 'menu');">Contacto</a>
+				</li>
+			</ul>
+
+			{% include 'guest_views/guest_partials/fixed/userbar.twig' %}
+		</div>
+		<div class="align-items-center justify-content-between logo-xs">
+			<a class="text-light navbar-brand" href="{{path_for('home')}}" onClick="ga('send', 'event', 'pagina_home', 'inicio', 'menu');">Ciro Automotores</a>
+		</div>
+		<div class="d-lg-none d-flex mb-navbar align-items-center justify-content-between">
+			<button type="button" id="sidebarCollapse" class="btn btn-mbnavbar navbar-btn">
+				<i class="fa fa-bars" aria-hidden="true"></i>
+			</button>
+			<a class="text-light navbar-brand" href="{{path_for('home')}}" onClick="ga('send', 'event', 'pagina_home', 'inicio', 'menu');">Ciro Automotores</a>
+			<ul class="navbar-nav nav-mobile-buttons">
+				{% for mb in extra_modules %}
+					{% if mb.settings.section == "nav-mobile-buttons" %}
+					<li class="nav-item">
+						<a {% for attr in mb.settings.attrs %}{{attr.attr_name|raw}}="{{attr.attr_value|raw}}" {% endfor %}>
+							{% if mb.settings.icon %}
+								<i class="{{mb.settings.icon}}"></i>
+							{% endif %}
+						</a>
+					</li>
+					{% endif %}
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	<!--  Mega menu -->
+		<div style="display:none;" id="mega-menu" class="mega-menu">
+			<ul>
+				{% for pagMar in paginasMarca %}
+					<li>
+						<a class="mega-item" href="{{path_for('paginas.marca', {'id': pagMar.id , 'titulo': pagMar.nombre|trim|replace({' ':'-'})|e|lower })}}" onClick="ga('send', 'event', 'pagina_home', '0km_{{pagMar.nombre}}', 'menu');">{{pagMar.nombre}}</a>
+						{# <i class="fa fa-play"></i> #}
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	<!--  /Mega menu -->
+</nav>
+
+
+<nav id="sidebar">
+	<ul class="list-unstyled components">
+		<li class="logo-box">
+			<img src="{{static_assets}}/images/logo.png" alt="Logo Ciro Automotores">
+		</li>
+		<li class="nav-item">
+			<div class="dropdown-divider"></div>
+		</li>
+		<li class="nav-item">
+			{% include 'guest_views/guest_partials/fixed/userbar.twig' %}
+		</li>
+		<li class="nav-item">
+			<div class="dropdown-divider"></div>
+		</li>
+		<li class="nav-item" data-href="{{path_for('home')}}">
+			<a class="nav-link" href="{{path_for('home')}}">Inicio</a>
+		</li>
+		<li class="nav-item btn-group">
+			<a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="Clic aquí para ver el listado de 0KM" onClick="ga('send', 'event', 'pagina_home', '0km_principal', 'menu');">
+				0KM
+			</a>
+			<ul class="dropdown-menu">
+				{# {% for pagina in paginas %}
+					<li>
+						<a class="dropdown-item" href="{{path_for('paginas.ver', {	'titulo': pagina.titulo|trim|replace({' ':'-'})|e|lower, 'id': pagina.id })}}">{{pagina.titulo}}</a>
+					</li>
+				{% endfor %} #}
+				{% for pagMar in paginasMarca %}
+					<li>
+						<a class="dropdown-item" href="{{path_for('paginas.marca', {'id': pagMar.id , 'titulo': pagMar.nombre|trim|replace({' ':'-'})|e|lower })}}" onClick="ga('send', 'event', 'pagina_home', '0km_{{pagMar.nombre}}', 'menu');">{{pagMar.nombre}}</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="{{path_for('home')}}#grid" onClick="ga('send', 'event', 'pagina_home', 'vehiculos', 'menu');">Vehículos</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="{{path_for('vendetuauto')}}" onClick="ga('send', 'event', 'pagina_home', 'vende_tu_auto', 'menu');">Vendé tu auto</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="{{path_for('nosotros')}}" onClick="ga('send', 'event', 'pagina_home', 'nosotros', 'menu');">Nosotros</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="{{path_for('faqs')}}" onClick="ga('send', 'event', 'pagina_home', 'preguntas_frecuentes', 'menu');">Preguntas frecuentes</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="{{path_for('contacto')}}" onClick="ga('send', 'event', 'pagina_home', 'contacto', 'menu');">Contacto</a>
+		</li>
+	</ul>
+</nav>

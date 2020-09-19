@@ -1,0 +1,284 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+	<style type="text/css">
+  .fila_ingreso{
+    background-color: darkseagreen;
+  }
+  .fila_egreso{
+    background-color: indianred;
+  }
+	</style>
+{% endblock %}
+{% block title %}Tablero{% endblock %}
+{% block header_title %}
+<div>
+	Tablero de Transacciones
+</div>
+{% endblock %}
+{% block breadcrumb %}
+	<li>
+		Transacciones
+	</li>
+	<li class="active">
+		<a href="{{path_for('transacciones.tablero')}}">Tablero</a>
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="box box-info">
+  <div class="box-header with-border">
+    <h3 class="box-title">Panel de Filtrado</h3>
+  </div>
+  <div class="box-body">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="tipo_eoi">Transaccion</label>
+          <select class="form-control filtrarTabla" name="tipo_eoi" id="tipo_eoi">
+            <option value="-1" selected>TODOS</option>
+            <option class="fila_ingreso" value="0">INGRESO</option>
+            <option class="fila_egreso" value="1">EGRESO</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label>Cajas Sucursales</label>
+          <select class="form-control filtrarTabla" name="sucursal" id="id_sucursal" >
+            <option value="-1">TODOS</option>
+            {% for index in sucursales %}
+              {% if index.id==sucursal.id %}
+                <option value="{{index.id}}" selected>{{index.sucursal}} ({{index.descripcion}})</option>
+              {% else %}
+                <option value="{{index.id}}">{{index.sucursal}} ({{index.descripcion}})</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="tipo_transaccion" class="control-label">Tipo de Transaccion</label>
+          <select class="form-control select2 filtrarTabla" id="tipo_transaccion" name="tipo_transaccion" >
+            <option value="-1" selected>TODOS</option>
+            {% for index in tiposTransaccion %}
+              <option value="{{index.id}}" >{{index.nombre}}{{ index.padre == 0 ? ' (Categoria)':'' }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="box-footer">
+
+    </div>
+  </div>
+</div>
+<div class="box box-default">
+  <div class="box-body">
+    <div class="table-responsive">
+      <table class="table table-bordered" id="tablaTransaccion" width="100%">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>N° Diaria</th>
+            <th>Origen / Destino</th>
+            <th>Categoria</th>
+            <th>Tipo</th>
+            <th>Modo</th>
+            <th>Importe</th>
+            <th>Descripcion</th>
+            <th>eoi</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+  	</div>
+  	<div class="box-footer">
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block custom_js %}
+  
+<script type="text/javascript">
+$(document).ready(function() {
+
+  $('.sidebar-toggle').prop('title', 'Click para mostrar la barra lateral');
+  $.fn.dataTable.moment( 'DD/MM/YYYY HH:mm' );
+  var tablaTransaccion = $('#tablaTransaccion').DataTable( {
+    order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    ajax:{
+      url:"{{path_for('transacciones.consulta')}}",
+      data: function(d){
+        d.tipo_eoi = $('#tipo_eoi').val();
+        d.id_sucursal = $('#id_sucursal').val();
+        d.tipo_transaccion = $('#tipo_transaccion').val();
+      },
+    },
+    columns: [
+      { 
+        name: 'created_at',
+        data: 'created_at',
+        render: function(data,type,row){
+          var momentDate = moment(data, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm');
+          return momentDate;
+        },
+      },
+      { 
+        name: 'id_diaria',
+        data: 'id_diaria',
+        className: 'text-right',
+      },
+      { 
+        name:'origen_destino',
+        data: function(data,type,row){
+          if(data.origen!=null){
+            return data.origen.origen;
+          } else if(data.destino!=null){
+            return data.destino.destino;
+          } else {
+            return '';
+          }
+        },
+      },
+      { 
+        name: 'categoria',
+        data: function(data,type,row){
+          if(data.tipo_transaccion!=null)
+            return data.tipo_transaccion.tipo_transaccion.nombre_tipo;
+          else 
+            return '';
+        }, 
+      },
+      { 
+        name: 'tipo',
+        data: function(data,type,row){
+          if(data.tipo_transaccion!=null)
+            return data.tipo_transaccion.nombre_tipo;
+          else
+            return '';
+        }, 
+      },
+      { 
+        name: 'modo',
+        data: function(data,type,row){
+          if(data.modo!=null)
+            return data.modo.modo;
+          else
+            return '';
+        }, 
+      },
+      { 
+        name: 'importe_transaccion',
+        data: function(data,type,row){
+          return formatCurrency(data.importe_transaccion);
+        },
+        className: 'text-right',
+      },
+      { 
+        name: 'descripcion_transaccion',
+        data: 'descripcion_transaccion' ,
+      },
+      { 
+        name: 'tipo_eoi',
+        data: 'tipo_eoi' ,
+      },
+    ],
+    columnDefs:[
+      {
+        targets:[0,1,4,5],
+        width:"3%",
+      },
+      {
+        targets:[2,3,4,5,7],
+        orderable: false,
+      },
+      {
+        targets: [8],
+        visible: false,
+      }
+    ],
+    createdRow: function (row, data, index) {
+      var head_item = tablaTransaccion.columns(2).header();
+      if($('#tipo_eoi').val()==(-1)){
+        $(head_item).html('Origen / Destino');
+        if(data['tipo_eoi']==0){
+          $(row).addClass('fila_ingreso');
+        } else {
+          $(row).addClass('fila_egreso');
+        }
+      } else {
+        if(data['tipo_eoi']==0){
+          $(head_item).html('Origen');
+        } else {
+          $(head_item).html('Destino');
+        }
+      }
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('.select2').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('.filtrarTabla').on('change', function() {
+    tablaTransaccion.ajax.reload(null, true);
+  });
+
+  $('#tipo_eoi').on('change',function(){
+    if(this.value == 0) {
+      $(this).css('border-color','darkseagreen');
+    } else if (this.value == 1){
+      $(this).css('border-color','indianred');
+    } else {
+      $(this).css('border-color','');
+    }
+  });
+
+});
+
+function formatCurrency(total) {
+    var neg = false;
+    if(total < 0) {
+        neg = true;
+        total = Math.abs(total);
+    }
+    return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+
+</script>
+{% endblock %}

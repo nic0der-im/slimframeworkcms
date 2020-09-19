@@ -1,0 +1,239 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.bootstrap.min.css">
+<style type="text/css">
+.orden {
+	cursor: move;
+}
+</style>
+{% endblock %}
+{% block title %}Listado de Formularios{% endblock %}
+{% block header_title %}Listado de Formularios{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" >
+	Formularios
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Lista general de formularios para Vehiculos:</h3>
+        <div class="card-tools pull-right">
+          <button type="button" class="btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span> Acciones
+          </button>
+          <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" id="btnAgregarFormulario">Agregar</a>
+          </div>
+        </div>
+			</div>
+			<div class="card-body p-0">
+				<div class="table-responsive">
+					<table class="table table-hover " id="tablaFormularios" width="100%">
+						<thead>
+							<tr>
+								<th data-orderable="false">Orden</th>
+								<th data-visible="false">id</th>
+								<th data-orderable="false">Formulario</th>
+								<th data-orderable="false">Descripcion</th>
+								<th data-orderable="false">Caducidad Dias</th>
+								<th data-orderable="false">Arancel</th>
+								<th data-orderable="false">En...</th>
+								<th data-orderable="false"> </th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in tipos %}
+									<td class="orden">{{ item.orden }}</td>
+									<td>{{ item.id }}</td>
+									<td>{{ item.nombre }}</td>
+									<td>{{ item.descripcion }}</td>
+									<td>{{ item.caducidad }}</td>
+									<td>{{ item.arancel|number_format(2, ',', '.') }}</td>
+									<td>
+										{% if item.tipo == 0 %}
+										<span class="badge label-primary">TODOS</span>
+										{% elseif item.tipo == 1 %}
+										<span class="badge label-warning" >USADOS</span>
+										{% elseif item.tipo == 2 %}
+										<span class="badge label-success" >NUEVOS</span>
+										{% endif %}
+									</td>
+									<td style=" white-space: nowrap;">
+										<a href="{{path_for('formulario.eliminar', {	'id': item.id })}}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estas seguro que quieres eliminar este Formulario?.');" data-toggle="tooltip" data-container="body" title="Eliminar"><i class="ion ion-trash-a"></i></a>
+										<a class="btn btn-info btn-sm" data-toggle="tooltip" data-container="body" title="Editar" onclick="modal({{item.id}});">
+											<i class="ion ion-edit"></i>
+										</a>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="card-footer">
+				<form method="POST" action="{{path_for('formulario.orden')}}">
+	    		<input type="hidden" name="orden" id="formularios_orden">
+	        <button type="submit" id="submitGuardarOrden" class="hide"></button>
+					{{ csrf.field | raw }}
+	      </form>
+				<a id="btnGuardarOrden" class="btn btn-info pull-right">Guardar Orden</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalFormulario">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Formulario</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+      	<form class="form" method="POST" action="{{path_for('formulario')}}" autocomplete="off">
+      		<input type="hidden" name="id_formulario" id="id_formulario">
+      		<div class="row">
+      			<div class="col-md-4">
+							<label for="fecha">Nombre</label>
+							<input type="text" class="form-control" name="nombre" id="nombre" autocomplete="off" required>
+						</div>
+						<div class="col-md-8">
+							<label for="fecha_vto">Descripcion</label>
+							<input type="text" class="form-control" name="descripcion" id="descripcion" autocomplete="off">
+						</div>
+						<div class="col-md-4">
+							<label for="caducidad">Caducidad en dias</label>
+							<input type="number" class="form-control" name="caducidad" id="caducidad" value="0">
+						</div>
+						<div class="col-md-3">
+							<label for="arancel">Arancel</label>
+							<input type="number" class="form-control" name="arancel" id="arancel" value="0">
+						</div>
+						<div class="col-md-3">
+							<label for="renobar">Tipo</label>
+							<select class="form-control select2" name="tipo" id="tipo" size="3">
+								<option value="0">TODOS</option>
+								<option value="1">USADOS</option>
+								<option value="2">NUEVOS</option>
+							</select>
+						</div>
+        	</div>
+        	<button type="submit" class="d-none" id="submitFormulario" ></button>
+        	{{ csrf.field | raw }}
+      	</form>
+
+      </div>
+      <div class="modal-footer">
+      	<a class="btn btn-success pull-right" id="btnFormulario">Publicar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.1/js/responsive.bootstrap.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(e) {
+
+	var tabla = $('#tablaFormularios').DataTable( {
+		"bLengthChange": false,
+		rowReorder: {
+			selector: 'tr .orden',
+		},
+		searching: false,
+		paging: false,
+		"language": {
+				"sProcessing":     "Procesando...",
+				"sLengthMenu":     "Mostrar _MENU_ registros",
+				"sZeroRecords":    "No se encontraron resultados",
+				"sEmptyTable":     "Ningún dato disponible en esta tabla",
+				"sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+				"sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+				"sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+				"sInfoPostFix":    "",
+				"sSearch":         "Buscar:",
+				"sUrl":            "",
+				"sInfoThousands":  ",",
+				"sLoadingRecords": "Cargando...",
+				"oPaginate": {
+						"sFirst":    "Primero",
+						"sLast":     "Último",
+						"sNext":     "Siguiente",
+						"sPrevious": "Anterior"
+				},
+				"oAria": {
+						"sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+						"sSortDescending": ": Activar para ordenar la columna de manera descendente"
+				}
+		}
+	});
+
+	$('#btnGuardarOrden').on('click',function(){
+		var data = $('#tablaFormularios').DataTable().rows().data();
+		var orden = '';
+		for(var i=0;i<data.length;i++){
+			orden = orden + data[i][1] + ','+data[i][0]+';';
+		}
+		$('#formularios_orden').val(orden.slice(0,-1));
+		$('#submitGuardarOrden').trigger('click');
+	});
+
+	$('#tipo').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+	$('#btnAgregarFormulario').on('click',function(){
+		$('#modalFormulario').modal('show');
+		$('#id_formulario').val(0);
+		$('#nombre').val('');
+		$('#descripcion').val('');
+		$('#caducidad').val(0);
+		$('#arancel').val(0);
+		$('#tipo').val(0).trigger('change');
+	});
+
+	$('#btnFormulario').on('click',function(){
+		$('#submitFormulario').trigger('click');
+	});
+});
+
+function modal(id){
+	var route = "{{path_for('formulario.obtener',{id:99})}}".replace('99',id);
+	$.ajax({
+    type: "get",
+    url: route,
+    success: function(data,status){
+			$('#id_formulario').val(data.id);
+			$('#nombre').val(data.nombre);
+			$('#descripcion').val(data.descripcion);
+			$('#caducidad').val(data.caducidad);
+			$('#arancel').val(data.arancel);
+			$('#tipo').val(data.tipo).trigger('change');
+			$('#modalFormulario').modal('show');
+		},
+		error: function(xhr, ajaxOptions,e) {
+			$.toast({
+				heading: 'Publicacion',
+				text: 'A ocurrido un problema en nuestro servidor. Intente mas tarde.',
+				showHideTransition: 'slide',
+				icon: 'error',
+				position: 'bottom-right',
+				hideAfter: false,
+			});
+		}
+	});
+}
+
+</script>
+{% endblock %}

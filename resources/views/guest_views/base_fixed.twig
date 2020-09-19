@@ -1,0 +1,383 @@
+<!DOCTYPE HTML>
+<html lang="es">
+	<head>
+		<meta charset="utf-8" >
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" >
+		<meta name="author" content="Ciro Automotores" >
+		<meta property="og:locale" content="es_AR" />
+		<meta property="og:site_name" content="Ciro Automotores Argentina" />
+		<meta property="og:url" content="{{base_url()}}{{current_path}}" />
+		<meta property="fb:app_id" content="215762682248425" />
+		{% if filtros is defined %}
+			{% if filtros.marca.show is defined %}
+			{% set showMarca = filtros.marca.show~' ' %}
+			{% set filtroMarca = ' de la marca '~filtros.marca.show %}
+			{% set titleMarca = filtros.marca.show|title ~' | ' %}
+			{% set keyMarca = 'autos '~filtros.marca.show~', ' %}
+			{% endif %}
+			{% if filtros.year is defined %}
+			{% set showAnio = filtros.year.show~' ' %}
+			{% set filtroAnio = ' '~filtros.year.show %}
+			{% set titleAnio = filtros.year.show ~' | ' %}
+			{% set keyAnio = 'autos '~filtros.year.show~', ' %}
+			{% endif %}
+			{% if filtros.ubicacion.show is defined %}
+			{% set showUbicacion = filtros.ubicacion.show~' ' %}
+			{% set filtroUbicacion = ' en '~filtros.ubicacion.show %}
+			{% set titleUbicacion = filtros.ubicacion.show|title ~' | ' %}
+			{% set keyUbicacion = 'autos '~filtros.ubicacion.show~', ' %}
+			{% endif %}
+			{% if filtros.motor.show is defined %}
+			{% set showMotor = filtros.motor.show~' ' %}
+			{% set filtroMotor = ' con motor '~filtros.motor.show %}
+			{% set titleMotor = filtros.motor.show|title ~' | ' %}
+			{% set keyMotor = 'autos '~filtros.motor.show~', ' %}
+			{% endif %}
+			{% if filtros.transmision.show is defined %}
+			{% set showTransmision = filtros.transmision.show~' ' %}
+			{% set filtroTransmision = ' con transmisión '~filtros.transmision.show %}
+			{% set titleTransmision = filtros.transmision.show|title ~' | ' %}
+			{% set keyTransmision = 'autos '~filtros.transmision.show~', ' %}
+			{% endif %}
+			{% if filtros.modelo.show is defined %}
+			{% set showModelo = filtros.modelo.show~' ' %}
+			{% set filtroModelo = ' modelo '~filtros.modelo.show %}
+			{% set titleModelo = filtros.modelo.show|title ~' | ' %}
+			{% set keyModelo = 'autos '~filtros.modelo.show~', ' %}
+			{% endif %}
+			{% set keyword = keyMarca~keyAnio~keyUbicacion~keyMotor~keyTransmision~keyModelo %}
+			<meta property="og:title" content="Ciro Automotores 🚘🏃️  - Encontrá autos usados en Salta y Jujuy{{filtroUbicacion}}{{filtroMotor}}{{filtroTransmision}}{{filtroAnio}}{{filtroMarca}}{{filtroModelo}} ✅" />
+			<meta property="og:description" content="¡Encontrá los autos usados en Salta y Jujuy! En Ciro Automotores podés encontrar autos{{filtroUbicacion}}{{filtroMotor}}{{filtroTransmision}}{{filtroAnio}}{{filtroMarca}}{{filtroModelo}}. 🔥" />
+			{% set metaDescription = 'Encontrá el auto'~filtroUbicacion~filtroMotor~filtroTransmision~filtroAnio~filtroMarca~filtroModelo~' en Ciro Automotores hay autos usados Salta y Jujuy al igual que autos 0 KM. ¡Visítanos! 🔥' %}
+			{% if metaDescription|length > 165 %}
+			<meta name="description" content="Encontrá el auto {{showMarca}}{{showAnio}}{{showUbicacion}}{{showMotor}}{{showTransmision}}{{showModelo}}en Ciro Automotores hay autos usados Salta y Jujuy al igual que autos 0 KM. ¡Visítanos! 🔥" />
+			{% else %}
+			<meta name="description" content="{{metaDescription}}" />
+			{% endif %}
+			<meta name="keywords" content="{{ keyword|trim(', ', 'right') }}" />
+		{% elseif current_path is empty %}
+			<meta property="og:title" content="Ciro Automotores 🚘🏃️ - Encontrá autos usados en Salta y Jujuy al igual que autos 0 KM ✅" />
+			<meta property="og:description" content="En Ciro Automotores te ofrecemos los mejores autos usados en Salta y Jujuy. Además contamos con autos 0 KM. ¡Te esperamos! 🔥" />
+			<meta name="description" content="Ciro Automotores 🚘🏃 tiene los mejores autos usados en Salta y también contamos con autos 0 kilómetros.!Hacé contacto ahora mismo! 🔥🔥" />
+			<meta name="keywords" content="autos usados salta, autos usados en salta, autos 0 kilometros, autos 0 km" />
+		{% endif %}
+		{% block head %}
+		{% endblock %}
+
+		<script>
+
+
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-98062930-1', 'auto');
+			ga('send', 'pageview');
+
+		</script>
+
+		<!-- Global site tag (gtag.js) - Google Analytics
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-98062930-1"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+
+			gtag('config', 'UA-98062930-1');
+		</script>
+		 GOOGLE -->
+
+		<!-- Facebook Pixel Code -->
+		<script>
+
+
+		!function(f,b,e,v,n,t,s)
+		{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+		n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+		if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+		n.queue=[];t=b.createElement(e);t.async=!0;
+		t.src=v;s=b.getElementsByTagName(e)[0];
+		s.parentNode.insertBefore(t,s)}(window,document,'script',
+		'https://connect.facebook.net/en_US/fbevents.js');
+
+
+		fbq('init', '215762682248425');
+		fbq('track', 'PageView');
+		</script>
+		<!-- End Facebook Pixel Code -->
+
+		<!-- schemes.org  -->
+		<script type="application/ld+json">
+		{
+			"@context": "http://schema.org",
+			"@type": "LocalBusiness",
+			"name": "Ciro Automotores",
+			"image": "https://ciroautomotores.com.ar/images/logo.png",
+			"@id": "",
+			"url": "https://ciroautomotores.com.ar/",
+			"telephone": "+54 387 4898080",
+			"address": {
+				"@type": "PostalAddress",
+				"streetAddress": "España 1190",
+				"addressLocality": "Salta",
+				"postalCode": "A4400ANZ",
+				"addressCountry": "AR"
+			},
+			"geo": {
+				"@type": "GeoCoordinates",
+				"latitude": -24.787893,
+				"longitude": -65.41894359999998
+			},
+			"openingHoursSpecification": {
+				"@type": "OpeningHoursSpecification",
+				"dayOfWeek": [
+					"Monday",
+					"Tuesday",
+					"Wednesday",
+					"Thursday",
+					"Friday"
+				],
+				"opens": "08:30",
+				"closes": "21:00"
+			}
+		};
+		</script>
+		<!-- schemes.org  -->
+
+		{% if production %}
+		{# código de registro web push 	#}
+		<link rel="manifest" href="/manifest.json" />
+		<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+		<script>
+		  var OneSignal = window.OneSignal || [];
+		  OneSignal.push(function() {
+				if (!OneSignal.isPushNotificationsSupported()) {
+            return;
+        }
+		    OneSignal.init({
+		      appId: "78034361-ab14-4018-a430-6be0744c770a",
+		      autoRegister: false,
+					notifyButton: {
+		        enable: true,
+						size: 'small',
+		        theme: 'default',
+		        position: 'bottom-left',
+		        prenotify: true,
+		        showCredit: false,
+		        text: {
+	            'tip.state.unsubscribed': 'Suscribete a Notificaciones',
+	            'tip.state.subscribed': "Estas suscripto a las Notificaciones",
+	            'tip.state.blocked': "Bloqueaste las Notificaciones",
+	            'message.prenotify': 'Click para suscribirte a las Notificaciones',
+	            'message.action.subscribed': "Gracias por Suscribirte!",
+	            'message.action.resubscribed': "Estas suscripto a las Notificaciones",
+	            'message.action.unsubscribed': "No vas a recibir Notificaciones de nuevo",
+	            'dialog.main.title': 'Administracion de Notificaciones',
+	            'dialog.main.button.subscribe': 'SUSCRIBIR',
+	            'dialog.main.button.unsubscribe': 'dar de baja',
+	            'dialog.blocked.title': 'Desbloquear Notificaciones',
+	            'dialog.blocked.message': "Sigue las instrucciones para permitir las notificaciones:"
+		        }
+			    }
+				OneSignal.getUserId(function(userId) {
+					console.log(userId);
+					$.ajax({
+						type: "GET",
+						url: "{{path_for('terminal')}}",
+						data:{
+							user_id:userId,
+						},
+						cache: false,
+						success: function(data){
+
+						}
+					});
+				});
+		    });
+        OneSignal.on("subscriptionChange", function(isSubscribed) {
+					if(isSubscribed){
+						if (!navigator.geolocation) {
+							OneSignal.getUserId(function(userId) {
+								$.ajax({
+								  type: "GET",
+								  url: "{{path_for('terminal.asociar')}}",
+									data:{
+										user_id:userId,
+									},
+								  cache: false,
+								  success: function(data){
+
+									}
+								});
+			        });
+            }
+            navigator.geolocation.getCurrentPosition(function(position){
+							var latitude = position.coords.latitude;
+            	var longitude = position.coords.longitude;
+							OneSignal.getUserId(function(userId) {
+								$.ajax({
+								  type: "GET",
+								  url: "{{path_for('terminal.asociar')}}",
+									data:{
+										user_id:userId,
+										latitud:latitude,
+										longitud:longitude,
+									},
+								  cache: false,
+								  success: function(data){
+
+									}
+								});
+			        });
+						}, function(){
+							OneSignal.getUserId(function(userId) {
+								$.ajax({
+								  type: "GET",
+								  url: "{{path_for('terminal.asociar')}}",
+									data:{
+										user_id:userId,
+									},
+								  cache: false,
+								  success: function(data){
+
+									}
+								});
+			        });
+						});
+						OneSignal.sendTags({
+							sector: 'publico',
+							nivel: '1',
+						}, function(tagsSent) {
+							console.log("OneSignal Suscripto SendTags:", tagsSent);
+						});
+					} else {
+						OneSignal.getUserId(function(userId) {
+							$.ajax({
+								type: "GET",
+								url: "{{path_for('terminal.desasociar')}}",
+								data:{
+									user_id:userId,
+								},
+								cache: false,
+								success: function(data){
+
+								}
+							});
+						});
+						OneSignal.sendTags({
+							sector: 'publico',
+							nivel: '0',
+						}, function(tagsSent) {
+							console.log("OneSignal Desuscripto SendTags:", tagsSent);
+						});
+					}
+        });
+
+		  });
+		</script>
+	{% endif %}
+		<base href="{{ base_url() }}" />
+
+		{% if production %}
+
+			<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,400i,700,700i" />
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+
+			<link href="/dist/css/reset.min.css" rel="stylesheet" />
+			<link href="/dist/css/all.min.css" rel="stylesheet" />
+			<link href="/dist/css/header.min.css" rel="stylesheet" />
+			<link href="/dist/css/footer.min.css" rel="stylesheet" />
+			<link href="/dist/css/navbar.min.css" rel="stylesheet" />
+			<link href="/dist/css/sidebar.min.css" rel="stylesheet" />
+
+		{% else %}
+
+			<link rel="stylesheet" href="dev/css/bootstrap.min.css">
+			<link rel="stylesheet" href="dev/css/font-awesome.min.css"/>
+			<link rel="stylesheet" href="dev/css/jquery-ui.min.css"/>
+			<link rel="stylesheet" href="dev/css/roboto.css"/>
+
+			<link href="/css/basic/sources/reset.css" rel="stylesheet" />
+			<link href="/css/basic/sources/all.css" rel="stylesheet" />
+			<link href="/css/basic/sources/header.css" rel="stylesheet" />
+			<link href="/css/basic/sources/footer.css" rel="stylesheet" />
+			<link href="/css/basic/sources/navbar.css" rel="stylesheet" />
+			<link href="/css/basic/sources/sidebar.css" rel="stylesheet" />
+
+		{% endif %}
+
+		<link rel="shortcut icon" href="/favicon.ico" />
+
+
+		{% block aditional_css %}
+
+		{% endblock %}
+		<title>
+		{% block title %}{% endblock %}| Ciro Automotores 🚘🏃</title>
+	</head>
+	<body>
+		<div>
+				<a id="subir" onclick="$('body').animatescroll();"><i class="fa-subir"></i></a>
+		</div>
+		<noscript>
+			<img height="1" width="1" src="https://www.facebook.com/tr?id=215762682248425&ev=PageView&noscript=1" alt="facebook"/>
+		</noscript>
+		<a href="#content" class="sr-only sr-only-focusable">Ir al contenido</a>
+		<div class="overlayed" id="mobileoverlay"></div>
+
+		{% include 'guest_views/guest_partials/fixed/flash.twig' %}
+
+		{% block pre_header %}{% endblock %}
+
+		{% include 'guest_views/guest_partials/fixed/header.twig' %}
+		{% include 'guest_views/guest_partials/fixed/navbar.twig' %}
+
+		<main id="content" tabindex="-1">
+			{% block content %}{% endblock %}
+		</main>
+
+		{% include 'guest_views/guest_partials/fixed/footer.twig' %}
+
+		{% if production %}
+
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.6.8-fix/jquery.nicescroll.min.js"></script>
+
+		<script src="/dist/js/main.min.js" ></script>
+		<script src="/dist/js/utils.min.js" ></script>
+		<script src="/dist/js/animatescroll.min.js"></script>
+		<script src="/dist/js/jquery.animateNumber.min.js"></script>
+		<script src="/dist/js/lazy-loading.min.js"></script>
+
+		{% else %}
+
+		<script type="text/javascript" src="dev/js/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="dev/js/popper.min.js"></script>
+		<script type="text/javascript" src="dev/js/bootstrap.min.js"></script>
+
+		<script type="text/javascript" src="dev/js/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="dev/js/tether.min.js"></script>
+		<script type="text/javascript" src="dev/js/jquery.nicescroll.min.js"></script>
+
+		<script src="/js/main.js" ></script>
+		<script src="/js/utils.js" ></script>
+		<script src="/js/animatescroll.js"></script>
+		<script src="/js/jquery.animateNumber.js"></script>
+		<script src="/js/lazy-loading.js"></script>
+
+		{% endif %}
+
+
+		{% block custom_js %}{% endblock %}
+
+		{% block custom_modules %}{% endblock %}
+		</body>
+</html>

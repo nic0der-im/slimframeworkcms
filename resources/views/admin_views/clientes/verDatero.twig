@@ -1,0 +1,316 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+
+</style>
+{% endblock %}
+{% block title %}
+  Ver
+{% endblock %}
+{% block header_title %}
+
+{% endblock %}
+{% block breadcrumb %}
+	<li class="breadcrumb-item">
+		<a href="{{path_for('cliente.datero.index')}}">Dateros</a>
+	</li>
+	<li class="breadcrumb-item active" >
+			Ver
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  {% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-4 d-flex justify-content-center">
+            <img class="img-fluid" src="/images/logo.png" alt="">
+          </div>
+          <div class="col-8">
+            <div class="row">
+              <div class="col-12">
+                <h4>
+                  <u>HOJA DE DATOS</u>
+                </h4>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-12">
+                <b>Confeccionado por:</b>&nbsp;{{datero.individuo.apellido}}&nbsp;{{datero.individuo.nombre}}
+                <small class="float-right">
+                  <b>Fecha de Confeccion:</b>&nbsp;{{cliente.created_at|date('d/m/Y h:m')}}
+                  <br>
+                  <b>Ultima vez modificado:</b>&nbsp;{{cliente.updated_at|date('d/m/Y h:m')}}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <h4>
+              <u>SOLICITANTE</u>
+            </h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="row">
+              <div class="col-md-6">
+                <b>Apellido&nbsp;y&nbsp;Nombre:</b>&nbsp;{{datero.apellido}}&nbsp;{{datero.nombre}}
+              </div>
+              <div class="col-md-3">
+                <b>Estado&nbsp;Civil:&nbsp;</b>{{datero.estado_civil}}
+              </div>
+              <div class="col-md-3">
+                <b>Sexo:&nbsp;</b>{{datero.sexo == 1?'Hombre':'Mujer'}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <b>Tipo&nbsp;y&nbsp;Nº&nbsp;Doc.:</b>&nbsp;{{datero.tipoDocumento.nombre}}&nbsp;{{datero.documento}}
+              </div>
+              <div class="col-md-4">
+                <b>Fecha&nbsp;de&nbsp;Nac.:</b>&nbsp;{{datero.fecha_nacimiento|date('d/m/Y')}}&nbsp;({{ date('now').diff(datero.fecha_nacimiento).format('edad %y ') }})
+              </div>
+              <div class="col-md-4">
+                <b>Lugar&nbsp;Nac.:</b>&nbsp;{{datero.lugar_nacimiento}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <b>Numero&nbsp;de&nbsp;Telefono:</b>&nbsp;{{datero.telefono}}
+              </div>
+              <div class="col-md-4">
+                <b>Numero&nbsp;de&nbsp;Celular:</b>&nbsp;{{datero.celular}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <h4>
+              <u>DOMICILIO</u>
+            </h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <b>Domicilio:</b>&nbsp;{{datero.domicilio}} {{datero.numero}}
+            {% if datero.piso|length>0 or datero.dpto|length>0 %}
+            ({{datero.piso|length>0?'Piso:' ~ datero.piso:''}} {{datero.dpto|length>0?'Dpto:' ~ datero.dpto:''}})
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            <b>Localidad:</b>&nbsp;{{datero.localidad}}
+          </div>
+          <div class="col-md-4">
+            <b>Provincia:</b>&nbsp;{{datero.provincia.nombre}}
+          </div>
+          <div class="col-md-4">
+            <b>Codigo&nbsp;Postal:</b>&nbsp;{{datero.cp > 0 ? datero.cp : ''}}
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <h4>
+              <u>DATOS LABORALES DEL SOLICITANTE</u>
+            </h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <b>Profesion/Oficio/Act.&nbsp;principal</b>&nbsp;{{datero.actividadEconomica.nombre}}
+          </div>
+          <div class="col-md-4">
+            <b>Relacion&nbsp;de&nbsp;dependencia?:</b>&nbsp;{{datero.relacion_dependencia == 1 ?'SI':'NO'}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <b>Empresa:</b>&nbsp;{{datero.empresa}}
+          </div>
+          <div class="col-md-6">
+            <b>Ramo/Rubro:</b>&nbsp;{{datero.ramo}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <b>Puesto:</b>&nbsp;{{datero.posicion}}
+          </div>
+          <div class="col-md-4">
+            <b>Antiguedad:</b>&nbsp;{{datero.antiguedad}}
+          </div>
+          <div class="col-md-4">
+            <b>Ingresos:</b>&nbsp;${{datero.ingresos | number_format(2, ',', '.')}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <b>Domicilio&nbsp;Laboral:</b>&nbsp;{{datero.laboral_domicilio}} {{datero.laboral_numero}}
+            {% if datero.laboral_piso|length>0 or datero.laboral_dpto|length>0 %}
+            ({{datero.laboral_piso|length>0?'Piso:' ~ datero.laboral_piso:''}} {{datero.laboral_dpto|length>0?'Dpto:' ~ datero.laboral_dpto:''}})
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            <b>Localidad:</b>&nbsp;{{datero.laboral_localidad}}
+          </div>
+          <div class="col-md-4">
+            <b>Provincia:</b>&nbsp;{{datero.laboral_provincia.nombre}}
+          </div>
+          <div class="col-md-4">
+            <b>Codigo&nbsp;Postal:</b>&nbsp;{{datero.laboral_cp > 0 ? datero.laboral_cp : ''}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <b>Numero&nbsp;de&nbsp;Telefono:</b>&nbsp;{{datero.laboral_telefono}}
+          </div>
+          <div class="col-md-4">
+            <b>Numero&nbsp;de&nbsp;Celular:</b>&nbsp;{{datero.laboral_celular}}
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <h4>
+              <u>DATOS CONYUGUE</u>
+            </h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <b>Apellido&nbsp;y&nbsp;Nombre:</b>&nbsp;{{datero.conyugue_apellido}}&nbsp;{{datero.conyugue_nombre}}
+          </div>
+          <div class="col-md-3">
+            <b>Sexo:&nbsp;</b>{{datero.conyugue_sexo == 1?'Hombre':'Mujer'}}
+          </div>
+          <div class="col-md-3">
+            <b>Cotitular:&nbsp;</b>{{datero.conyugue_cotitular == 1?'SI':'NO'}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <b>Tipo&nbsp;y&nbsp;Nº&nbsp;Doc.:</b>&nbsp;{{datero.conyugue_tipoDocumento.nombre}}&nbsp;{{datero.conyugue_documento}}
+          </div>
+          <div class="col-md-4">
+            <b>Fecha&nbsp;de&nbsp;Nac.:</b>&nbsp;{{datero.conyugue_fecha_nacimiento|date('d/m/Y')}}&nbsp;({{ date('now').diff(datero.conyugue_fecha_nacimiento).format('edad %y ') }})
+          </div>
+          <div class="col-md-4">
+            <b>Lugar&nbsp;Nac.:</b>&nbsp;{{datero.conyugue_lugar_nacimiento}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <b>Profesion/Oficio/Act.&nbsp;principal</b>&nbsp;{{datero.conyugue_actividadEconomica.nombre}}
+          </div>
+          <div class="col-md-4">
+            <b>Relacion&nbsp;de&nbsp;dependencia?:</b>&nbsp;{{datero.conyugue_relacion_dependencia == 1 ?'SI':'NO'}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <b>Empresa:</b>&nbsp;{{datero.conyugue_empresa}}
+          </div>
+          <div class="col-md-6">
+            <b>Ramo/Rubro:</b>&nbsp;{{datero.conyugue_ramo}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <b>Puesto:</b>&nbsp;{{datero.conyugue_posicion}}
+          </div>
+          <div class="col-md-4">
+            <b>Antiguedad:</b>&nbsp;{{datero.conyugue_antiguedad}}
+          </div>
+          <div class="col-md-4">
+            <b>Ingresos:</b>&nbsp;${{datero.conyugue_ingresos | number_format(2, ',', '.')}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <b>Domicilio&nbsp;Laboral:</b>&nbsp;{{datero.conyugue_laboral_domicilio}} {{datero.conyugue_laboral_numero}}
+            {% if datero.conyugue_laboral_piso|length>0 or datero.conyugue_laboral_dpto|length>0 %}
+            ({{datero.conyugue_laboral_piso|length>0?'Piso:' ~ datero.conyugue_laboral_piso:''}} {{datero.conyugue_laboral_dpto|length>0?'Dpto:' ~ datero.conyugue_laboral_dpto:''}})
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            <b>Localidad:</b>&nbsp;{{datero.conyugue_laboral_localidad}}
+          </div>
+          <div class="col-md-4">
+            <b>Provincia:</b>&nbsp;{{datero.conyugue_laboral_provincia.nombre}}
+          </div>
+          <div class="col-md-4">
+            <b>Codigo&nbsp;Postal:</b>&nbsp;{{datero.conyugue_laboral_cp > 0 ? datero.conyugue_laboral_cp : ''}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <b>Numero&nbsp;de&nbsp;Telefono:</b>&nbsp;{{datero.conyugue_laboral_telefono}}
+          </div>
+          <div class="col-md-4">
+            <b>Numero&nbsp;de&nbsp;Celular:</b>&nbsp;{{datero.conyugue_laboral_celular}}
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-12 d-flex justify-content-center">
+            <h4>
+              <u>DATOS DE LA UNIDAD</u>
+            </h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+            <b>Marca:</b>&nbsp;{{datero.marca.nombre}}
+          </div>
+          <div class="col-md-6">
+            <b>Modelo:</b>&nbsp;{{datero.vehiculo_modelo}}
+          </div>
+          <div class="col-md-3">
+            {% if datero.vehiculo_calidad == "USADO" %}
+            <b>Dominio:</b>&nbsp;{{datero.usado.dominio}}
+            {% else %}
+            <b>Calidad:</b>&nbsp;{{datero.vehiculo_calidad}}
+            {% endif %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <b>Año:</b>&nbsp;{{datero.vehiculo_año}}
+          </div>
+          <div class="col-md-4">
+            <b>Precio:</b>&nbsp;${{datero.vehiculo_precio | number_format(2, ',', '.') }}
+          </div>
+          <div class="col-md-4">
+            <b>Financiamiento:</b>
+              {% if datero.presupuesto_financiar > 0 %}
+              &nbsp;${{datero.presupuesto_financiar | number_format(2, ',', '.') }}
+              {% else %}
+              &nbsp;MAXIMO
+              {% endif %}
+          </div>
+          <div class="col-md-4">
+            <b>Plazos/Cuotas:</b>&nbsp;{{datero.presupuesto_plazos }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).on('ready', function(){
+
+});
+</script>
+{% endblock %}

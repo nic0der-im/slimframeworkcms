@@ -1,0 +1,950 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+<style type="text/css">
+input[type='number'] {
+  -moz-appearance:textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.fila_ingreso{
+  background-color: darkseagreen ;
+}
+.fila_egreso{
+  background-color: lightcoral ;
+}
+.amcharts-chart-div a {display:none !important;}
+</style>
+{% endblock %}
+{% block title %}Tablero{% endblock %}
+{% block header_title %}
+<div>
+	Tablero de Movimiento {{sucursal.sucursal}} ({{sucursal.descripcion}})
+</div>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	Movimientos
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+  <div class="col-lg-3 col-xs-6 col-md-3">
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>$&nbsp;{{saldo|number_format(0,'','')}}</h3>
+
+        <p>{{cantidad}}&nbsp;Movimientos</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-arrow-swap"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-xs-6 col-md-3">
+    <!-- small box -->
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>$&nbsp;{{ingresos|number_format(0,'','')}}</h3>
+
+        <p>{{ingresosCantidad}}&nbsp;Ingresos</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-arrow-down-c"></i>
+      </div>
+      <a href="#boxGraficoIngresos" class="small-box-footer smooth-goto">Mas informacion <i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-xs-6 col-md-3">
+    <!-- small box -->
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h3>$&nbsp;{{egresos|number_format(0,'','')}}</h3>
+
+        <p>{{egresosCantidad}}&nbsp;Egresos</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-arrow-up-c"></i>
+      </div>
+      <a href="#boxGraficoEgresos" class="small-box-footer smooth-goto">Mas informacion <i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-xs-6 col-md-3" >
+    <div class="card card-success card-outline" id="boxMovimiento" >
+      <div class="card-header">
+        <h3 class="card-title">Filtros</h3>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="tipo_eoi">Transaccion</label>
+              <select class="form-control filtrarTabla select2" name="tipo_eoi" id="tipo_eoi">
+                <option value="-1" selected>TODOS</option>
+                <option class="fila_ingreso" value="0">INGRESO</option>
+                <option class="fila_egreso" value="1">EGRESO</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row" >
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Listado de Movimientos</h3>
+        <div class="card-tools">
+          <button type="button" class="btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span> Aciones
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" data-toggle="modal" data-target="#modalTransferir">Transferir a Sucursal</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" id="btnDiaria">Filtrar entre Fechas</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered" id="tablaMovimiento" width="100%">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Descripcion</th>
+                <th>Importe</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row" >
+  <div class="col-md-6" >
+    <div class="card card-success" >
+      <div class="card-body" >
+        <div id="graficoTipoIngreso" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card card-danger" >
+      <div class="card-body" >
+        <div id="graficoTipoEgreso" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row" >
+  <div class="col-md-12" >
+    <div class="card card-success" id="boxGraficoIngresos" >
+      <div class="card-body" >
+        <div id="graficoIngresos" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12" >
+    <div class="card card-danger" id="boxGraficoEgresos" >
+      <div class="card-body" >
+        <div id="graficoEgresos" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalDiaria">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Indicar las fechas de Inicio y Final del Reporte</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="hidden" name="dias" id="dias">
+          <div class="form-group">
+            <div class="col-md-12" >
+              <label>Fecha de Inicio</label>
+              <input type="text" class="form-control datepicker" name="fecha_desde" id="fecha_desde">
+            </div>
+            <div class="col-md-12" >
+              <label>Fecha de Final</label>
+              <input type="text" class="form-control datepicker" name="fecha_hasta" id="fecha_hasta">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" id="btnReporteDiaria" target="_blank" >Generar</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalTransferir">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Seleccione la sucursal y el monto a transferir</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form class="row" method="POST" action="{{path_for('comprobante.movimiento.transferir')}}">
+          <input type="hidden" name="dias" id="dias">
+          <div class="col-md-12">
+            <label for="id_sucursal">Listado de mis sucursales habilitadas para Destino</label>
+            <select class="form-control select2" name="id_sucursal" id="id_sucursal" required>
+              {% for index in sucursales %}
+              <option value="{{index.id}}">{{index.sucursal}} ({{index.descripcion}})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-12" >
+            <label for="total">Monto</label>
+            <input type="number" class="form-control" name="total" id="total" value="0" required>
+          </div>
+          <div class="col-md-12" id="bloodhoundResponsable" >
+            <label for="responsable">Responsable del Traslado</label>
+            <input type="text" class="form-control typeahead" name="responsable" id="responsable" required>
+          </div>
+          <div class="col-md-12" >
+            <label for="observaciones">Observaciones</label>
+            <input type="text" class="form-control" name="observaciones" id="observaciones">
+          </div>
+          {{ csrf.field | raw }}
+          <button type="submit" id="submitTransferir" class="d-none" ></button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" id="btnTransferir" >Transferir</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script src="https://www.amcharts.com/lib/3/pie.js"></script>
+<script src="https://www.amcharts.com/lib/3/amstock.js"></script>
+<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+<script src="https://www.amcharts.com/lib/3/plugins/responsive/responsive.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('.smooth-goto').on('click', function() {
+    $('html, body').animate({scrollTop: $(this.hash).offset().top - 50}, 1000);
+    return false;
+  });
+
+  $('#id_sucursal').select2({
+    minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('.sidebar-toggle').prop('title', 'Click para mostrar la barra lateral');
+  $.fn.dataTable.moment( 'DD/MM/YYYY' );
+  var tablaMovimiento = $('#tablaMovimiento').DataTable( {
+    order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    ajax:{
+      url:"{{path_for('comprobante.movimiento.consultar')}}",
+      data: function(d){
+        d.tipo_eoi = $('#tipo_eoi').val();
+      },
+    },
+    columns: [
+      {
+        name: 'id',
+        data: 'id',
+      },
+      {
+        name: 'created_at',
+        data: function(data,type,dataToSet){
+          var fecha = moment(data.created_at, 'YYYY-MM-DD').format('DD/MM/YYYY');
+          var creado = respuestaDiferenciaFecha(moment(data.created_at, 'YYYY-MM-DD HH:mm:ss'));
+          var autor = capitalizar(data.individuo.apellido)+' '+capitalizar(data.individuo.nombre);
+          return '<label class="control-label" data-toggle="tooltip" data-html="true" title="Creado '+creado+'<br>por '+autor+'">'+fecha+'</label>';
+        },
+      },
+      {
+        name: 'id_tipo_movimiento',
+        data: function(data,type,dataToSet){
+          return capitalizar(data.tipo.nombre);
+        },
+      },
+      {
+        name: 'descripcion',
+        data: 'descripcion',
+      },
+      {
+        name: 'monto',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          respuesta = formatCurrency(data.monto);
+          return respuesta;
+        },
+        className: 'text-right',
+      },
+      {
+        name: 'opciones',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.comprobantes.length>0){
+            var id_factura = data.comprobantes[0].factura_detalle.id_comprobante;
+            var id_recibo = data.comprobantes[0].recibo_detalle.id_comprobante;
+            var href = "{{ path_for('comprobante.factura.cobrar',{'id':99},{recibo:'88'}) }}".replace('99',id_factura).replace('=88','='+id_recibo);
+            respuesta = '<a class="btn btn-sm btn-primary verFactura" data-container="body" data-toggle="tooltip" data-html="true" title="Ver Factura" href="'+href+'"><span class="ion ion-clipboard"></span></a>';
+          }
+          return respuesta;
+        },
+        className: 'text-center',
+      }
+    ],
+    columnDefs:[
+      {
+        targets:[0,1,2,4,5,],
+        width:"3%",
+      },
+      {
+        targets:[5],
+        orderable: false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+      var head_item = tablaMovimiento.columns(2).header();
+      if($('#tipo_eoi').val()==(-1)){
+        if(data.tipo_ioe==0){
+          $(row).addClass('fila_ingreso');
+        } else {
+          $(row).addClass('fila_egreso');
+        }
+      }
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#tipo_eoi').select2({
+    minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $('.filtrarTabla').on('change', function() {
+    tablaMovimiento.ajax.reload(null, true);
+  });
+
+  $('#btnDiaria').on('click',function(){
+    $('#modalDiaria').modal('show');
+  });
+
+  var fecha_desde = new Date();
+  var fecha_hasta = new Date();
+  fecha_desde.setDate(fecha_desde.getDate() - 7);
+  fecha_hasta.setDate(fecha_hasta.getDate() + 7);
+  var dias = Math.round((fecha_hasta-new Date())/(1000*60*60*24));
+  $('#dias').val(dias);
+  $('#fecha_desde').datepicker({
+      language:'es-ES',
+      zIndex: 1151,
+      autoHide: true,
+      autoPick: true,
+      format: 'dd/mm/yyyy',
+      startDate: fecha_desde,
+      endDate: fecha_hasta,
+    });
+  $('#fecha_hasta').datepicker({
+      language:'es-ES',
+      zIndex: 1151,
+      autoHide: true,
+      autoPick: true,
+      format: 'dd/mm/yyyy',
+      startDate: fecha_desde,
+      endDate: fecha_hasta,
+    });
+  var a = $('#fecha_desde').datepicker('getDate',true);
+  var b = $('#fecha_hasta').datepicker('getDate',true);
+  var route = "{{path_for('comprobante.movimiento.reporte')}}?fecha_desde="+a+"&fecha_hasta="+b;
+  $("#btnReporteDiaria").attr('href',route);
+  $('#fecha_desde').on('pick.datepicker', function (e) {
+    var hasta = $('#fecha_hasta').datepicker('getDate');
+    if (e.date <= hasta) {
+      var dias = Math.round((hasta-e.date)/(1000*60*60*24));
+      $('#dias').val(dias);
+    } else {
+      $('#fecha_desde').datepicker('setDate', hasta);
+      $('#dias').val(1);
+    }
+    var a = $('#fecha_desde').datepicker('getDate',true);
+    var b = $('#fecha_hasta').datepicker('getDate',true);
+    var route = "{{path_for('comprobante.movimiento.reporte')}}?fecha_desde="+a+"&fecha_hasta="+b;
+    $("#btnReporteDiaria").attr('href',route);
+  });
+  $('#fecha_hasta').on('pick.datepicker', function (e) {
+    var desde = $('#fecha_desde').datepicker('getDate');
+    if (e.date >= desde) {
+      var dias = Math.round((e.date-desde)/(1000*60*60*24));
+      $('#dias').val(dias);
+    } else {
+      $('#fecha_desde').datepicker('setDate', desde);
+      $('#dias').val(1);
+    }
+    var a = $('#fecha_desde').datepicker('getDate',true);
+    var b = $('#fecha_hasta').datepicker('getDate',true);
+    var route = "{{path_for('comprobante.movimiento.reporte')}}?fecha_desde="+a+"&fecha_hasta="+b;
+    $("#btnReporteDiaria").attr('href',route);
+  });
+
+  $('#btnReporteDiaria').on('click',function(){
+
+  });
+
+  $('#btnTransferir').on('click',function(){
+    if(Number($('#total').val())<=0){
+      $.toast({
+        heading: 'Movimiento',
+        text: 'El monto debe ser mayor a cero.',
+        showHideTransition: 'slide',
+        icon: 'error',
+        position: 'bottom-right',
+        hideAfter: false,
+      });
+      return null;
+    }
+    $('#submitTransferir').trigger('click');
+  });
+
+   var responsable = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+      url: "{{path_for('comprobante.movimiento.responsables')}}?consulta=%QUERY",
+      wildcard: '%QUERY',
+    }
+  });
+
+  $('#bloodhoundResponsable .typeahead').typeahead({
+      minLength: 0,
+      highlight: true
+    },{
+    name: 'responsable',
+    display: 'responsable',
+    source: responsable,
+    templates: {
+      suggestion: function (response) {
+        return '<p>' + response.responsable +'</p>';
+      },
+      empty:'El responsable sera agregado.',
+      }
+  });
+
+});
+
+AmCharts.makeChart("graficoTipoIngreso",{
+  "responsive": {
+    "enabled": true,
+    "rules":[{
+        "maxWidth": 600,
+        "overrides": {
+          "precision": 2,
+          "legend": {
+            "enabled": true,
+            "position": "bottom",
+          },
+          "valueAxes": {
+            "inside": true
+          }
+        },
+      },
+    ]
+  },
+  "numberFormatter": {
+    "precision": 2,
+    "decimalSeparator": ",",
+    "thousandsSeparator": ".",
+  },
+  "type": "pie",
+  "balloonText": "[[title]]<br><span style='font-size:14px'><b>$[[value]]</b> ([[percents]]%)</span>",
+  "titleField": "nombre",
+  "valueField": "ingresos",
+  "theme": "default",
+  "allLabels": [],
+  "balloon": {},
+  "legend": {
+    "enabled": true,
+    "align": "center",
+    "markerType": "circle",
+    "position": "bottom",
+    "rollOverGraphAlpha": 0,
+    "valueText": "$[[value]]",
+    "valueAlign": "left",
+  },
+  "titles": [
+    {
+      "id": "Title-1",
+      "size": 15,
+      "text": "Tipos de Movimiento en Ingresos concretados"
+    }
+  ],
+  "dataProvider": {{graficoTipo|json_encode|raw}}
+});
+
+AmCharts.makeChart("graficoTipoEgreso",{
+  "responsive": {
+    "enabled": true,
+    "rules":[{
+        "maxWidth": 600,
+        "overrides": {
+          "precision": 2,
+          "legend": {
+            "enabled": true,
+            "position": "bottom",
+          },
+          "valueAxes": {
+            "inside": true
+          }
+        },
+      },
+    ]
+  },
+  "numberFormatter": {
+    "precision": 2,
+    "decimalSeparator": ",",
+    "thousandsSeparator": ".",
+  },
+  "type": "pie",
+  "balloonText": "[[title]]<br><span style='font-size:14px'><b>$[[value]]</b> ([[percents]]%)</span>",
+  "titleField": "nombre",
+  "valueField": "egresos",
+  "theme": "default",
+  "allLabels": [],
+  "balloon": {},
+  "legend": {
+    "enabled": true,
+    "align": "center",
+    "markerType": "circle",
+    "position": "bottom",
+    "rollOverGraphAlpha": 0,
+    "valueText": "$[[value]]",
+    "valueAlign": "left",
+  },
+  "titles": [
+    {
+      "id": "Title-1",
+      "size": 15,
+      "text": "Tipos de Movimiento en Egresos concretados"
+    }
+  ],
+  "dataProvider": {{graficoTipo|json_encode|raw}}
+});
+
+var graficoIngresos = AmCharts.makeChart("graficoIngresos",{
+  "type": "serial",
+  "dataDateFormat": "DD/MM/YYYY",
+  "categoryField": "dia",
+  "startDuration": 1,
+  "theme": "default",
+  "categoryAxis": {
+    "gridPosition": "start",
+    "parseDates": true,
+    "dateFormats": [{
+        "period": "DD",
+        "format": "DD/MM"
+    }, {
+        "period": "WW",
+        "format": "MMM DD"
+    }, {
+        "period": "MM",
+        "format": "MMM"
+    }, {
+        "period": "YYYY",
+        "format": "YYYY"
+    }],
+    "autoGridCount": false,
+    "axisColor": "#555555",
+    "gridAlpha": 0.1,
+    "gridColor": "#FFFFFF",
+    "gridCount": 50
+  },
+  "trendLines": [],
+  "graphs": [
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-1",
+      "title": "Efectivo",
+      "type": "column",
+      "valueField": "total_efectivo",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-2",
+      "title": "Cheque",
+      "type": "column",
+      "valueField": "total_cheque",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-3",
+      "title": "Tarjeta",
+      "type": "column",
+      "valueField": "total_tarjeta",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-4",
+      "title": "Tributo",
+      "type": "column",
+      "valueField": "total_tributo",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-5",
+      "title": "Documento",
+      "type": "column",
+      "valueField": "total_documento",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-6",
+      "title": "Transferencia",
+      "type": "column",
+      "valueField": "total_transferencia",
+    },
+  ],
+  "valueAxes": [
+    {
+      "id": "ValueAxis-1",
+      "stackType": "regular",
+      "title": "Monto",
+      "gridAlpha": 0,
+      precision: 2,
+      decimalSeparator: ",",
+      thousandsSeparator: ".",
+    }
+  ],
+  "allLabels": [],
+  "balloon": {},
+  "legend": {
+    "enabled": true,
+    "useGraphSettings": true
+  },
+  "titles": [
+    {
+      "id": "Title-1",
+      "size": 15,
+      "text": "Ingresos"
+    }
+  ],
+  "chartScrollbar": {
+    "enabled": true,
+    "graph": "AmGraph-2",
+    "graphType": "smoothedLine",
+    "scrollbarHeight": 18
+  },
+  "numberFormatter": {
+    precision: 2,
+    decimalSeparator: ",",
+    thousandsSeparator: ".",
+  },
+  "dataProvider": {{graficoIngresos|json_encode|raw}}
+});
+
+graficoIngresos.addListener("rendered", function(){
+  var semana = new Date();
+  semana.setDate(semana.getDate()-14);
+  graficoIngresos.zoomToDates(semana, new Date());
+});
+
+var graficoEgresos = AmCharts.makeChart("graficoEgresos",{
+  "type": "serial",
+  "dataDateFormat": "DD/MM/YYYY",
+  "categoryField": "dia",
+  "startDuration": 1,
+  "theme": "default",
+  "categoryAxis": {
+    "gridPosition": "start",
+    "parseDates": true,
+    "dateFormats": [{
+        "period": "DD",
+        "format": "DD/MM"
+    }, {
+        "period": "WW",
+        "format": "MMM DD"
+    }, {
+        "period": "MM",
+        "format": "MMM"
+    }, {
+        "period": "YYYY",
+        "format": "YYYY"
+    }],
+    "autoGridCount": false,
+    "axisColor": "#555555",
+    "gridAlpha": 0.1,
+    "gridColor": "#FFFFFF",
+    "gridCount": 50
+  },
+  "trendLines": [],
+  "graphs": [
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-1",
+      "title": "Efectivo",
+      "type": "column",
+      "valueField": "total_efectivo",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-2",
+      "title": "Cheque",
+      "type": "column",
+      "valueField": "total_cheque",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-3",
+      "title": "Tarjeta",
+      "type": "column",
+      "valueField": "total_tarjeta",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-4",
+      "title": "Tributo",
+      "type": "column",
+      "valueField": "total_tributo",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-5",
+      "title": "Documento",
+      "type": "column",
+      "valueField": "total_documento",
+    },
+    {
+      "balloonText": "[[title]] [[category]]:$[[value]]",
+      "fillAlphas": 1,
+      "id": "AmGraph-6",
+      "title": "Transferencia",
+      "type": "column",
+      "valueField": "total_transferencia",
+    },
+  ],
+  "valueAxes": [
+    {
+      "id": "ValueAxis-1",
+      "stackType": "regular",
+      "title": "Monto",
+      "gridAlpha": 0,
+      precision: 2,
+      decimalSeparator: ",",
+      thousandsSeparator: ".",
+    }
+  ],
+  "allLabels": [],
+  "balloon": {},
+  "legend": {
+    "enabled": true,
+    "useGraphSettings": true
+  },
+  "titles": [
+    {
+      "id": "Title-1",
+      "size": 15,
+      "text": "Egresos"
+    }
+  ],
+  "chartScrollbar": {
+    "enabled": true,
+    "graph": "AmGraph-2",
+    "graphType": "smoothedLine",
+    "scrollbarHeight": 18
+  },
+  "numberFormatter": {
+    precision: 2,
+    decimalSeparator: ",",
+    thousandsSeparator: ".",
+  },
+  "dataProvider": {{graficoEgresos|json_encode|raw}}
+});
+
+graficoEgresos.addListener("rendered", function(){
+  var semana = new Date();
+  semana.setDate(semana.getDate()-14);
+  graficoEgresos.zoomToDates(semana, new Date());
+});
+
+function eliminar(id){
+  var route = "{{ path_for('comprobante.movimiento.eliminar',{'id':99}) }}".replace('99',id);
+  bootbox.confirm({
+    title: "Eliminar el Movimiento?",
+    message: "Desea eliminar el movimiento y todas sus referencias en caso de que tenga? Los recibos asociados tambien seran borrados.",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: '<i class="ion ion-trash-a"></i> Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result){
+        $.ajax({
+          type: "get",
+          url: route,
+          success: function(data,status){
+            tablaMovimiento.ajax.reload(null, true);
+            $.toast({
+              heading: 'Movimiento',
+              text: data.message,
+              showHideTransition: 'slide',
+              icon: 'success',
+              position: 'bottom-right',
+            });
+          },
+          error: function(xhr, ajaxOptions,e) {
+            $.toast({
+              heading: 'Movimiento',
+              text: xhr.responseJSON.message,
+              showHideTransition: 'slide',
+              icon: 'error',
+              position: 'bottom-right',
+              hideAfter: false,
+            });
+          }
+        });
+      }
+    }
+  });
+}
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+function respuestaDiferenciaFecha(momentDate){
+  var minutos = moment().diff(momentDate,'minutes');
+  var respuesta = '';
+  if (minutos == 0){
+    respuesta = ' ahora';
+  } else if(minutos>60){
+    var horas = Math.floor(minutos / 60);
+    if(horas>24){
+      dias = Math.floor(horas / 24);
+      if(dias>30){
+        meses = Math.floor(dias / 30);
+        if(meses>2){
+          respuesta = ' hace '+meses + ' meses';
+        } else {
+          respuesta = momentDate.format('DD/MM/YYYY');
+        }
+      } else {
+        if(horas == 1){
+          respuesta = ' ayer';
+        } else {
+          respuesta = ' hace '+dias + ' dias';
+        }
+      }
+    } else {
+      if(horas == 1){
+        respuesta = ' hace 1 hora';
+      } else {
+        respuesta = ' hace '+horas + ' horas';
+      }
+    }
+  } else if(minutos>0) {
+    if( minutos <5){
+      respuesta = ' hace instantes';
+    } else {
+      respuesta = ' hace '+minutos + ' minutos';
+    }
+  } else {
+    minutos = minutos * (-1);
+    if(minutos>60){
+      var horas = Math.floor(minutos / 60);
+      if( horas > 24){
+        dias = Math.floor(horas / 24);
+        if(dias == 1){
+          respuesta = ' mañana';
+        } else {
+          respuesta = ' en '+dias+' dias';
+        }
+      } else if (horas == 1) {
+        respuesta = ' en 1 hora';
+      } else {
+        respuesta = ' en '+ horas + ' horas';
+      }
+    } else {
+      if(minutos < 5){
+        respuesta = ' en instante';
+      } else {
+        respuesta = ' en '+ minutos + ' minutos';
+      }
+    }
+  }
+  return respuesta;
+}
+
+function capitalizar(str){
+  return str.substr(0,1).toUpperCase()+str.substr(1);
+}
+</script>
+{% endblock %}

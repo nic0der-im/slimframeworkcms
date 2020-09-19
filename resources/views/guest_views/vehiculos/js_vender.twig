@@ -1,0 +1,167 @@
+<script type="text/javascript">
+
+$(document).ready(function(e) {
+
+	function dec2hex (dec) {
+		return ('0' + dec.toString(16)).substr(-2)
+	}
+
+		// generateId :: Integer -> String
+	function generateId (len) {
+		var arr = new Uint8Array((len || 40) / 2)
+		window.crypto.getRandomValues(arr)
+		return Array.from(arr, dec2hex).join('')
+	}
+
+	function getBase64(file) {
+		var reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onload = function () {
+			console.log(reader.result);
+		};
+		reader.onerror = function (error) {
+			console.log('Error: ', error);
+		};
+	}
+
+	sessionStorage.setItem('selecting', 'false');
+	sessionStorage.setItem('current_id', null);
+	var lista_archivos = new Object();
+
+	$('#veh_upload_marca').focus();			
+
+	$('.veh_upload_search_file').on('click', function(){
+		$('.veh_upload_upload_info').html('Seleccioná los archivos...');
+		sessionStorage.setItem('selecting', 'true');	
+		$('.veh_upload_main').click();
+	});
+
+	function AddToFileList(file) {
+		var uid = generateId();
+		$('.veh_upload_file_txt').val(file.name);
+		$('.body-images').append('<div class="veh_upload_preview_box" id="pbox_' + uid + '" data-uploaded="0"><a href="#" class="pbox_remove" data-remove="' + uid + '"><i class="fa fa-close"></i></a><div class="pimg_box"><img id="pimg_' + uid + '"></div><span class="filename">' + file.name + '</span><span class="filesize">' + parseInt((file.size/1024)) + 'kb</span></div>');
+		var fake_url = window.URL.createObjectURL(file)
+		document.getElementById('pimg_' + uid).src = fake_url;
+		lista_archivos[uid] = file;
+		$('.veh_upload_upload_all').prop('disabled', false);
+		$('.body-images').append('<input type="hidden" id="fake_'+uid+'" name="veh_upload_file_fake[]" hidden="hidden" value="'+fake_url+'">');
+		
+		$('.veh_upload_upload_info').html('Archivo agregado.');
+	}
+
+	function IsFileAlreadyOnList(file) {
+		var found = false;
+		Object.keys(lista_archivos).forEach(function(key) {					
+			if(lista_archivos[key].name == file.name && lista_archivos[key].lastModified == file.lastModified) {
+				found = true;
+			}			
+		});
+		return found;
+	}
+	$(window).focus(function(){
+		if(sessionStorage.getItem('selecting') == 'true'){
+			//var updiv = $('#'+sessionStorage.getItem('current_id'));
+			var updiv = $('.veh_upload_main');
+			setTimeout(function(){
+				if(updiv[0].files.length == 1) {
+					if(!IsFileAlreadyOnList(updiv[0].files[0])) {
+						AddToFileList(updiv[0].files[0]);
+					}
+					else
+					{
+						$('.veh_upload_upload_info').html('Ese archivo ya se encuentra en la lista.');
+					}
+				}
+				else if(updiv[0].files.length > 1)
+				{
+					var files = updiv[0].files;
+					_.each(files, function(file, key) {
+						if(!IsFileAlreadyOnList(file)) {
+							AddToFileList(file);
+						}
+					});
+				}
+				else {
+					$('.veh_upload_upload_info').html('Esperando acción.');
+				}
+			}, 500);
+			sessionStorage.setItem('selecting', 'false');
+		}
+	});
+
+	$(document).on('click', '.pbox_remove', function(e){
+		e.preventDefault();
+		var esto = $(this);
+		var uid = $(this).data('remove');
+		lista_archivos = _.omit(lista_archivos, uid);
+		$('#pbox_'+uid).animate({marginTop: -200}, 300, function(){
+			esto.parent().remove();
+			$('#fake_'+uid).remove();
+			$('#'+uid).remove();
+			$('.veh_upload_upload_info').html('Archivo quitado.');					
+		});
+		if(_.isEmpty(lista_archivos)){
+			$('.veh_upload_upload_all').prop('disabled', true);
+		}
+	});
+
+	$('#form_sell_car_info').submit(function(e){
+
+		var $myForm = $('#form_sell_car_info');
+		e.preventDefault();
+
+		var data = new FormData();
+
+		Object.keys(lista_archivos).forEach(function(key) {					
+			data.append(key, lista_archivos[key]);	
+		});
+
+		$('.fsci').each(function(){
+			data.append($(this)[0].name, $(this)[0].value);
+		});
+
+		var csrfName = document.getElementById('csrf_name').value;
+		var csrfValue = document.getElementById('csrf_value').value;
+		data.append('csrf_value', csrfValue);
+		data.append('csrf_name', csrfName);
+
+		$.ajax({
+			url: "{{path_for('vender.nuevo')}}",
+			data: data,
+			method: $myForm.attr('method'),
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function( response ) {
+				console.log(response);
+				if(response.success == true) {
+					window.location.reload();
+				}
+			},
+			complete: function (jqXHR) {
+				var csrfToken = jqXHR.getResponseHeader('X-CSRF-Token');
+				if (csrfToken) {
+					try {
+						csrfToken = $.parseJSON(csrfToken);
+						var csrfTokenKeys = Object.keys(csrfToken);
+						var hiddenFields = $myForm.find('input.csrf[type="hidden"]');
+						if (csrfTokenKeys.length === hiddenFields.length) {
+							hiddenFields.each(function(i) {
+								$(this).attr('name', csrfTokenKeys[i]);
+								$(this).val(csrfToken[csrfTokenKeys[i]]);
+							});
+						}
+					}
+					catch (e) {
+
+					}
+				}
+			},
+			error: function(xhr, ajaxOptions,e) {
+	      window.location.reload();
+   		}
+		});
+	});
+});
+
+</script>

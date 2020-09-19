@@ -1,0 +1,261 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+@media print  {
+  .bg-success {
+    color: #000 !important;
+  }
+  .bg-danger {
+    color: #000 !important;
+  }
+  .bg-info {
+    color: #000 !important;
+  }
+  .card-title {
+    color: #000 !important;
+  }
+
+  .badge {
+    color: #000 !important;
+  }
+  html, body {
+    width: 210mm;
+    height: 297mm;
+  }
+}
+</style>
+{% endblock %}
+{% block title %}Transacciones{% endblock %}
+{% block header_title %}
+<div>
+	Lista de de Movimientos para una Diaria
+</div>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	Caja
+</li>
+<li class="breadcrumb-item">
+  <a href="{{path_for('diaria.index')}}"> Diarias</a>
+</li>
+<li class="breadcrumb-item active">
+  Ver
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">{{ diaria is empty? 'Transacciones':'Diaria° '~diaria.id}}</h3>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th class="active">Sucursal</th>
+              <th class="active">Estado</th>
+              <th class="active">Nº</th>
+              <th class="active">Fecha de asignación</th>
+              <th class="active">Inicio de actividades</th>
+              <th class="active">Saldo anterior</th>
+              <th class="active">Ingresos</th>
+              <th class="active">Egresos</th>
+              <th class="active">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+              <tr>
+                  <td class="">
+                  	{{sucursal.sucursal}} ({{sucursal.descripcion}})
+                  </td>
+                  <td class="">
+                  	{% if diaria.fecha_cierre == null %}
+                  		EN CURSO
+                  	{% else %}
+                  		CERRADA
+                  	{% endif %}
+                  </td>
+                  <td class="">
+                  	{{ diaria.id }}
+                  </td>
+                  <td class="">
+                  	{{ diaria.fecha_cierre is empty ? " " :diaria.created_at|date('d/m/Y')  }} {{ diaria.created_at|localizeddate('full', 'none', 'es_AR','America/Argentina/Buenos_Aires', 'EEEE')|title }}
+                  </td>
+                  <td class="">
+                  	{{ diaria.fecha_inicio|date('d/m/Y H:i') }}
+                  </td>
+                  <td class="bg-warning">
+                  	$&nbsp;{{ diaria.saldo_anterior|number_format(2, ',', '.') }}
+                  </td>
+                  <td class="bg-success">
+                    $&nbsp;{{ diaria.ingresos|number_format(2, ',', '.') }}
+                  </td>
+                  <td class="bg-danger">
+                    $&nbsp;{{ diaria.egresos|number_format(2, ',', '.') }}
+                  <td class="bg-info">
+                    {% if diaria.fecha_cierre == null %}
+                    $&nbsp;{{ (diaria.saldo_anterior + diaria.ingresos - diaria.egresos)|number_format(2, ',', '.') }}
+                    {% else %}
+                    $&nbsp;{{ diaria.saldo|number_format(2, ',', '.') }}
+                    {% endif %}
+                  </td>
+              </tr>
+          </tbody>
+      </table>
+  	</div>
+  	<div class="card-footer d-print-none">
+      <a href="{{ path_for('diaria.index') }}" class="btn btn-info pull-right m-1">Listado de Diarias</a>
+      <a onclick="window.print();return false;" class="btn btn-default pull-right m-1"><i class="fa fa-print"></i> Imprimir</a>
+    </div>
+  </div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+    <div class="card card-success m-0">
+      <div class="card-header">
+        <h3 class="card-title">Últimos Ingresos</h3>
+				<div class="card-tools d-print-none">
+          <button type="button" class="btn btn-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body p-0">
+      	<div class="table-responsive" id="tablaingresos"><br>
+          <table class="tablesorter table table-striped table-bordered " id="histoing">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Empleado</th>
+                <th>Origen</th>
+                <th>Tipo</th>
+                <th>Modo</th>
+                <th>Descripción</th>
+                <th>Fecha</th>
+                <th>Importe</th>
+              </tr>
+            </thead>
+            <tbody>
+            	{% for index in transaccionIngresos %}
+          		<tr {{index.estado == 0? 'style="background-color:lightcoral;"':''}}>
+          			<td>
+          				{{index.id}}
+          			</td>
+          			<td>
+          				{{index.individuo.nombre}} {{index.individuo.apellido}}
+          			</td>
+          			<td style="font-size: small;">
+          				{{index.comprobantes[0].factura_detalle.comprobante.razon_social}}
+          			</td>
+          			<td style="font-size: smaller;">
+          				{{index.comprobantes[0].factura_detalle.comprobante.tipoTransaccion.nombre_tipo | replace({'/':'/ '})}}
+          			</td>
+                <td style="font-size: smaller;">
+                  {{index.tipo.nombre | title }}
+                </td>
+          			<td style="font-size: smaller;">
+          				{{index.descripcion}} <span class="float-right badge bg-primary">{{ index.comprobantes[0].factura_detalle.descripcion }}</span>
+          			</td>
+          			<td style="font-size: small;">
+          				{{index.created_at|date('d/m H:i')}}
+          			</td>
+          			<td>
+          				{% if index.estado == 1 %}
+          				$ {{ index.monto|number_format(2, ',', '.') }}
+          				{% else %}
+                    <p style="font-size: smaller;">Anulado</p>
+        					{% endif %}
+          			</td>
+          		</tr>
+          		{% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div class="card card-success m-0">
+      <div class="card-header">
+        <h3 class="card-title">Últimos Egresos</h3>
+				<div class="card-tools d-print-none">
+          <button type="button" class="btn btn-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body p-0">
+      	<div class="table-responsive" id="tablaegresos"><br>
+          <table class="table table-striped table-bordered tablesorter" id="histoegr">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Empleado</th>
+                <th>Destino</th>
+                <th>Tipo</th>
+                <th>Modo</th>
+                <th>Descripción</th>
+                <th>Fecha</th>
+                <th>Importe</th>
+              </tr>
+            </thead>
+            <tbody>
+            	{% for index in transaccionEgresos %}
+          		<tr {{index.estado == 0? 'style="background-color:lightcoral;"':''}} >
+          			<td>
+                  {{index.id}}
+                </td>
+                <td>
+                  {{index.individuo.nombre}} {{index.individuo.apellido}}
+                </td>
+                <td style="font-size: small;">
+                  {{index.comprobantes[0].factura_detalle.comprobante.razon_social}}
+                </td>
+                <td style="font-size: smaller;">
+                  {{index.comprobantes[0].factura_detalle.comprobante.tipoTransaccion.nombre_tipo | replace({'/':'/ '})}}
+                </td>
+                <td style="font-size: smaller;">
+                  {{index.tipo.nombre | title }}
+                </td>
+                <td style="font-size: smaller;">
+                  {{index.descripcion}} <span class="float-right badge bg-primary">{{ index.comprobantes[0].factura_detalle.descripcion }}</span>
+                </td>
+                <td style="font-size: small;">
+                  {{index.created_at|date('d/m H:i')}}
+                </td>
+                <td>
+                  {% if index.estado == 1 %}
+                  $ {{ index.monto|number_format(2, ',', '.') }}
+                  {% else %}
+                    <p style="font-size: smaller;">Anulado</p>
+                  {% endif %}
+                </td>
+          		</tr>
+          		{% endfor %}
+            </tbody>
+        	</table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+  function colapsar() {
+    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+
+    } else {
+      $('.sidebar-toggle').trigger('click');
+    }
+  };
+
+  setTimeout(colapsar, 500);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,393 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Usuarios{% endblock %}
+{% block header_title %}Usuarios{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	<a href="{{path_for('godmode.rendimiento')}}">Usuarios</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card card-success">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Listado de  Usuarios:</h3>
+			</div>
+			<div class="card-body p-0">
+				<div class="table-responsive">
+					<table class="table table-hover" id="tablaUsuarios" width="100%">
+						<thead>
+							<tr>
+								<th>Creado</th>
+								<th>Correo</th>
+								<th>Individuo</th>
+								<th>Ultimo Acceso</th>
+								<th data-orderable="false">Estados</th>
+								<th data-orderable="false"> </th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in users %}
+								<tr>
+									<td>
+										{{ item.created_at | date('d/m/Y') }}
+									</td>
+									<td>
+										{{ item.email }}
+									</td>
+									<td>
+										{{ item.individuo.apellido }} {{ item.individuo.nombre }}
+									</td>
+									<td>
+										{% set ultimo = item.sesiones|length  %}
+										{% if ultimo > 0 %}
+											{{item.sesiones[ultimo - 1].created_at|date('d/m/Y')}}
+											<a class="btn btn-sm btn-info" onclick="modalActividad({{item.sesiones[ultimo - 1].id}});" data-toggle="tooltip" data-container="body" title="Historial">
+												<i class="ion ion-document-text"></i>
+											</a>
+										{% endif %}
+									</td>
+									<td>
+										{% if item.facebook_id %}
+											<span class="badge"><li class="fa fa-facebook"></li></span>
+										{% endif %}
+									</td>
+									<td style=" white-space: nowrap;">
+										<a class="btn btn-sm btn-info" onclick="modalSesion({{item.id}});" data-toggle="tooltip" data-container="body" title="Historial">
+											<i class="ion ion-document-text"></i>
+										</a>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalSesion">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Sesiones</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="table-responsive">
+      		<table class="table table-bordered" width="100%" id="tablaSesiones">
+      			<thead>
+      				<th>
+      					Fecha
+      				</th>
+      				<th>
+      					IP
+      				</th>
+      				<th>
+      					Ultima
+      				</th>
+      				<th data-orderable="false">
+      				</th>
+      			</thead>
+      			<tbody>
+      			</tbody>
+      		</table>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalActividad">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Actividades</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="table-responsive">
+      		<table class="table table-bordered" width="100%" id="tablaActividades">
+      			<thead>
+      				<th>
+      					Fecha
+      				</th>
+      				<th>
+      					Ruta
+      				</th>
+      				<th>
+      					Argumentos
+      				</th>
+      				<th>
+      					Metodo
+      				</th>
+      				<th>
+      					Estado
+      				</th>
+      			</thead>
+      			<tbody>
+      			</tbody>
+      		</table>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function(e) {
+
+  $.fn.dataTable.moment( 'DD/MM/YYYY' );
+	$('#tablaUsuarios').DataTable( {
+		order:[[0,'desc']],
+	  lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	$('#tablaSesiones').DataTable( {
+		lengthChange: false,
+    searching: false,
+    info: false,
+    ordering: false,
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	$('#tablaActividades').DataTable( {
+		lengthChange: false,
+    searching: false,
+    info: false,
+    ordering: false,
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	$('#modalSesion, #modalActividad').on('shown.bs.modal', function (e) {
+    $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+  });
+});
+
+function modalSesion(id){
+	var route = "{{path_for('godmode.session',{'id':99})}}".replace('99',id);
+	$.ajax({
+    type: "get",
+    url: route,
+    success: function(data,status){
+    	var table = $('#tablaSesiones').DataTable();
+    	table.clear().draw();
+    	for (var i = data.length - 1; i >= 0; i--) {
+    		var item = data[i];
+    		var created_at = moment(item.created_at, 'YYYY-MM-DD HH:mm:ss');
+        var creado = respuestaDiferenciaFecha(created_at);
+        var ultima = item.actividades.length;
+        var actividad = '';
+        if(ultima>0){
+        	actividad = item.actividades[ultima-1];
+        	actividad = moment(actividad.created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YY HH:mm:ss');
+        }
+        creado = '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Creado '+creado+'">'+created_at.format('DD/MM/YYYY')+'</label>';
+				table.row.add([
+					creado,
+					item.ip,
+         	actividad,
+         	'<a class="btn btn-sm btn-info" onclick="modalActividad('+item.id+');" data-toggle="tooltip" data-container="body" title="Historial"><i class="ion ion-document-text"></i></a>'
+					])
+				.draw()
+			  .node();
+    	}
+    	$('#modalSesion').modal('show');
+    },
+    error: function(xhr, ajaxOptions,e) {
+      $.toast({
+        heading: 'Sesiones',
+        text: 'A ocurrido un problema en nuestro servidor. Intente mas tarde.',
+        showHideTransition: 'slide',
+        icon: 'error',
+        position: 'bottom-right',
+        hideAfter: false,
+      });
+    }
+  });
+}
+
+function modalActividad(id){
+	var route = "{{path_for('godmode.actividad',{'id':99})}}".replace('99',id);
+	$.ajax({
+    type: "get",
+    url: route,
+    success: function(data,status){
+  		var table = $('#tablaActividades').DataTable();
+    	table.clear().draw();
+    	for (var i = data.length - 1; i >= 0; i--) {
+    		var item = data[i];
+    		var created_at = moment(item.created_at, 'YYYY-MM-DD HH:mm:ss');
+				table.row.add([
+					moment(item.created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YY HH:mm:ss'),
+					item.route,
+					item.arguments,
+         	item.method,
+         	item.status_code
+					])
+				.draw()
+			  .node();
+    	}
+    	$('#modalActividad').modal('show');
+    },
+    error: function(xhr, ajaxOptions,e) {
+      $.toast({
+        heading: 'Sesiones',
+        text: 'A ocurrido un problema en nuestro servidor. Intente mas tarde.',
+        showHideTransition: 'slide',
+        icon: 'error',
+        position: 'bottom-right',
+        hideAfter: false,
+      });
+    }
+  });
+}
+
+
+function respuestaDiferenciaFecha(momentDate){
+  var minutos = moment().diff(momentDate,'minutes');
+  var respuesta = '';
+  if (minutos == 0){
+    respuesta = ' ahora';
+  } else if(minutos>60){
+    var horas = Math.floor(minutos / 60);
+    if(horas>24){
+      dias = Math.floor(horas / 24);
+      if(dias>30){
+        meses = Math.floor(dias / 30);
+        if(meses>2){
+          respuesta = ' hace '+meses + ' meses';
+        } else {
+          respuesta = momentDate.format('DD/MM/YYYY');
+        }
+      } else {
+        if(horas == 1){
+          respuesta = ' ayer';
+        } else {
+          respuesta = ' hace '+dias + ' dias';
+        }
+      }
+    } else {
+      if(horas == 1){
+        respuesta = ' hace 1 hora';
+      } else {
+        respuesta = ' hace '+horas + ' horas';
+      }
+    }
+  } else if(minutos>0) {
+    if( minutos <5){
+      respuesta = ' hace instantes';
+    } else {
+      respuesta = ' hace '+minutos + ' minutos';
+    }
+  } else {
+    minutos = minutos * (-1);
+    if(minutos>60){
+      var horas = Math.floor(minutos / 60);
+      if( horas > 24){
+        dias = Math.floor(horas / 24);
+        if(dias == 1){
+          respuesta = ' mañana';
+        } else {
+          respuesta = ' en '+dias+' dias';
+        }
+      } else if (horas == 1) {
+        respuesta = ' en 1 hora';
+      } else {
+        respuesta = ' en '+ horas + ' horas';
+      }
+    } else {
+      if(minutos < 5){
+        respuesta = ' en instante';
+      } else {
+        respuesta = ' en '+ minutos + ' minutos';
+      }
+    }
+  }
+  return respuesta;
+}
+</script>
+{% endblock %}

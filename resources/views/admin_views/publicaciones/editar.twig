@@ -1,0 +1,96 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Editar publicación{% endblock %}
+{% block header_title %}
+Editar publicación <small>{{vehiculo.getMarca.nombre}} {{vehiculo.modelo}} {{vehiculo.year}}</small>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('publicaciones.index')}}">Listado de publicaciones</a>
+</li>
+<li class="breadcrumb-item active">
+	Editar
+</li>
+{% endblock %}
+{% block content %}
+	<div class="row">
+		<form class="col-lg-12" name="pub_editar_basic_form" method="POST" action="{{path_for('publicaciones.editarpost')}}">
+			<div class="card card-info">
+				<div class="card-header">
+					<h3 class="card-title text-bold">Editar publicación</h3>
+				</div>
+				<div class="card-body">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-sm-3">
+								<label for="pub_editar_id_publicacion">ID Publicación</label>
+								<input type="text" class="form-control" name="pub_editar_id_publicacion" id="pub_editar_id_publicacion" readonly="" value="{{publicaciones.id}}" required>
+							</div>
+							<div class="col-sm-3">
+								<label for="pub_editar_id_usuario">ID Usuario</label>
+								<input type="text" class="form-control" name="pub_editar_id_usuario" id="pub_editar_id_usuario" readonly="" value="{{publicaciones.id_usuario}}" required>
+							</div>
+							<div class="col-sm-3">
+								<label for="pub_editar_id_vehiculo">ID Vehiculo</label>
+								<input type="text" class="form-control" name="pub_editar_id_vehiculo" id="pub_editar_id_vehiculo" readonly="" value="{{publicaciones.id_vehiculo}}" required>
+							</div>
+
+						</div>
+
+						<div class="row">
+							<div class="col-sm-12">
+								<label for="pub_editar_titulo">Titulo de la publicación</label>
+								<input type="text" class="form-control" name="pub_editar_titulo" id="pub_editar_titulo" value="{{publicaciones.titulo}}" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la publicación.<br>Por ejemplo: <b>[terminaresto]</b>">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<label for="pub_editar_contenido">Contenido</label>
+								<textarea class="form-control"  name="pub_editar_contenido" id="pub_editar_contenido"  autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la publicación.<br>Por ejemplo: <b>[terminaresto]</b>">{{publicaciones.contenido}}</textarea>
+							</div>
+						</div>
+					</div>
+					<button class="btn btn-primary btn-flat pull-right" type="submit">Editar publicación</button>
+				</div>
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+{% endblock %}
+{% block custom_js %}
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+
+		CKEDITOR.replace('pub_editar_contenido', {
+	  	language: 'es',
+	  	height: '500px'
+		});
+
+		CKEDITOR.editorConfig = function( config ) {
+			config.toolbarGroups = [
+				{ name: 'document', groups: [ 'document', 'mode', 'doctools' ] },
+				{ name: 'styles', groups: [ 'styles' ] },
+				{ name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+				{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+				{ name: 'forms', groups: [ 'forms' ] },
+				'/',
+				{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+				{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+				{ name: 'links', groups: [ 'links' ] },
+				{ name: 'insert', groups: [ 'insert' ] },
+				{ name: 'colors', groups: [ 'colors' ] },
+				{ name: 'tools', groups: [ 'tools' ] },
+				{ name: 'others', groups: [ 'others' ] },
+				{ name: 'about', groups: [ 'about' ] }
+			];
+
+			config.removeButtons = 'Save,Print,Templates,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,NewPage,CreateDiv,Language,Flash,Smiley,SpecialChar,PageBreak,Iframe,Maximize,ShowBlocks,About,BGColor,Anchor';
+		};
+
+
+	});
+	</script>
+{% endblock %}

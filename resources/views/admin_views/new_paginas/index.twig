@@ -1,0 +1,62 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Listado de paginas{% endblock %}
+{% block header_title %}Listado de paginas{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+	<a href="{{path_for('paginas.index')}}">Páginas</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+	{% for pagina in paginas %}
+		<div class="col-lg-4 col-md-6 col-sm-12">
+			<div class="card box-default vehicle-box">
+				<div class="card-header with-border">
+					<div class="card-title">
+						<div class="text-bold">{{ pagina.titulo }}</div>
+						<small><i>{{ pagina.descripcion }}</i></small>
+					</div>
+					<div class="card-tools">
+						<div class="btn-group vehicle-dropdown">
+							<button type="button" class="btn btn-sm btn-primary btn-flat dropdown-toggle " data-toggle="dropdown">
+								<span class="caret"></span>
+								<span class="sr-only">Toggle Dropdown</span>
+							</button>
+							<div class="dropdown-menu dropdown-menu-right bg-blue" role="menu">
+								<a class="dropdown-item" href="{{path_for('paginas.preview', {'id': pagina.id, 'titulo': pagina.titulo|trim|replace({' ':'-'})|e|lower })}}">Visualizar</a>
+								<a class="dropdown-item" href="{{path_for('paginas.editar', {	'id': pagina.id })}}">Editar página</a>
+								{% if pagina.mostrar == 1 %}
+								<a class="dropdown-item" href="{{path_for('paginas.ocultar', {	'id': pagina.id })}}">Ocultar</a>
+								{% else %}
+								<a class="dropdown-item" href="{{path_for('paginas.mostrar', {	'id': pagina.id })}}">Mostrar</a>
+								{% endif %}
+					    	<a class="dropdown-item" href="{{path_for('paginas.eliminar', {	'id': pagina.id })}}" onclick="return confirm('¿Estas seguro que quieres eliminar esta página? No hay vuelta atras capo.');">Eliminar página</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					<div class="badges">
+						{% if pagina.mostrar == 1 %}
+						<span class="badge badge-sm bg-blue">Publicada</span>
+						{% else %}
+						<span class="badge  badge-sm bg-yellow">Sin publicar</span>
+						{% endif %}
+					</div>
+				</div>
+				<div class="card-footer" style="background-color: #6d868e; color: #fff;">
+					<div><small><strong>Autor:</strong> [ID: {{pagina.getAutor.id}}] {{pagina.getAutor.individuo.nombre ~ ' ' ~ pagina.getAutor.individuo.apellido}}</small></div>
+					<div><small><strong>Creado el:</strong> {{pagina.created_at|date('d/m/Y') ~ ' a las ' ~ pagina.created_at|date('h:i:s')}}</small></div>
+					<div><small><strong>Modificado el:</strong> {{pagina.updated_at|date('d/m/Y') ~ ' a las ' ~ pagina.updated_at|date('h:i:s')}}</small></div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+</div>
+{% endblock %}
+{% block custom_js %}
+{% endblock %}

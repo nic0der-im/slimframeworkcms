@@ -1,0 +1,102 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Documentación y Manual de Usuario{% endblock %}
+{% block header_title %}Documentación disponible para el usuario:{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item" >
+	<a href="{{path_for('ayuda.index')}}">Ayuda</a>
+</li>
+<li class="breadcrumb-item active" >
+	<a href="{{path_for('ayuda.index')}}">Documentación y Manual</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+
+</div>
+<div class="row">
+	{% for modulo in modulos %}
+		{% if 31 in auth.permisosEnlaces %}
+			{% if modulo.getManuales | length > 0 %}
+			<div class="col-sm-12 col-md-6">
+		        <div class="card">
+		            <div class="card-body">
+		                <h4 style="background-color:#f7f7f7; font-size: 18px; text-align: center; padding: 7px 10px; margin-top: 0;">
+		                    {{ modulo.nombre_modulo }}
+		                </h4>
+		                <div class="media">
+		                    <div class="media-body">
+		                        <div class="clearfix" style=" margin-right: 15px; margin-left: 15px;">
+								{% for manual in modulo.getManuales %}
+									<div class="row">
+										<div class="col-md-2 pull-right">
+											{% if 33 in auth.permisosEnlaces %}
+												<a class="btn btn-flat btn-xs btn-primary" onclick="return confirm('¿Estas seguro que quieres eliminar esta documentación? No hay vuelta atras capo.');" href="{{path_for('ayuda.eliminar', {	'id': manual.id })}}"><i class="fa fa-trash"></i></a>
+											{% endif %}
+											{% if 32 in auth.permisosEnlaces %}
+												<a class="btn btn-flat btn-xs btn-primary" href="{{path_for('ayuda.editar', {	'id': manual.id })}}"><i class="fa fa-pencil"></i></a>
+											{% endif %}
+										</div>
+										<div class="col-md-10">
+											<a href="{{ path_for('ayuda.ver', {'id': manual.id })}}"><h4 style="margin-top: 0"><i class="fa fa-book"></i> {{ manual.nombre }}</h4></a>
+										</div>
+                            		</div>
+                            		<p>{{ manual.descripcion }}</p>
+								{% endfor %}
+                        		</div>
+                    		</div>
+                		</div>
+            		</div>
+            	</div>
+    		</div>
+    		{% endif %}
+    	{% else %}
+			{% if modulo.tengoAcceso %}
+				{% if modulo.getManuales | length > 0 %}
+				<div class="col-sm-12 col-md-6">
+			        <div class="card card-solid">
+			            <div class="card-body">
+			                <h4 style="background-color:#f7f7f7; font-size: 18px; text-align: center; padding: 7px 10px; margin-top: 0;">
+			                    {{ modulo.nombre_modulo }}
+			                </h4>
+			                <div class="media">
+			                    <div class="media-body">
+			                        <div class="clearfix" style=" margin-right: 15px; margin-left: 15px;">
+									{% for manual in modulo.getManuales %}
+										<div class="row">
+											<div class="col-md-2 pull-right">
+												{% if 33 in auth.permisosEnlaces %}
+													<a class="btn btn-flat btn-xs btn-primary" onclick="return confirm('¿Estas seguro que quieres eliminar esta documentación? No hay vuelta atras capo.');" href="{{path_for('ayuda.eliminar', {	'id': manual.id })}}"><i class="fa fa-trash"></i></a>
+												{% endif %}
+												{% if 32 in auth.permisosEnlaces %}
+													<a class="btn btn-flat btn-xs btn-primary" href="{{path_for('ayuda.editar', {	'id': manual.id })}}"><i class="fa fa-pencil"></i></a>
+												{% endif %}
+											</div>
+											<div class="col-md-10">
+												<a href="{{ path_for('ayuda.ver', {'id': manual.id })}}"><h4 style="margin-top: 0"><i class="fa fa-book"></i> {{ manual.nombre }}</h4></a>
+											</div>
+	                            		</div>
+	                            		<p>{{ manual.descripcion }}</p>
+									{% endfor %}
+	                        		</div>
+	                    		</div>
+	                		</div>
+	            		</div>
+	            	</div>
+	    		</div>
+	    		{% endif %}
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+</div>
+{% if 31 in auth.permisosEnlaces %}
+<div class="row">
+	<div class="col-md-2 pull-right">
+		<a class="btn btn-flat btn-success btn-md btn-block" href="{{path_for('ayuda.crear')}}"><span style="font-size: 14px; font-weight: bold;">Agregar guía <i class="fa fa-plus"></i></span></a>
+	</div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,860 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">}
+
+	input[type='number'] {
+  -moz-appearance:textfield;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+	    -webkit-appearance: none;
+	}
+
+	@media (min-width: 768px) {
+		.form-inline .form-control {
+		    display: inline-block;
+		    width: 100%;
+		    vertical-align: middle;
+		}
+	}
+</style>
+{% endblock %}
+{% block title %}Cuenta Corriente de {{ cuenta.nombre_cuenta }}{% endblock %}
+{% block header_title %}
+<div>
+	Cuenta corriente de {{ cuenta.nombre_cuenta }}
+</div>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('cuenta.index')}}">Cuentas Corrientes</a>
+</li>
+<li class="breadcrumb-item">
+	<a href="{{path_for('cuenta.movimientos', {'id': cuenta.id })}}">Comprobantes</a>
+</li>
+<li class="breadcrumb-item active">
+	<a > Nuevo</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<form class="form" id="formFactura" method="POST" action="{{path_for('cuenta.factura.agregar', {'id': cuenta.id})}}">
+<div class="row">
+		<div class="col-md-12" >
+			<div class="card">
+				<div class="card-header bg-warning">
+					<h3 class="card-title">Nueva Factura {{cuenta.tipo_cuenta==1?'Venta':'Compra'}}</h3>
+				</div>
+				<div class="card-body">
+					<input type="hidden" name="id_cliente" id="id_cliente" value="{{old?old.id_cliente:0}}">
+					<input type="hidden" name="tipo_cuenta" id="tipo_cuenta" value="{{tipo_cuenta}}">
+					<div class="row">
+						<div class="col-md-3">
+							<div class="form-group">
+	              <label for="factura_tipo_comprobante">Tipo</label>
+	              <select class="form-control select2" id="factura_tipo_comprobante" name="factura_tipo_comprobante" style="width: 100%;" tabindex="-1" >
+	              	{% for item in tipoComprobante %}
+	              		{% if old.factura_tipo_comprobante == item.id %}
+	                	<option value="{{item.id}}" selected="" >{{item.nombre|title}}</option>
+	              			{% else %}
+	                	<option value="{{item.id}}" >{{item.nombre|title}}</option>
+	              		{% endif %}
+	              	{% endfor %}
+	              	<option value="99">
+	              		{% if cuenta.tipo_cuenta == 1 %}
+	              		FACTURA POSITIVA
+	              		{% else %}
+	              		FACTURA NEGATIVA
+	              		{% endif %}
+	              	</option>
+	              </select>
+	            </div>
+						</div>
+	          <div class="col-md-2">
+	            <div class="form-group">
+	              <label for="factura_fecha">Fecha</label>
+	            	<input type="text" class="form-control datepicker" id="factura_fecha" name="factura_fecha" required>
+	            </div>
+	          </div>
+	          <div class="col-md-4">
+	            <div class="form-group">
+	              <label for="factura_tipo_responsable">Condicion Responsable</label>
+	              <select class="form-control select2" id="factura_tipo_responsable" name="factura_tipo_responsable" style="width: 100%;" tabindex="-1" >
+	              	{% for item in tipoResponsable %}
+	              		{% if old.factura_tipo_responsable == item.id %}
+	                			<option value="{{item.id}}" selected="" >{{item.nombre|title}}</option>
+	              		{% else %}
+	                			<option value="{{item.id}}" >{{item.nombre|title}}</option>
+	              		{% endif %}
+	              	{% endfor %}
+	              </select>
+	            </div>
+	          </div>
+	          <div class="col-md-3">
+	            <div class="form-group">
+	              <label for="factura_fecha_vto">Vencimiento</label>
+	            	<input type="text" class="form-control datepicker" id="factura_fecha_vto" name="factura_fecha_vto" required>
+	            </div>
+	          </div>
+	        </div>
+	        <div class="row" >
+	        	<div class="col-md-9">
+	        		<div class="form-group" id="tipo_cambiar">
+		            <label for="id_tipo_transaccion" class="control-label">Tipo Transaccion</label>
+	              <select class="form-control select2" id="id_tipo_transaccion" name="id_tipo_transaccion" required>
+	              	<option value=""></option>
+	              	{% if cuenta.tipo_cuenta == 1 %}
+		                {% for index in tiposTransaccion %}
+		                	{% if index.factura == 1 %}
+			                	{% if old.id_tipo_transaccion == index.id %}
+			                	<option value="{{index.id}}" selected="">{{index.nombre|upper}}{{index.tipo < 0 ? ' (Ambos)':'' }}</option>
+		              			{% else %}
+			                	<option value="{{index.id}}" >{{index.nombre|upper}}{{index.tipo < 0 ? ' (Ambos)':'' }}</option>
+			                	{% endif %}
+			                {% endif %}
+		                {% endfor %}
+	                {% else %}
+	                	{% for index in tiposTransaccion %}
+		                	{% if old.id_tipo_transaccion == index.id %}
+		                	<option value="{{index.id}}" selected="">{{index.nombre|upper}}{{index.tipo < 0 ? ' (Ambos)':'' }}</option>
+	              			{% else %}
+		                	<option value="{{index.id}}" >{{index.nombre|upper}}{{index.tipo < 0 ? ' (Ambos)':'' }}</option>
+		                	{% endif %}
+		                {% endfor %}
+	                {% endif %}
+		            </select>
+		          </div>
+	          	</div>
+	          	<div class="col-md-3">
+		            <div class="form-group">
+	                  <label for="factura_fecha_vto">Periodo: <small>(opcional)</small></label>
+	                  <select id="factura_periodo" name="factura_periodo" class="form-control">
+	                  	<option value="0" selected=""> </option>
+	                    <option value="1">Enero</option>
+	                    <option value="2">Febrero</option>
+	                    <option value="3">Marzo</option>
+	                    <option value="4">Abril</option>
+	                    <option value="5">Mayo</option>
+	                    <option value="6">Junio</option>
+	                    <option value="7">Julio</option>
+	                    <option value="8">Agosto</option>
+	                    <option value="9">Septiembre</option>
+	                    <option value="10">Octumbre</option>
+	                    <option value="11">Noviembre</option>
+	                    <option value="12">Diciembre</option>
+	                  </select>
+	                </div>
+		          </div>
+	          <div class="col-md-3 hidden">
+	          	<div class="form-group">
+	          		<label for="facturar" class="control-label">Facturar?</label>
+	              <select class="form-control select2" id="facturar" name="facturar">
+	              	{# <option value="1">SI</option> #}
+	              	<option value="0">NO</option>
+	              </select>
+	          	</div>
+	          </div>
+	          <div class="col-md-3 hidden">
+	          	<div class="form-group">
+	          		<label for="facturar_total">Monto a Facturar</label>
+	            	<input type="number" class="form-control" id="facturar_total" value="0" name="facturar_total" placeholder="Dejar 0 para usar el monto real.">
+	          	</div>
+	          </div>
+	        </div>
+	        <div class="row">
+	        	<div class="col-md-12" >
+	        		<div class="card card-success">
+								<div class="card-header">
+									<h3 class="card-title">Detalle</h3>
+									<div class="card-tools">
+						      	<a class="btn btn-success" id="btnAgregarDetalle"><span class="ion ion-plus-round"></span></a>
+							    </div>
+								</div>
+								<div class="card-body px-0">
+									<div class="table-responsive" >
+										<table class="table table-bordered" id="tablaDetalle" width="100%">
+											<thead>
+												<tr>
+													<th>
+														Codigo
+													</th>
+													<th>
+														Descripcion
+													</th>
+													<th>
+														PxU
+													</th>
+													<th>
+														Iva
+													</th>
+													<th>
+														Cant.
+													</th>
+													<th>
+														Imp.
+													</th>
+													<th>
+														Bonif.
+													</th>
+													<th>
+														Subtotal
+													</th>
+													<th>
+													</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td>
+														<input type="text" class="form-control factura_detalle_codigo" name="factura_detalle_codigo[]"  value="{{old.factura_detalle_codigo[0]}}" >
+													</td>
+													<td>
+					              		<input type="text" class="form-control factura_detalle_descripcion" name="factura_detalle_descripcion[]" value="{{old.factura_detalle_descripcion[0]}}" required>
+													</td>
+													<td>
+														<input type="number" class="form-control factura_detalle_precio" name="factura_detalle_precio[]" value="{{old.factura_detalle_precio?old.factura_detalle_precio[0]:0}}" style="text-align:right;" required step="0.01">
+													</td>
+													<td>
+														<select class="form-control select2 factura_detalle_iva" name="factura_detalle_iva[]">
+														{% for item in tipoCondicionIva %}
+															<option value="{{item.id}}" >{{item.nombre}}</option>
+														{% endfor %}
+														</select>
+													</td>
+													<td>
+														<input type="number" class="form-control factura_detalle_cantidad" name="factura_detalle_cantidad[]" value="1" style="text-align:right;" >
+													</td>
+													<td>
+														<input type="number" class="form-control factura_detalle_impuesto" name="factura_detalle_impuesto[]" value="{{old.factura_detalle_impuesto?old.factura_detalle_impuesto[0]:0}}" style="text-align:right;" readonly="">
+													</td>
+													<td>
+														<input type="number" class="form-control factura_detalle_bonificado" name="factura_detalle_bonificado[]" value="{{old.factura_detalle_bonificado?old.factura_detalle_bonificado[0]:0}}" style="text-align:right;" required step="0.01">
+													</td>
+													<td>
+														<input type="number" class="form-control factura_detalle_subtotal" name="factura_detalle_subtotal[]" value="{{old.factura_detalle_subtotal?old.factura_detalle_subtotal[0]:0}}" style="text-align:right;" required step="0.01">
+													</td>
+													<td>
+														<a class="btn btn-success btnBorrarDetalle"><span class="ion ion-minus-round"></span></a>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<div class="row">
+										{% if errors.factura_detalle_codigo %}
+				            <div class="col-md-1">
+				              <div class="form-group">
+				                <label for="factura_detalle_codigo">Codigo</label>
+				                <i class="help-block no-margin">{{ errors.factura_detalle_codigo | first }}</i>
+				              </div>
+				            </div>
+				            {% endif %}
+				            {% if errors.factura_detalle_descripcion %}
+				            <div class="col-md-6">
+				              <div class="form-group">
+				                <label for="factura_detalle_descripcion">Descripcion</label>
+													<i class="help-block no-margin">{{ errors.factura_detalle_descripcion | first }}</i>
+				              </div>
+				            </div>
+				            {% endif %}
+			            </div>
+								</div>
+							</div>
+	        	</div>
+	        </div>
+	        <div class="row">
+	        	<div class="col-md-8" >
+	        		<div class="card card-info">
+								<div class="card-header">
+									<h3 class="card-title">Observaciones</h3>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<div class="col-md-12">
+				              <div class="form-group">
+				              	<textarea class="form-control" style="min-height: 187px; min-width: 100%; max-width: 100%" name="factura_observaciones"></textarea>
+				              	{% if errors.factura_observaciones %}
+													<i class="help-block no-margin">{{ errors.factura_observaciones | first }}</i>
+												{% endif %}
+				              </div>
+				            </div>
+			            </div>
+								</div>
+							</div>
+	        	</div>
+	        	<div class="col-md-4" >
+	        		<div class="card card-warning">
+								<div class="card-header">
+									<h3 class="card-title">Totales</h3>
+								</div>
+								<div class="form-horizontal">
+									<div class="card-body">
+			              <div class="form-group" id="divBruto">
+		                  <label for="factura_bruto" class="col-sm-3 control-label">Bruto</label>
+		                  <div class="col-sm-9">
+		                    <input type="text" class="form-control" id="factura_bruto" name="factura_bruto" style="text-align:right;" readonly>
+		                  </div>
+		                </div>
+		                <div class="form-group" id='divImpuesto'>
+		                  <label for="factura_impuesto " class="col-sm-3 control-label">Impuesto</label>
+		                  <div class="col-sm-9">
+		                    <input type="text" class="form-control" id="factura_impuesto" name="factura_impuesto" style="text-align:right;" readonly>
+		                  </div>
+		                </div>
+		                <div class="form-group" id='divNoGravado'>
+		                  <label for="nogravado " class="col-sm-3 control-label">No Gravado</label>
+		                  <div class="col-sm-9">
+		                    <input type="text" class="form-control" id="factura_nogravado" name="factura_nogravado" style="text-align:right;" readonly>
+		                  </div>
+		                </div>
+		                <div class="form-group" id='divExento'>
+		                  <label for="exento " class="col-sm-3 control-label">Exento</label>
+		                  <div class="col-sm-9">
+		                    <input type="text" class="form-control" id="factura_exento" name="factura_exento" style="text-align:right;" readonly>
+		                  </div>
+		                </div>
+		                <div class="form-group" id='divBonificado'>
+		                  <label for="factura_bonificado" class="col-sm-3 control-label">Bonificado</label>
+		                  <div class="col-sm-9">
+		                    <input type="text" class="form-control" id="factura_bonificado" name="factura_bonificado" style="text-align:right;" readonly>
+		                  </div>
+		                </div>
+									</div>
+								</div>
+								<div class="card-footer">
+									<label for="factura_importe" class="col-sm-2 control-label">Total</label>
+						      <input type="text" class="form-control" id="factura_importe" name="factura_importe" style="text-align:right;" readonly>
+						      <button id="submitForm" type="submit" class="hide"></button>
+						    </div>
+							</div>
+	        	</div>
+	      	</div>
+	        	{{ csrf.field | raw }}
+				</div>
+				<div class="card-footer">
+	      	<a class="btn btn-info pull-right" id="btnAgregar">Agregar</a>
+		    </div>
+			</div>
+		</div>
+</div>
+</form>
+
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+
+  {% if cuenta.tipo_cuenta == 1 %}
+ 	{#$('#factura_tipo_comprobante').on("change", function (e) {
+
+  	if($('#factura_tipo_comprobante').val() == 99){
+  		console.log("es recibo x");
+  		var div = '<label for="id_tipo_transaccion" class="control-label">Tipo Transaccion</label><select class="form-control select2" id="id_tipo_transaccion" name="id_tipo_transaccion" required><option value=""></option>{% for index in tiposTransaccion %}{% if index.factura == 0 %}{% if old.id_tipo_transaccion == index.id %}<option value="{{index.id}}" selected="">{{index.nombre}}</option>{% else %}<option value="{{index.id}}" >{{index.nombre}}</option>{% endif %}{% endif %}{% endfor %}</select>';
+  		console.log(div);
+  		$('#tipo_cambiar').html(div);
+  		$("#id_tipo_transaccion").select2("destroy");
+			$('#id_tipo_transaccion').select2({
+			    theme: "bootstrap",
+			    width: '100%',
+			});
+  	}	else 	{
+  		console.log("es factura");
+  		var div = '<label for="id_tipo_transaccion" class="control-label">Tipo Transaccion</label><select class="form-control select2" id="id_tipo_transaccion" name="id_tipo_transaccion" required><option value=""></option>{% for index in tiposTransaccion %}{% if index.factura == 1 %}{% if old.id_tipo_transaccion == index.id %}<option value="{{index.id}}" selected="">{{index.nombre}}</option>{% else %}<option value="{{index.id}}" >{{index.nombre}}</option>{% endif %}{% endif %}{% endfor %}</select>';
+  		console.log(div);
+
+  		$('#tipo_cambiar').html(div);
+  		$("#id_tipo_transaccion").select2("destroy");
+			$('#id_tipo_transaccion').select2({
+			    theme: "bootstrap",
+			    width: '100%',
+			});
+  	}
+  });#}
+  {% endif %}
+
+$(document).ready(function() {
+
+	$('#id_tipo_transaccion').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#factura_tipo_comprobante').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('#factura_tipo_responsable').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+  $('.factura_detalle_iva').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+	$('#factura_fecha').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+  $('#factura_fecha_vto').datepicker({
+		language:'es-ES',
+    autoHide: true,
+    autoPick: true,
+    format: 'dd/mm/yyyy',
+  });
+
+	$('#factura_importe').val(formatCurrency(0));
+	$('#factura_impuesto').val(formatCurrency(0));
+	$('#factura_nogravado').val(formatCurrency(0));
+	$('#factura_exento').val(formatCurrency(0));
+	$('#factura_bruto').val(formatCurrency(0));
+	$('#factura_bonificado').val(formatCurrency(0));
+
+
+	setTimeout(function(){
+		if($('#id_cliente').val()>0){
+			$('#factura_fecha').datepicker('setDate', '{{old.factura_fecha}}');
+			$('#factura_fecha_vto').datepicker('setDate', '{{old.factura_fecha_vto}}');
+			setTimeout(calcuclarTotales, 100);
+			$('#boxCliente').slideDown();
+			{% if old.factura_detalle_cantidad %}
+			var factura_detalle_codigo = {{ old.factura_detalle_codigo |json_encode|raw }};
+			var factura_detalle_descripcion = {{old.factura_detalle_descripcion|json_encode|raw}};
+			var factura_detalle_precio = {{old.factura_detalle_precio|json_encode|raw}};
+			var factura_detalle_iva = {{old.factura_detalle_iva|json_encode|raw}};
+			var factura_detalle_cantidad = {{old.factura_detalle_cantidad|json_encode|raw}};
+			var factura_detalle_impuesto = {{old.factura_detalle_impuesto|json_encode|raw}};
+			var factura_detalle_bonificado = {{old.factura_detalle_bonificado|json_encode|raw}};
+			var factura_detalle_subtotal = {{old.factura_detalle_subtotal|json_encode|raw}};
+
+			if(factura_detalle_descripcion.length>1){
+				for (var i = 1; i < factura_detalle_descripcion.length; i--) {
+					agregarDetalle(
+						factura_detalle_codigo[i],
+						factura_detalle_descripcion[i],
+						factura_detalle_precio[i],
+						factura_detalle_cantidad[i],
+						factura_detalle_impuesto[i],
+						factura_detalle_bonificado[i],
+						factura_detalle_subtotal[i]
+						);
+				}
+			}
+			index = 0;
+			$('.factura_detalle_iva').each(function(i, obj) {
+				$(this).val(factura_detalle_iva[index]).trigger('change');
+				index += 1;
+			});
+			{% endif %}
+		} else {
+			$('#boxCliente').slideUp();
+		}
+	}, 500);
+
+   $('*[data-validation="digit"]').keydown(function (e) {
+      if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+          (e.keyCode == 65 && e.ctrlKey === true) ||
+          (e.keyCode >= 35 && e.keyCode <= 40)) {
+        return;
+      }
+      if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault();
+      }
+    });
+
+	$('#tablaDetalle tbody').on('select2:select','.factura_detalle_iva',function(){
+		var precio  = Number($(this).closest('tr').find('.factura_detalle_precio').val());
+		var cantidad  = Number($(this).closest('tr').find('.factura_detalle_cantidad').val());
+		var bonificado  = Number($(this).closest('tr').find('.factura_detalle_bonificado').val());
+		var subtotal = (precio * cantidad) - bonificado;
+		var impuesto = subtotal;
+		switch(Number(this.value)){
+			case 1: //no gravado
+			case 2: //exento
+			case 3: // 0 %
+				impuesto = 0;
+				break;
+			case 4: // 10.5 %
+				impuesto = (impuesto/100)*10.5;
+				break;
+			case 5: // 21 %
+				impuesto = (impuesto/100)*21;
+				break;
+			case 6: // 27 %
+				impuesto = (impuesto/100)*27;
+				break;
+			case 8: // 5 %
+				impuesto = (impuesto/100)*5;
+				break;
+			case 9: // 2.5 %
+				impuesto = (impuesto/100)*2.5;
+				break;
+		};
+		$(this).closest('tr').find('.factura_detalle_impuesto').val(impuesto.toFixed(2));
+		$(this).closest('tr').find('.factura_detalle_subtotal').val(subtotal+impuesto);
+		calcuclarTotales();
+	});
+
+	$('#tablaDetalle tbody').on('keyup','.factura_detalle_precio, .factura_detalle_bonificado, .factura_detalle_cantidad',function(e){
+		var origin = $(e.target);
+		if(origin.hasClass('factura_detalle_cantidad')){
+			var numero = $(this).val().replace(/^0+/, '');
+			if( numero=='' ){
+				$(this).val(1);
+			} else {
+				$(this).val(numero);
+			}
+		}
+		if( $(this).val()>0 ){
+			$('.factura_detalle_precio').each(function(i, obj) {
+				var precio  = Number($(this).closest('tr').find('.factura_detalle_precio').val());
+				var cantidad  = Number($(this).closest('tr').find('.factura_detalle_cantidad').val());
+				var bonificado  = Number($(this).closest('tr').find('.factura_detalle_bonificado').val());
+				var subtotal = (precio * cantidad) - bonificado;
+				if(subtotal>=0){
+					var tipoCondicionIva = Number($(this).closest('tr').find('.factura_detalle_iva').val());
+					var impuesto = subtotal;
+					switch(tipoCondicionIva){
+						case 1: //no gravado
+						case 2: //exento
+						case 3: // 0 %
+							impuesto = 0;
+							break;
+						case 4: // 10.5 %
+							impuesto = (impuesto/100)*10.5;
+							break;
+						case 5: // 21 %
+							impuesto = (impuesto/100)*21;
+							break;
+						case 6: // 27 %
+							impuesto = (impuesto/100)*27;
+							break;
+						case 8: // 5 %
+							impuesto = (impuesto/100)*5;
+							break;
+						case 9: // 2.5 %
+							impuesto = (impuesto/100)*2.5;
+							break;
+					}
+					$(this).closest('tr').find('.factura_detalle_impuesto').val(impuesto.toFixed(2));
+					$(this).closest('tr').find('.factura_detalle_subtotal').val(subtotal+impuesto);
+					$(this).closest('tr').find('.factura_detalle_bonificado').css({'border-color':''});
+				} else {
+					$(this).closest('tr').find('.factura_detalle_bonificado').css({'border-color':'red'});
+					$(this).closest('tr').find('.factura_detalle_subtotal').val(0);
+				}
+
+			});
+			calcuclarTotales();
+		}
+	});
+	$('#tablaDetalle tbody').on('keyup','.factura_detalle_subtotal',function(){
+		if( $(this).val()>0 ){
+			$('.factura_detalle_precio').each(function(i, obj) {
+				var subtotal  = Number($(this).closest('tr').find('.factura_detalle_subtotal').val());
+				var bonificado  = Number($(this).closest('tr').find('.factura_detalle_bonificado').val());
+				var precio = subtotal - bonificado;
+				$(this).closest('tr').find('.factura_detalle_precio').val(precio);
+				$(this).closest('tr').find('.factura_detalle_iva').val(1).trigger('change');
+				$(this).closest('tr').find('.factura_detalle_impuesto').val(0);
+			});
+			calcuclarTotales();
+		}
+	});
+
+	$('#tablaDetalle tbody').on('keydown','.factura_detalle_cantidad', function(e){
+		-1!==$.inArray(e.keyCode,[46,8,9,27,13,110,190])||(/65|67|86|88/.test(e.keyCode)&&(e.ctrlKey===true||e.metaKey===true))&&(!0===e.ctrlKey||!0===e.metaKey)||35<=e.keyCode&&40>=e.keyCode||(e.shiftKey||48>e.keyCode||57<e.keyCode)&&(96>e.keyCode||105<e.keyCode)&&e.preventDefault()
+	});
+
+	$('#divBruto').hide();
+	$('#factura_bruto').on('change', function() {
+		var number = formatNumberFromCurrency($(this).val());
+		if(number>0){
+			$('#divBruto').slideDown();
+		} else {
+			$('#divBruto').slideUp();
+		}
+	});
+
+	$('#divBonificado').hide();
+	$('#factura_bonificado').on('change', function() {
+		var number = formatNumberFromCurrency($(this).val());
+		if(number>0){
+			$('#divBonificado').slideDown();
+		} else {
+			$('#divBonificado').slideUp();
+		}
+	});
+
+	$('#divImpuesto').hide();
+	$('#divNoGravado').hide();
+	$('#divExento').hide();
+
+	$('#btnAgregar').on('click',function(){
+		var errores = false;
+
+		var fecha = $('#factura_fecha').datepicker('getDate');
+		var vto = $('#factura_fecha_vto').datepicker('getDate');
+		if(fecha>vto){
+			$.toast({
+        heading: 'Factura',
+        text: 'La fecha de vencimiento no puede ser menor que la fecha de la factura.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+			errores = true;
+		}
+		var total = formatNumberFromCurrency($('#factura_importe').val());
+		if(total<=0){
+			$.toast({
+        heading: 'Factura',
+        text: 'El importe total de la factura debe ser mayor que cero.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+			errores = true;
+		}
+  	var table = $('#tablaDetalle').DataTable();
+		var filas = table.rows().data();
+		if(filas.length==0){
+			$.toast({
+        heading: 'Factura',
+        text: 'Debe haber al menos un detalle.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+			errores = true;
+		}
+
+		if(errores){
+			return null;
+		}
+	 	bootbox.confirm({
+	    title: "Generar Factura?",
+	    message: "Desea generar la factura con todos sus detalles? Una vez generado podra elegir los medios de pago para la misma factura.",
+	    buttons: {
+	      cancel: {
+	        label: '<i class="fa fa-times"></i> Cancelar'
+	      },
+	      confirm: {
+	        label: '<i class="ion ion-checkmark-round"></i> Confirmar'
+	      }
+	    },
+	    callback: function (result) {
+	      if(result){
+					$('#submitForm').trigger('click');
+	      }
+	    }
+	  });
+	});
+
+	$('#btnAgregarDetalle').on('click',function(){
+		agregarDetalle('','','','','','','');
+	});
+
+	$('#tablaDetalle').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+        targets:[0],
+        width:"15%",
+      },
+      {
+        targets:[2,3,4,5,6,7],
+        width:"10%",
+      },
+      {
+      	targets:[8],
+      	width:"5%",
+        className: 'text-center p-1',
+      },
+			{
+				targets:[0,1,2,3,4,5,6,7],
+				className: 'p-1',
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Por favor agregue un Detalle",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#tablaDetalle tbody').on( 'click', 'a.btnBorrarDetalle', function () {
+		var table = $('#tablaDetalle').DataTable();
+    table.row( $(this).parents('tr') )
+        .remove()
+        .draw();
+    calcuclarTotales();
+	});
+
+});
+
+function agregarDetalle(codigo,descripcion,precio,cantidad,impuesto,bonificado,subtotal){
+	var tipoCondicionIva = {{tipoCondicionIva|json_encode|raw}};
+	if(precio.length==0){
+		precio = 0;
+	}
+	if(cantidad.length==0){
+		cantidad = 1;
+	}
+	if(impuesto.length==0){
+		impuesto = 0;
+	}
+	if(bonificado.length==0){
+		bonificado = 0;
+	}
+	if(subtotal.length==0){
+		subtotal = 0;
+	}
+	var selectIva = '<select class="form-control select2 factura_detalle_iva" name="factura_detalle_iva[]" width="100%">';
+	for (var i = 0; i < tipoCondicionIva.length; i++) {
+		selectIva += '<option value="'+tipoCondicionIva[i].id+'">'+tipoCondicionIva[i].nombre+'</option>';
+	}
+	selectIva += '</select>';
+
+	var table = $('#tablaDetalle').DataTable();
+	table.row.add([
+		'<input type="text" class="form-control factura_detalle_codigo" name="factura_detalle_codigo[]" value="'+codigo+'" >'
+		,
+  	'<input type="text" class="form-control factura_detalle_descripcion" name="factura_detalle_descripcion[]" value="'+descripcion+'" required>'
+		,
+		'<input type="number" class="form-control factura_detalle_precio" name="factura_detalle_precio[]" style="text-align:right;" value="'+precio+'" required step="0.01">'
+		,
+		selectIva
+		,
+		'<input type="number" class="form-control factura_detalle_cantidad" name="factura_detalle_cantidad[]" style="text-align:right;" value="'+cantidad+'" >'
+		,
+		'<input type="number" class="form-control factura_detalle_impuesto" name="factura_detalle_impuesto[]" value="'+impuesto+'" style="text-align:right;" readonly="">'
+		,
+		'<input type="number" class="form-control factura_detalle_bonificado" name="factura_detalle_bonificado[]" style="text-align:right;" value="'+bonificado+'" required step="0.01">'
+		,
+		'<input type="number" class="form-control factura_detalle_subtotal" name="factura_detalle_subtotal[]" style="text-align:right;" value="'+subtotal+'" required step="0.01">'
+		,
+		'<a class="btn btn-success btnBorrarDetalle"><span class="ion ion-minus-round"></span></a>'
+		])
+	.draw()
+  .node();
+  var row = $(table.row(':last').node());
+  row.find('.factura_detalle_iva').select2({
+  	minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+}
+
+function calcuclarTotales(){
+	var bruto = 0;
+	var total = 0;
+	var bonificado = 0;
+	var nogravado = 0;
+	var exento = 0;
+	var impuesto = 0;
+	$('.factura_detalle_precio').each(function(i, obj) {
+		var subtotal = Number($(this).closest('tr').find('.factura_detalle_subtotal').val());
+		total  += subtotal;
+		bonificado  += Number($(this).closest('tr').find('.factura_detalle_bonificado').val());
+		var tipoCondicionIva = Number($(this).closest('tr').find('.factura_detalle_iva').val());
+		var alicuota = Number($(this).closest('tr').find('.factura_detalle_impuesto').val());
+		switch(tipoCondicionIva){
+			case 1: //no gravado
+				nogravado += Number($(this).closest('tr').find('.factura_detalle_subtotal').val());
+				break;
+			case 2: //exento
+				exento += Number($(this).closest('tr').find('.factura_detalle_subtotal').val());
+				break;
+			case 3: // 0 %
+			case 4: // 10.5 %
+			case 5: // 21 %
+			case 6: // 27 %
+			case 8: // 5 %
+			case 9: // 2.5 %
+				impuesto += alicuota;
+				break;
+			}
+		bruto += (subtotal - alicuota);
+	});
+	$('#factura_impuesto').val(formatCurrency(impuesto));
+	if(impuesto>0){
+		$('#divImpuesto').slideDown();
+	} else {
+		$('#divImpuesto').slideUp();
+	}
+	$('#factura_nogravado').val(formatCurrency(nogravado));
+	if(nogravado>0){
+		$('#divNoGravado').slideDown();
+	} else {
+		$('#divNoGravado').slideUp();
+	}
+	$('#factura_exento').val(formatCurrency(exento));
+	if(exento>0){
+		$('#divExento').slideDown();
+	} else {
+		$('#divExento').slideUp();
+	}
+	if(total>0){
+		$('#factura_bruto').val(formatCurrency(bruto));
+		$('#factura_bruto').trigger('change');
+		$('#factura_bonificado').val(formatCurrency(bonificado));
+		$('#factura_bonificado').trigger('change');
+
+		$('#factura_importe').val(formatCurrency(total));
+	} else {
+		$('#divBonificado').slideUp();
+		$('#divBruto').slideUp();
+
+		$('#factura_importe').val(formatCurrency(0));
+	}
+
+}
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+
+function formatNumberFromCurrency(total){
+	return Number(total.replace('.','').replace(',','.').replace(/[^0-9\.-]+/g,""));
+}
+
+</script>
+{% endblock %}

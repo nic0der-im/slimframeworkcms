@@ -1,0 +1,268 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}
+	Página
+{% endblock %}
+{% block header_title %}
+	{% if old.id>0 %}
+	Editar
+	{% else %}
+	Crear
+	{% endif %}
+{% endblock %}
+{% block breadcrumb %}
+	<li class="breadcrumb-item">
+		<a href="{{path_for('paginas.index')}}">Páginas</a>
+	</li>
+	<li class="breadcrumb-item active">
+		{% if old.id > 0 %}
+		Edicion
+		{% else %}
+		Nuevo
+		{% endif %}
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+	{% if old.id>0 %}
+	<form name="page_0km_crear_form" method="POST" action="{{path_for('paginas.editar',{'id':old.id})}}" autocomplete="off">
+	{% else %}
+	<form name="page_0km_crear_form" method="POST" action="{{path_for('paginas.crear')}}" autocomplete="off">
+	{% endif %}
+		{{ csrf.field | raw }}
+		<div class="col-sm-12">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="card card-info">
+						<div class="card-header">
+							<h3 class="card-title text-bold">Descripción de la página:</h3>
+						</div>
+						<div class="card-body">
+							<div class="form-group">
+								<div class="row">
+									<div class="col-sm-6">
+										<label for="titulo">Titulo de la página:</label>
+										<input type="text" class="form-control" name="titulo" id="page_0km_titulo" placeholder="Titulo de la página" value="{{old.titulo}}" required>
+									</div>
+									<div class="col-sm-6">
+										<label for="contenido">Descripción de la página:</label>
+										<input type="text" class="form-control" name="contenido" id="page_0km_descripcion" placeholder="Descripción de la página" value="{{old.contenido}}">
+									</div>
+									<div class="col-sm-6">
+										<label for="id_marca">Marca del Vehiculo a Publicar en la Pagina</label>
+										<select class="form-control select2" name="id_marca" id="id_marca" placeholder="Condición" autocomplete="off" required>
+											<option value="" selected="" disabled="">Marca</option>
+											{% for row in marcas %}
+												{% if row.id==old.id_marca %}
+													<option class="option" value="{{row.id}}" selected="true">
+														{{row.nombre}}
+													</option>
+												{% else %}
+													<option class="option" value="{{row.id}}">
+														{{row.nombre}}
+													</option>
+												{% endif %}
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					{% if old.id>0 %}
+					<div class="card card-info">
+						<div class="card-header">
+							<h3 class="card-title text-bold">Carrusel de presentación:</h3>
+						</div>
+						<div class="card-body">
+							<form class="form-group">
+			          <div class="row">
+									<div class="col-md-12">
+										<label class="form-control" for="url_parallax">Parallax de la página (url de imagen galeria):</label>
+										{% if old.url_parallax %}
+											<img src="{{old.url_parallax}}" class="img-thumbnail	" alt="Responsive image">
+										{% else %}
+											SIN IMAGEN
+										{% endif %}
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="card-footer">
+							<a class="form-control btn btn-primary" id="btnParallax">SUBIR</a>
+						</div>
+					</div>
+					<div class="card card-info">
+						<div class="card-header">
+							<h3 class="card-title text-bold">Carrusel de presentación:</h3>
+						</div>
+						<div class="card-body p-0">
+							<ul  class="nav nav-tabs">
+								<li class="nav-item ">
+					        <a class="nav-link active" href="#1a" data-toggle="tab">Primer carrusel:</a>
+								</li>
+								<li class="nav-item" >
+									<a class="nav-link"  href="#2a" data-toggle="tab">Segundo carrusel:</a>
+								</li>
+								<li class="nav-item" >
+									<a class="nav-link" href="#3a" data-toggle="tab">Tercer carrusel:</a>
+								</li>
+							</ul>
+							<br>
+							<div class="tab-content clearfix">
+							  <div class="tab-pane active" id="1a">
+				          <div class="row" style="text-align:center;">
+										<div class="col-sm-4">
+											{% if old.carrusel1_img %}
+												<img src="{{old.carrusel1_img}}" class="img-thumbnail	" alt="Responsive image">
+											{% else %}
+												SIN IMAGEN
+											{% endif %}
+											<a class="form-control btn btn-primary" id="btnCarrusel1">SUBIR</a>
+										</div>
+										<div class="col-sm-4">
+											<label for="carrusel1_titulo">Titulo</label>
+											<input type="text" class="form-control" name="carrusel1_titulo" id="page_0km_c1_titulo" placeholder="Titulo del carrusel" value="{{old.carrusel1_titulo}}">
+										</div>
+										<div class="col-sm-4">
+											<label for="carrusel1_parrafo">Parrafo</label>
+											<input type="text" class="form-control" name="carrusel1_parrafo" id="page_0km_c1_parrafo" placeholder="Parrafo del carrusel" value="{{old.carrusel1_parrafo}}">
+										</div>
+									</div>
+								</div>
+								<div class="tab-pane" id="2a">
+				         <div class="row" style="text-align:center;">
+										<div class="col-sm-4">
+											{% if old.carrusel2_img %}
+												<img src="{{old.carrusel2_img}}" class="img-thumbnail	" alt="Responsive image">
+											{% else %}
+												SIN IMAGEN
+											{% endif %}
+											<a class="form-control btn btn-primary" id="btnCarrusel2">SUBIR</a>
+										</div>
+										<div class="col-sm-4">
+											<label for="carrusel2_titulo">Titulo</label>
+											<input type="text" class="form-control" name="carrusel2_titulo" id="page_0km_c2_titulo" placeholder="Titulo del carrusel" value="{{old.carrusel2_titulo}}">
+										</div>
+										<div class="col-sm-4">
+											<label for="carrusel2_parrafo">Parrafo</label>
+											<input type="text" class="form-control" name="carrusel2_parrafo" id="page_0km_c2_parrafo" placeholder="Parrafo del carrusel" value="{{old.carrusel2_parrafo}}">
+										</div>
+									</div>
+								</div>
+				        <div class="tab-pane" id="3a">
+				          <div class="row" style="text-align:center;">
+										<div class="col-sm-4">
+											{% if old.carrusel3_img %}
+												<img src="{{old.carrusel3_img}}" class="img-thumbnail	" alt="Responsive image">
+											{% else %}
+												SIN IMAGEN
+											{% endif %}
+											<a class="form-control btn btn-primary" id="btnCarrusel3">SUBIR</a>
+										</div>
+										<div class="col-sm-4">
+											<label for="carrusel3_titulo">Titulo</label>
+											<input type="text" class="form-control" name="carrusel3_titulo" id="page_0km_c3_titulo" placeholder="Titulo del carrusel" value="{{old.carrusel3_titulo}}">
+										</div>
+										<div class="col-sm-4">
+											<label for="carrusel3_parrafo">Parrafo</label>
+											<input type="text" class="form-control" name="carrusel3_parrafo" id="page_0km_c3_parrafo" placeholder="Parrafo del carrusel" value="{{old.carrusel3_parrafo}}">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-footer" >
+							<button class="btn btn-primary btn-flat pull-right" type="submit">Guardar Cambios</button>
+							<a href="{{path_for('paginas.bloques', {	'id_pagina': old.id })}}" class="btn btn-info btn-flat pull-right">Bloques</a>
+							<a href="{{path_for('paginas.ver', {'id': old.id, 'titulo': old.titulo|trim|replace({' ':'-'})|e|lower })}}" class="btn btn-warning btn-flat pull-right" >Visualizar</a>
+							<a href="{{path_for('paginas.eliminar', {	'id': old.id })}}" onclick="return confirm('¿Estas seguro que quieres eliminar esta página?');" class="btn btn-danger btn-flat pull-left" type="reset">Eliminar</a>
+						</div>
+						{% else %}
+						<div class="card-footer" >
+							<button class="btn btn-primary btn-flat pull-right" type="submit">Crear página y agregar bloques</button>
+							<button class="btn btn-default btn-flat pull-left" type="reset">Limpiar campos</button>
+						</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+{% if old.id>0 %}
+<div class="modal fade" id="modalImagen">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+				<h4 class="modal-title">Agregar Imagen</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form class="form-group" enctype="multipart/form-data" method="POST" action="{{path_for('paginas.imagen',{'id':old.id})}}" autocomplete="off" >
+        	<input type="hidden" name="atributo" id="atributo">
+          <div class="row">
+      			<div class="col-md-12">
+      				<label class="control-label" id="labelAtributo" ></label>
+							<input type="file" class="form-control" name="file" required>
+						</div>
+        	</div>
+          {{ csrf.field | raw }}
+          <button type="submit" class="d-none" id="submitImagen" ></button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" id="btnImagen">Agregar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block custom_js %}
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$('.select2').select2({
+	    theme: "bootstrap",
+	    width: '100%',
+	  });
+
+	  $('#btnParallax').on('click',function(){
+	  	$('#atributo').val('url_parallax');
+	  	$('#labelAtributo').html('Parallax');
+  		$('#modalImagen').modal('show');
+	  });
+
+	  $('#btnCarrusel1').on('click',function(){
+	  	$('#atributo').val('carrusel1_img');
+	  	$('#labelAtributo').html('Carrusel 1');
+  		$('#modalImagen').modal('show');
+	  });
+
+	  $('#btnCarrusel2').on('click',function(){
+	  	$('#atributo').val('carrusel2_img');
+	  	$('#labelAtributo').html('Carrusel 2');
+  		$('#modalImagen').modal('show');
+	  });
+
+	  $('#btnCarrusel3').on('click',function(){
+	  	$('#atributo').val('carrusel3_img');
+	  	$('#labelAtributo').html('Carrusel 3');
+  		$('#modalImagen').modal('show');
+	  });
+
+	  $('#btnImagen').on('click',function(){
+	  	$('#submitImagen').trigger('click');
+	  });
+
+
+	});
+</script>
+{% endblock %}

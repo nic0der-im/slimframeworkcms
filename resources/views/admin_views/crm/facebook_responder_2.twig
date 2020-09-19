@@ -1,0 +1,103 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+{% endblock %}
+{% block title %}CRM - Facebook - Respondedor {% endblock %}
+{% block header_title %}CRM - Facebook - Respondedor{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('crm.index')}}">CRM</a>
+</li>
+<li class="breadcrumb-item active">
+	<a href="{{path_for('crm.index')}}">Facebook</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card card-success">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Configuración de tokens de acceso:</h3>
+			</div>
+			<div class="card-body">
+				<form class="form-signup" action="{{ path_for('crm.facebook.respondedor.obtener') }}" method="post">
+					<div class="form-group">
+						<label for="token_id" class="sr-only">Token ID:</label>
+						<input type="text" id="token_id" name="token_id" class="form-control" placeholder="Token ID:">
+					</div>
+					<button type="submit" class="btn btn-primary btn-block">Recolectar posts</button>
+					{{ csrf.field | raw}}
+				</form>
+			</div>
+		</div>
+	</div>
+	/*<div class="col-md-12" id="tabla_pubs">
+		<div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Condensed Full Width Table</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body no-padding">
+              <table class="table table-condensed">
+                <tbody><tr>
+                  <th style="width: 10px">#</th>
+                  <th>Task</th>
+                  <th>Progress</th>
+                  <th style="width: 40px">Label</th>
+                </tr>
+                <tr>
+                  <td>1.</td>
+                  <td>Update software</td>
+                  <td>
+                    <div class="progress progress-xs">
+                      <div class="progress-bar progress-bar-danger" style="width: 55%"></div>
+                    </div>
+                  </td>
+                  <td><span class="badge bg-red">55%</span></td>
+                </tr>
+                <tr>
+                  <td>2.</td>
+                  <td>Clean database</td>
+                  <td>
+                    <div class="progress progress-xs">
+                      <div class="progress-bar progress-bar-yellow" style="width: 70%"></div>
+                    </div>
+                  </td>
+                  <td><span class="badge bg-yellow">70%</span></td>
+                </tr>
+                <tr>
+                  <td>3.</td>
+                  <td>Cron job running</td>
+                  <td>
+                    <div class="progress progress-xs progress-striped active">
+                      <div class="progress-bar progress-bar-primary" style="width: 30%"></div>
+                    </div>
+                  </td>
+                  <td><span class="badge bg-light-blue">30%</span></td>
+                </tr>
+                <tr>
+                  <td>4.</td>
+                  <td>Fix and squish bugs</td>
+                  <td>
+                    <div class="progress progress-xs progress-striped active">
+                      <div class="progress-bar progress-bar-success" style="width: 90%"></div>
+                    </div>
+                  </td>
+                  <td><span class="badge bg-green">90%</span></td>
+                </tr>
+              </tbody></table>
+            </div>
+            <!-- /.card-body -->
+        </div>
+	</div>*/
+</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#tabla_pubs").hide();
+});
+</script>
+{% endblock %}

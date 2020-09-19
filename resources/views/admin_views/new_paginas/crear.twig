@@ -1,0 +1,786 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+	{% if production %}
+
+		<link rel="stylesheet" href="/asources/css/paginas.css">
+
+		{% else %}
+
+		<link rel="stylesheet" href="/asources/css/paginas.css">
+
+	{% endif %}
+
+	<style type="text/css">
+
+	.d-center {
+	  display: flex;
+	  align-items: center;
+	}
+
+	.selected img {
+	  width: auto;
+	  max-height: 23px;
+	  margin-right: 0.5rem;
+	}
+
+	v-select .dropdown li {
+	  border-bottom: 1px solid rgba(112, 128, 144, 0.1);
+	}
+
+	v-select .dropdown li:last-child {
+	  border-bottom: none;
+	}
+
+	v-select .dropdown li a {
+	  padding: 10px 20px;
+	  width: 100%;
+	  font-size: 1.25em;
+	  color: #3c3c3c;
+	}
+
+	v-select .dropdown-menu .active > a {
+	  color: #fff;
+	}
+
+	</style>
+
+{% endblock %}
+{% block title %}
+	Página
+{% endblock %}
+{% block header_title %}
+	Crear página
+	<button type="button" class="btn btn-sm btn-info btn-flat text-white import_json">Importar JSON</button>
+	<button type="button" class="btn btn-sm btn-info btn-flat text-white export_json">Exportar a JSON</button>	
+{% endblock %}
+{% block breadcrumb %}
+	<li>
+		<a href="{{path_for('paginas.index')}}">Páginas</a>
+	</li>
+	<li class="active">
+		Crear página
+	</li>
+{% endblock %}
+{% block content %}
+{% include 'admin_views/admin_partials/flash_nocf.twig' %}
+<div id="app">
+	{{csrf.field | raw}}
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="info-box bg-primary-gradient">
+				<div class="show-on-saving">
+					<h4>Estamos guardando la página...</h4>
+					<p>Aguarda un instante mientras cargamos toda la información en el sistema.</p>
+				</div>
+				<div class="hide-on-saving">
+					<h4>Mirá los cambios en tiempo real</h4>
+					<p>Al terminar los cambios, presioná <kbd>CTRL</kbd> + <kbd>B</kbd></p>
+				</div>
+			</div>
+			<div class="progress xs show-on-saving">
+        <div class="progress-bar progress-bar-info" id="upload_progress"></div>
+      </div>
+		</div>
+		<div class="col-md-3">
+			<div class="card">
+				<div class="card-header with-border">
+					<h3 class="card-title text-bold">Configuración básica</h3>
+				</div>
+				<div class="card-body">
+					<div class="form-group">
+						<label for="page_0km_titulo">Titulo de la página:</label>
+						<input type="text" class="form-control" v-model="pagina.titulo" @keyup="CambioTitulo($event)" placeholder="Titulo de la página">
+					</div>
+					<div class="form-group">
+						<label for="page_0km_url">URL de la página:</label>
+						<input type="text" class="form-control" v-model="pagina.url" placeholder="URL de la página">
+					</div>
+					<div class="form-group">
+						<label for="page_0km_descripcion">Descripción de la página:</label>
+						<input type="text" class="form-control" v-model="pagina.descripcion" placeholder="Descripción de la página">								
+					</div>
+					<div class="form-group">
+						<label for="page_0km_keywords">Keywords de la página:</label>
+						<textarea class="form-control" v-model="pagina.keywords" placeholder="Keywords de la página"></textarea>
+					</div>
+					<div class="form-group">
+						<label for="id_marca">Marca</label>
+						<select class="form-control select2" v-model="pagina.marca" placeholder="Condición" autocomplete="off">
+							<option value="" selected="" disabled="">Marca</option>
+							{% for row in marcas %}
+								<option class="option" value="{{row.id}}">
+									{{row.nombre}}
+								</option>
+							{% endfor %}
+						</select>
+					</div>
+					<button type="button" class="btn btn-sm btn-info btn-flat btn-block save_web">Crear página</button>
+				</div>
+				<div class="overlay"><i class="fa  fa-circle-o-notch fa-spin"></i></div>
+			</div>
+		</div>
+		<div class="col-md-9">			
+			<div class="card">
+				<div class="card-header with-border">
+					<h3 class="card-title text-bold">Bloques</h3>
+					<div class="card-tools pull-right">
+						<button type="button" class="btn btn-sm btn-info add_section"><i class="fa fa-file"></i></button>						
+					</div>
+				</div>
+				<div class="card-body p-0">
+					<table class="no-margin table">
+						<thead>
+							<th style="width: 80px;">Orden</th>
+							<th>Nombre</th>
+							<th>Tipo</th>
+							<th>Href</th>
+							<th></th>
+						</thead>
+						<tbody>
+							<tr v-for="(bloque, index) in trueSecciones">
+								<td><input type="number" min="1" class="form-control" v-model="bloque.orden"></td>
+								<td><input class="form-control" v-model="bloque.nombre"></td>
+								<td>
+									<select class="form-control" v-model="bloque.type">
+										<option disabled="" selected="">Tipo</option>
+										<option value="fullscreen">Fullscreen</option>
+										<option value="textoimg">Texto + Imagen</option>
+										<option value="galeria">Galería</option>
+										<option value="fichatecnica">Ficha técnica</option>
+										<option value="versiones">Versiones</option>
+									</select>										
+								</td>
+								<td><input class="form-control" v-model="bloque.href"></td>
+								<td>
+									<button class="btn btn-sm btn-info scroll_tobloque pull-right" title="Ver bloque" :data-target="'bloque-'+bloque.id"><i class="fa fa-eye"></i></button>
+									<button class="btn btn-sm btn-danger pull-right" @click="eliminar(index)"><i class="fa fa-trash"></i></button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="overlay"><i class="fa  fa-circle-o-notch fa-spin"></i></div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12" v-for="(bloque, index) in secciones" :id="'bloque-'+bloque.id">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title text-bold"><u>Bloque:</u> <% bloque.nombre %> (pos. <% bloque.orden %>) (tipo: <% bloque.type %>)</h3>
+					<div class="card-tools">						
+						<button type="button" class="btn btn-sm btn-secondary" data-widget="collapse"><i class="fa fa-minus"></i></button>
+						<button class="btn btn-sm btn-info" @click="ti_agregarSeccion(index)" v-if="bloque.type == 'textoimg'"><i class="fa fa-file"></i></button>
+						<button class="btn btn-sm btn-info" @click="ti_agregarImagen(index)" v-if="bloque.type == 'galeria'"><i class="fa fa-file"></i></button>
+						<button class="btn btn-sm btn-info" @click="ti_agregarItemFicha(index)" v-if="bloque.type == 'fichatecnica'"><i class="fa fa-file"></i></button>
+						<button class="btn btn-sm btn-info" @click="ti_agregarSeccion(index)" v-if="bloque.type == 'versiones'"><i class="fa fa-file"></i></button>
+					</div>
+				</div>
+				<div class="card-body" v-if="bloque.type == 'fullscreen'">
+					<div class="form-group">
+						<label>Titulo</label>
+						<input type="text" class="form-control" v-model="bloque.titulo" placeholder="Titulo">
+					</div>
+					<div class="form-group">
+						<label>Subtitulo</label>
+						<input type="text" class="form-control" v-model="bloque.subtitulo" placeholder="Subtitulo">
+					</div>
+					<div class="form-group">						
+						<label>Imágen de Fondo</label>
+						<input :ref="'fileupload'+bloque.id" type="file" class="form-control" :data-index="index" @change="onFileChange($event, 'textoimg', bloque)" placeholder="Imágen de fondo"  accept="image/*">
+						<br>						
+						<div class="panel panel-default" >
+							<div class="panel-heading">Ver imágen <button class="btn btn-xs btn-info pull-right" data-toggle="collapse" :href="'#'+bloque.id" aria-expanded="false" :aria-controls="bloque.id">Abrir/Cerrar</button></div>
+							<div class="panel-body collapse" :id="bloque.id">
+								<img :src="bloque.imagen" class="img-fluid">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card-body" v-if="bloque.type == 'galeria'">
+					<div class="form-group">
+						<label>Subtitulo</label>
+						<input type="text" class="form-control" v-model="bloque.subtitulo" placeholder="Subtitulo">
+					</div>
+				</div>
+				<div class="overlay"><i class="fa fa-circle-o-notch fa-spin"></i></div>
+			</div>
+			<div class="row" v-if="bloque.type == 'textoimg'">				
+				<div class="col-md-6" v-for="(item, index) in bloque.items">
+					<div class="card">
+						<div class="card-header with-border">
+							<h3 class="card-title text-bold">
+								Sección de <% bloque.nombre %>
+							</h3>
+							<div class="card-tools pull-right">
+								<button type="button" class="btn btn-sm btn-secondary" data-widget="collapse" ><i class="fa fa-minus"></i></button>
+								<button type="button" class="btn btn-sm btn-danger" @click="removeItemTextoImg(index, bloque.items)"><i class="fa fa-trash"></i></button>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="form-group">
+								<div class="input-group">
+									<span class="input-group-addon text-bold">Posición</span>
+									<input type="number" v-model="item.orden" min="1" class="form-control">
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Titulo</label>
+								<input type="text" class="form-control" v-model="item.titulo" placeholder="Titulo">
+							</div>							
+							<div class="form-group">
+								<label>Párrafo</label>
+								<vue-ckeditor v-model="item.parrafo"/>
+							</div>
+							<div class="form-group">
+								<label>Imágen de Fondo</label>
+								<input :ref="'fileupload'+item.id" type="file" class="form-control" :data-index="index" @change="onFileChange($event, 'item', item)" placeholder="Imágen de fondo"  accept="image/*">
+								<br>
+								<div class="panel panel-default">
+									<div class="panel-heading">Ver imágen <button class="btn btn-xs btn-info pull-right" data-toggle="collapse" :href="'#'+item.id" aria-expanded="false" :aria-controls="item.id">Abrir/Cerrar</button></div>
+									<div class="panel-body collapse" :id="item.id">
+										<img :src="item.imagen" class="img-fluid">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="overlay"><i class="fa  fa-circle-o-notch fa-spin"></i></div>
+					</div>
+				</div>
+			</div>
+			<div class="row" v-if="bloque.type == 'galeria'">
+				<div class="col-md-4" v-for="(image, index) in bloque.images">
+					<div class="card">
+						<div class="card-header with-border">
+							<h3 class="card-title text-bold">
+								Imagen de <% bloque.nombre %>
+							</h3>
+							<div class="card-tools pull-right">								
+								<button type="button" class="btn btn-sm btn-secondary" data-widget="collapse"><i class="fa fa-minus"></i></button>
+								<button type="button" class="btn btn-sm btn-danger" @click="removeItem(index, bloque.images)"><i class="fa fa-trash"></i></button>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="form-group">
+								<div class="input-group">
+									<span class="input-group-addon text-bold">Posición</span>
+									<input type="number" v-model="image.orden" min="1" class="form-control">
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Alt</label>
+								<input type="text" class="form-control" v-model="image.alt" placeholder="Alt">
+							</div>
+							<div class="form-group">
+								<label>Imágen de Fondo</label>
+								<input :ref="'fileupload'+image.id" type="file" class="form-control" :data-index="index" @change="onFileChange($event, 'img', image)" placeholder="Imágen de fondo"  accept="image/*">
+								<img :src="image.imagen" class="img-fluid">
+							</div>
+						</div>
+						<div class="overlay"><i class="fa  fa-circle-o-notch fa-spin"></i></div>
+					</div>
+				</div>
+			</div>
+			<div class="row" v-if="bloque.type == 'fichatecnica'">
+				<div class="col-md-3" v-for="(item, index) in bloque.items">
+					<div class="card">
+						<div class="card-header with-border">
+							<h3 class="card-title text-bold">
+								Item de <% bloque.nombre %>
+							</h3>
+							<div class="card-tools pull-right">								
+								<button type="button" class="btn btn-sm btn-secondary" data-widget="collapse"><i class="fa fa-minus"></i></button>
+								<button type="button" class="btn btn-sm btn-danger" @click="removeItem(index, bloque.items)"><i class="fa fa-trash"></i></button>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="form-group">
+								<div class="input-group">
+									<span class="input-group-addon text-bold">Posición</span>
+									<input type="number" v-model="item.orden" min="1" class="form-control">
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Titulo</label>
+								<input type="text" required class="form-control" v-model="item.titulo" placeholder="Titulo">
+							</div>
+							<div class="form-group">
+								<label>Icono</label>
+								<select class="form-control" required v-model="item.id_icono">
+									{% for icono in iconos %}
+									<option value="{{icono.id}}">{{icono.nombre}}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Párrafo</label>
+								<vue-ckeditor v-model="item.parrafo"/>
+							</div>							
+						</div>
+						<div class="overlay"><i class="fa fa-circle-o-notch fa-spin"></i></div>
+					</div>
+				</div>
+			</div>
+			<div class="row" v-if="bloque.type == 'versiones'">
+				<div class="col-md-6" v-for="(item, index) in bloque.items">
+					<div class="card">
+						<div class="card-header with-border">
+							<h3 class="card-title text-bold">
+								Versión <% item.orden %> de <% pagina.titulo %>
+							</h3>
+							<div class="card-tools pull-right">
+								<button type="button" class="btn btn-sm btn-secondary" data-widget="collapse" ><i class="fa fa-minus"></i></button>
+								<button type="button" class="btn btn-sm btn-danger" @click="removeItemTextoImg(index, bloque.items)"><i class="fa fa-trash"></i></button>
+							</div>
+						</div>
+						<div class="card-body">							
+							<div class="form-group">
+								<div class="input-group">
+									<span class="input-group-addon text-bold">Posición</span>
+									<input type="number" v-model="item.orden" min="1" class="form-control">									
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Titulo</label>
+								<input type="text" class="form-control" v-model="item.titulo" placeholder="Titulo">
+							</div>
+							<div class="form-group">
+								<label>Selector de Vehiculo</label>
+								<v-select v-model="item.vehiculo" label="name" :filterable="false" :options="options" @search="onSearch">
+									<template slot="no-options">
+							      Busca un auto
+							    </template>
+							    <template slot="option" slot-scope="option">
+							      <div class="d-center" style="font-size: 16px;">
+							        <b style="padding-right: 10px;"><% option.nombre %></b> <% option.anio %>
+							      </div>
+							      <div class="badge bg-light-blue">$ <% option.precio.precio %></div>
+							    </template>
+							    <template slot="selected-option" slot-scope="option">
+							      <div class="selected d-center">
+							        <% option.nombre %> <% option.anio %> <strong>$ <% option.precio.precio %></strong>
+							      </div>
+							    </template>								
+								</v-select>
+							</div>
+							<div class="form-group">
+								<label>Contenido / Ficha Técnica</label>
+								<vue-ckeditor class="editor_ficha" v-model.lazy="item.parrafo"/>
+							</div>
+							<div class="form-group">
+								<label>Imágen</label>
+								<input :ref="'fileupload'+item.id" type="file" class="form-control" :data-index="index" @change="onFileChange($event, 'item', item)" placeholder="Imágen de fondo"  accept="image/*">
+								<br>
+								<div class="panel panel-default">
+									<div class="panel-heading">Ver imágen <button class="btn btn-xs btn-info pull-right" data-toggle="collapse" :href="'#'+item.id" aria-expanded="false" :aria-controls="item.id">Abrir/Cerrar</button></div>
+									<div class="panel-body collapse" :id="item.id">
+										<img :src="item.imagen" class="img-fluid">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="overlay"><i class="fa  fa-circle-o-notch fa-spin"></i></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="modal-errores" tabindex="-1" role="dialog" aria-labelledby="modal-import-json-label">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header bg-danger text-white">
+					Errores
+				</div>
+				<div class="modal-body">
+					<table class="table table-condensed">
+					  <tbody>
+					  	<tr>
+						    <th style="width: 10px">#</th>
+						    <th>Error</th>
+						    <th>Etapa</th>
+						  </tr>
+						  <tr v-for="(error, index) in errores">
+						  	<td><% index+1 %></td>
+						  	<td><% error.error %></td>
+						  	<td><% error.step %></td>
+						  </tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modal-import-json" tabindex="-1" role="dialog" aria-labelledby="modal-import-json-label">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="modal-import-json-label">Importar JSON de página1</h4>
+			</div>
+			<div class="modal-body">
+				<input type="file" id="json-import-file" onchange='openFile(event)' accept=".json,application/json">
+			</div>
+			<div class="modal-footer">				
+				<button type="button" class="btn btn-primary" id="upload-json-file">Importar</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script src="//cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/ckeditor/4.9.2/adapters/jquery.js"></script>
+<script src="https://unpkg.com/vue-ckeditor2@2.0.5/dist/vue-ckeditor2.js"></script>
+<script src="https://unpkg.com/vue-select@latest"></script>
+<script type="text/javascript">
+
+var ventana_emergente = null;
+
+var app = new Vue({
+	delimiters: ['<%', '%>'],
+	el: '#app',
+	data: {
+		pagina: {
+		},
+		options: [],
+		secciones: [],
+		errores: {},
+		config: {
+			height: 500,
+			allowedContent: true,
+			contentsCss:'//stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css',
+		},
+		configParrafo: {
+			toolbar: [
+				[ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ]
+			],      
+		}
+	},
+	methods: {
+
+		CambioTitulo(e){
+			var titulo = this.pagina.titulo;
+			titulo = titulo.toLowerCase().replace(/\W+/g, '-');
+			this.pagina.url = titulo.replace(/\W+/g, '-');
+			this.$forceUpdate();
+		},
+
+		/* VUE SELECT */
+		onSearch(search, loading) {
+      loading(true);
+      this.search(loading, search, this);
+    },
+    search: _.debounce((loading, search, vm) => {
+      fetch(
+        `{{path_for('precios.api')}}?q=${escape(search)}`
+      ).then(res => {
+        res.json().then(json => (vm.options = json.items));
+        loading(false);
+      });
+    }, 350),
+
+    /* EDITOR */
+		removeItem: function(index, objeto) {
+			objeto.splice(index, 1);
+			this.$forceUpdate();
+		},
+		addImage: function(e, objeto) {
+			var files = e.target.files || e.dataTransfer.files;
+			if (!files.length)
+				return;
+			this.createImage(files[0], objeto);
+		},
+		removeItemTextoImg: function(index, objeto) {
+			objeto.splice(index, 1);
+			this.$forceUpdate();
+		},
+		ti_agregarSeccion: function(index) {
+			if(this.secciones[index].items) {
+
+				this.secciones[index].items.push({
+					id: moment().valueOf(),
+					titulo: '',
+					parrafo: '',
+					imagen: '',
+					orden: this.secciones[index].items.length + 1
+				});
+			}
+			else {
+				this.secciones[index].items = [{
+					id: moment().valueOf(),
+					titulo: '',
+					parrafo: '',
+					imagen: '',
+					orden: 1
+				}];
+			}		
+			
+			setTimeout(function(){
+				//$('.box-item').boxWidget();	
+			}, 500);
+
+			this.$forceUpdate();
+
+		},
+		eliminar: function(index){
+			this.secciones.splice(index, 1);
+		},
+		ti_agregarImagen: function(index) {
+			if(this.secciones[index].images) {
+
+				this.secciones[index].images.push({
+					id: moment().valueOf(),
+					alt: '',
+					src: '',
+					orden: this.secciones[index].images.length + 1
+				});
+			}
+			else {
+				this.secciones[index].images = [{
+					id: moment().valueOf(),
+					alt: '',
+					src: '',
+					orden: 1
+				}];
+			}		
+			
+			setTimeout(function(){
+				$('.box-item').boxWidget();	
+			}, 500);
+
+			this.$forceUpdate();
+
+		},
+		ti_agregarItemFicha: function(index) {
+
+			if(this.secciones[index].items) {
+
+				this.secciones[index].items.push({
+					id: moment().valueOf(),
+					alt: '',
+					src: '',
+					orden: this.secciones[index].items.length + 1
+				});
+			}
+			else {
+				this.secciones[index].items = [{
+					id: moment().valueOf(),
+					alt: '',
+					src: '',
+					orden: 1
+				}];
+			}		
+			
+			setTimeout(function(){
+				$('.box-item').boxWidget();	
+			}, 500);
+
+			this.$forceUpdate();
+
+		},
+		eliminar: function(index){
+			this.secciones.splice(index, 1);
+		},
+		onFileChange(e, tipo, objeto) {			
+			var files = e.target.files || e.dataTransfer.files;
+			if (!files.length)
+				return;
+			this.createImage(files[0], objeto);
+		},
+		createImage(file, objeto) {
+			var image = new Image();
+			var reader = new FileReader();
+			var vm = this;
+
+			objeto.imagen = ' ';
+			
+			reader.onload = (e) => {
+				objeto.imagen = e.target.result;
+				this.$forceUpdate();
+			};
+			reader.readAsDataURL(file);
+			this.$forceUpdate();
+		},
+		removeImage: function (e) {
+			this.image = '';
+		}
+	},
+	computed: {
+		trueSecciones: function() {
+			function compare(a, b) {
+				if (a.orden < b.orden)
+					return -1;
+				if (a.orden > b.orden)
+					return 1;
+				return 0;
+			}
+
+			return this.secciones.sort(compare);
+		}
+	},
+	updated: function() {
+
+	}
+});
+
+Vue.use(VueCkeditor);
+Vue.component('v-select', VueSelect.VueSelect);
+
+function download(blob, filename) {
+	if (window.navigator.msSaveOrOpenBlob) // IE10+
+		window.navigator.msSaveOrOpenBlob(blob, filename);
+	else { // Others
+		var a = document.createElement("a"),
+						url = URL.createObjectURL(blob);
+		a.href = url;
+		a.download = filename;
+		document.body.appendChild(a);
+		a.click();
+		setTimeout(function() {
+				document.body.removeChild(a);
+				window.URL.revokeObjectURL(url);  
+		}, 0); 
+	}
+}
+
+var openFile = function(event) {
+  var input = event.target;
+
+  var reader = new FileReader();
+  reader.onload = function(){
+    var text = reader.result;
+    var jsonifed;
+    try {
+      jsonifed = JSON.parse(text);
+    } catch (e) {
+      alert('Error');
+    }
+    app.pagina = jsonifed.pagina;
+    app.secciones = jsonifed.secciones;
+    $('#modal-import-json').modal('hide');
+    setTimeout(function(){
+			$('.box-default').boxWidget();
+		}, 1000);
+  };
+  reader.readAsText(input.files[0]);
+};
+
+$(document).ready(function(){
+	$('.sidebar-toggle').click();
+
+	$(document).on('click', '.scroll_tobloque', function(e){
+		e.preventDefault();
+		var target = $(this).data('target');
+		console.log(target);
+		$('html,body').animate({
+        scrollTop: $("#" + target).offset().top - 16
+    }, 500);
+	});
+
+	$('.add_section').click(function(){
+
+		var id = moment().valueOf();
+
+		app.secciones.push({
+			'id':id,
+			'orden':app.secciones.length+1,
+			'imagen': ''
+		});
+
+		setTimeout(function(){
+			$('.box-default').boxWidget();	
+		}, 1000);
+
+	});
+
+	$('.save_web').click(function(){
+		$('#app').addClass('onSaving');
+		$('.box').addClass('loading');
+
+		var page_data = JSON.stringify({'pagina': app.pagina, 'secciones': app.secciones});
+
+		var formData = new FormData();
+
+		formData.append('pagedata', page_data);
+		formData.append('csrf_name', $('input[name=csrf_name]').val());
+		formData.append('csrf_value', $('input[name=csrf_value]').val());
+
+		$.ajax({
+			url: "{{path_for('paginas.crear')}}",
+			data: formData,
+			method: 'POST',
+			processData: false,
+			contentType: false,
+			dataType: "json",
+			success: function(response) {
+				if(response.success) {
+					location.reload();
+				}
+				else {
+					$('#modal-errores').modal('show');
+					app.errores = response.errores;
+					Vue.nextTick(function () {
+					  app.$el.textContent === 'new message' // true
+					})
+
+				}
+			},
+			complete: function (jqXHR) {
+				var csrfToken = jqXHR.getResponseHeader('X-CSRF-Token');				
+				if (csrfToken) {
+					try {
+						csrfToken = $.parseJSON(csrfToken);
+						var csrfTokenKeys = Object.keys(csrfToken);
+						var hiddenFields = $('#app').find('input.csrf[type="hidden"]');
+						
+						if (csrfTokenKeys.length === hiddenFields.length) {
+							hiddenFields.each(function(i) {								
+								$('input[name="' + csrfTokenKeys[i] + '"').val(csrfToken[csrfTokenKeys[i]]);								
+							});
+						}
+						
+					}
+					catch (e) {
+
+					}
+				}
+			}
+		});
+
+
+	});
+
+
+
+	$('.export_json').click(function(){
+		let archivo = JSON.stringify({'pagina': app.pagina, 'secciones': app.secciones});
+		let file = new Blob([archivo], {type: 'text/json'});
+
+		var nombre = app.pagina.titulo.replace(/[^\w\s]/gi, '');
+		download(file,nombre+".json");
+	});
+
+	$('.import_json').click(function(){
+		$('#modal-import-json').modal('show');
+	});
+
+	
+
+	$(document).keyup(function(e){
+		if(e.ctrlKey && e.which == 66) {
+			ventana_emergente = window.open("{{path_for('paginas.preview_simple')}}");
+			console.log('asdasdasd');
+			console.log(app.pagina);
+			setTimeout(function(){
+				ventana_emergente.postMessage({'pagina':app.pagina, 'secciones':app.secciones}, "*");
+			}, 1500);			
+		}
+	});
+});
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,828 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+table tbody tr td ul {
+  background-color: white !important;
+}
+
+.table thead th {
+  border-bottom: 0px solid #dee2e6 !important; 
+}
+
+.table thead th {
+    border-bottom: 0px solid #dee2e6 !important; 
+}
+.table thead th {
+    border-bottom: 0px solid #dee2e6 !important; 
+}
+.table td, .table th {
+    border-top: 0px solid #dee2e6 !important; 
+}
+.table td, .table th {
+    border-top: 0px solid #dee2e6 !important; 
+}
+
+.tooltip-inner {
+background-color: red;
+}
+.tooltip.bs-tooltip-right .arrow:before {
+    border-right-color: red !important;
+}
+.tooltip.bs-tooltip-left .arrow:before {
+    border-left-color: red !important;
+}
+.tooltip.bs-tooltip-bottom .arrow:before {
+    border-bottom-color: red !important;
+}
+.tooltip.bs-tooltip-top .arrow:before {
+    border-top-color: red !important;
+}
+
+</style>
+
+{% endblock %}
+{% block title %}
+	{% if old.id>0 %}
+	Editar Prospecto
+	{% else %}
+	Cargar un nuevo prospecto
+	{% endif %}
+{% endblock %}
+{% block header_title %}
+	{% if old.id>0 %}
+	Editar Prospecto
+	{% else %}
+	Cargar un nuevo prospecto
+	{% endif %}
+{% endblock %}
+
+{% block breadcrumb %}
+	<li class="breadcrumb-item">
+		<a href="{{path_for('prospectos.index')}}">
+			Prospectos
+		</a>
+	</li>
+	<li class="breadcrumb-item">
+		{% if old.id>0 %}
+		<a class="active">
+			Editar
+		</a>
+		{% else %}
+		<a href="{{path_for('prospectos.cargar')}}" class="active">
+			Cargar
+		</a>
+		{% endif %}
+	</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+{% if old.id > 0 %}
+<form action="{{path_for('prospectos.editar', { id:old.id } ) }}" method="POST">
+{% else %}
+<form action="{{path_for('prospectos.cargar.post')}}" method="POST">
+{% endif %}
+	<div class="row">
+		<div class="col-md-6">
+			<input type="hidden" name="consulta_id" id="consulta_id" value="{{ consulta.id }}">
+			<div class="card card-primary">
+				<div class="card-header">
+					<h3 class="card-title">Información del cliente</h3>
+				</div>
+				<div class="card-body">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-6">
+								<label for="np_nombre">Nombre <small class="text-muted">(*)</small></label>
+								<div class="input-group ">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+									</div>
+									{% if consulta %}
+									<input type="text" class="form-control" name="np_nombre" id="np_nombre" placeholder="Nombre" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el nombre del cliente.<br>Por ejemplo: <b>Ciro</b>" value="{{ consulta.nombre }}">
+									{% else %}
+									<input type="text" class="form-control" name="np_nombre" id="np_nombre" placeholder="Nombre" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el nombre del cliente.<br>Por ejemplo: <b>Ciro</b>" value="{{ old.nombre }}">
+									{% endif %}
+								</div>
+							</div>
+							<div class="col-md-6">
+								<label for="np_apellido">Apellido <small class="text-muted">(*)</small></label>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+									</div>
+									{% if consulta %}
+									<input type="text" class="form-control" name="np_apellido" id="np_apellido" placeholder="Apellido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el apellido del cliente.<br>Por ejemplo: <b>Parietti</b>" value="{{ consulta.apellido }}">
+									{% else %}
+									<input type="text" class="form-control" name="np_apellido" id="np_apellido" placeholder="Apellido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el apellido del cliente.<br>Por ejemplo: <b>Parietti</b>" value="{{ old.apellido }}">
+									{% endif %}
+								</div>
+							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="col-md-6">
+								<label for="cliente_provincia">Provincia</label>
+								<select class="form-control select2" id="cliente_provincia" name="laboral_id_provincia" style="width: 100%;" required data-toggle="tooltip" >
+			                	{% for item in provincias %}
+			                		{% if 17 == item.id %}
+			                  	<option value="{{item.id}}" selected="" >{{item.nombre|upper }}</option>
+			                			{% else %}
+			                  	<option value="{{item.id}}" >{{item.nombre|upper }}</option>
+			                		{% endif %}
+			                	{% endfor %}
+                				</select>
+								{#<i class="help-block no-margin">ATENCION! Solo esta para filtrar la busqueda por localidad</i>#}
+							</div>
+							<div class="col-md-6" id="bloodhoundCiudad">
+								<label for="np_localidad">Localidad <small class="text-muted">(*)</small></label>
+								<input type="text" class="form-control typeahead" name="np_localidad" id="np_localidad" placeholder="Localidad" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá la Localidad" style="border-radius: 0px 4px 4px 0px;font-family" value="{{old?old.localidad:'Desconocido'}}">
+							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="col-md-6 col-sm-12">
+								<label for="np_telefono">Teléfono <small class="text-muted">(*)</small></label>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="fa fa-phone" aria-hidden="true"></i></span>
+									</div>
+									{% if consulta %}
+										<input type="text" class="form-control red-tooltip" name="np_telefono" id="np_telefono" placeholder="Teléfono" autocomplete="off" pattern=".{8,}"  required value="{% if consulta.telefono|length > 3 %}{{ consulta.telefono }}{% else %}{% if consulta.email|length > 5 %}{{ consulta.email }}{% else %}{{ consulta.usuario.email }}{% endif %}{% endif %}">
+									{% else %}
+										<input type="text" class="form-control red-tooltip" name="np_telefono" id="np_telefono" placeholder="Teléfono" autocomplete="off" pattern=".{8,}"  required value="{{old.telefono}}">
+									{% endif %}
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<label for="np_vendedor">Agente comercial <small class="text-muted">( Opcional )</small></label>
+								
+								<div class="input-group">
+									<select class="form-control" name="np_vendedor" id="np_vendedor" placeholder="Vendedor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el apellido del cliente.<br>Por ejemplo: <b>Parietti</b>">
+										<option value="0">LIBRE</option>
+										<option value="SALTA">LIBRE EN SALTA</option>
+										<option value="ORAN">LIBRE EN ORAN</option>
+										{% for u in agencias %}
+											{% if u.individuo.id_usuario == auth.user.id %} 
+												<option value="{{ u.id_usuario }}" selected="">{{ lista[u.id_usuario] }} [{{ u.agencia.nombre | upper}}] {{ u.individuo.nombre }} {{ u.individuo.apellido }}</option>
+											{% else %}
+												<option value="{{ u.id_usuario }}">{{ lista[u.id_usuario] }} [{{ u.agencia.nombre | upper}}] {{ u.individuo.nombre }} {{ u.individuo.apellido }}</option>
+											{% endif %}
+										{% endfor %}
+									</select>
+								</div>
+								{#<i class="help-block no-margin">Cantidad Prospectos Hoy - Agencia - Nombre</i>#}
+							</div>
+						</div>
+						<br>
+						{% if consulta %}
+						<div class="row">
+							<div class="col-md-12">
+								<label for="np_vendedor">Fuente del prospecto <small class="text-muted">(Opcional)</small></label>
+								<div class="input-group">
+									<select class="form-control" name="fuente_prospecto" id="fuente_prospecto" placeholder="Fuente" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá la fuente de orígen del prospecto">
+										{% for fuente in fuentes %}
+											<option value="{{ fuente.id }}">{{ fuente.titulo }}</option>									
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+						</div>
+						{% else %}
+						<div class="row hidden">
+							<div class="col-md-12 hidden"  hidden>
+								<label for="np_vendedor">Fuente del prospecto <small class="text-muted">(Opcional)</small></label>
+								<div class="input-group">
+									<select class="form-control" name="fuente_prospecto" id="fuente_prospecto" placeholder="Fuente" autocomplete="off" data-toggle="tooltip" data-placement="auto" title="Ingresá la fuente de orígen del prospecto">
+										<option value="99">Fuente</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						{% endif %}
+						<br>
+						<div class="row">
+							<div class="col-sm-12">
+								<label for="np_observaciones">Observaciones</label>
+								{% if consulta %}
+									<textarea class="form-control fw-ta" name="np_observaciones" id="np_observaciones">El cliente esta interesado en el siguiente vehículo: {{ consulta.url }}{% if consulta.texto|length < 5 %}{% if consulta.usuario.facebook_id|length > 5 %}
+									Dejó su perfil de Facebook: https://facebook.com/{{consulta.usuario.facebook_id}}{% endif %}{% else %}{{ consulta.texto }}{% endif %}</textarea>
+								{% else %}
+									<textarea class="form-control fw-ta" name="np_observaciones" id="np_observaciones">{{old.observaciones}}</textarea>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card card-info">
+						<div class="card-header">
+							<h3 class="card-title">¿Le interesa algún vehículo?</h3>
+						</div>
+						<div class="card-body">
+							<div class="row" style="color: #FFF !important;">
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+					                  <div class="input-group-prepend">
+					                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#vehiculos0km"><i class="fa fa-car" aria-hidden="true"></i> 0KM</button>
+					                  </div>
+					                  <!-- /btn-group -->	
+					                  <input type="text" class="form-control" disabled="" value="Ninguno" id="vehiculos0km_id">
+					                </div>
+								</div>
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+					                  <div class="input-group-prepend">
+					                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#vehiculosUsados"><i class="fa fa-car" aria-hidden="true"></i> Usados</button>
+					                  </div>
+					                  <!-- /btn-group -->
+					                  <input type="text" class="form-control" disabled="" value="Ninguno" id="vehiculosUsados_id">
+					                </div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-12 {{old?'hidden':''}}">
+					<div class="card card-success">
+						<div class="card-header">
+							<h3 class="card-title">Sugerencias<small>  **(Entre parentesis se encuentran las existencias)</small></h3>
+						</div>
+						<div class="card-body">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<div class="row">
+											<label class="label">Marca</label>
+										</div>
+										<div class="row">
+											{% for item in marcas %}
+											<div class="col-md-6">
+												<div class="form-check">
+													<input class="form-check-input" type="checkbox" name="marcas[]" value="{{item.nombre}}" />
+													<label class="form-check-label" >{{item.nombre}}&nbsp;{{item.tienevehiculos() ? '('~item.tienevehiculos()~')' :'' }} </label>
+												</div>
+											</div>
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<div class="row">
+											<label class="label">Año</label>
+										</div>
+										<div class="row">
+											{% for year,cantidad in years %}
+											<div class="col-md-6">
+												<div class="form-check">
+													<input class="form-check-input" type="checkbox" name="years[]" value="{{year}}" />
+				                 				 	<label class="form-check-label" > {{year}}&nbsp;({{cantidad}})</label>
+				                				</div>
+											</div>
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<div class="row">
+											<label class="label">Motor</label>
+										</div>
+										<div class="row">
+											{% for item in motores %}
+											<div class="col-md-6">
+												<div class="form-check">
+													<input class="form-check-input" type="checkbox" name="motores[]" value="{{item.nombre}}" />
+														<label class="form-check-label" > {{item.nombre}}&nbsp;{{item.tienevehiculos() ? '('~item.tienevehiculos()~')' :'' }} </label>
+												</div>
+											</div>
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<div class="row">
+											<label class="label">Transmicion</label>
+										</div>
+										<div class="row">
+											{% for item in transmisiones %}
+											<div class="col-md-6">
+												<div class="form-check">
+													<input class="form-check-input" type="checkbox" name="transmisiones[]" value="{{item.nombre}}" />
+														<label class="form-check-label" > {{item.nombre}}&nbsp;{{item.tienevehiculos() ? '('~item.tienevehiculos()~')' :'' }}</label>
+												</div>
+											</div>
+											{% endfor %}
+										</div>
+									</div>
+								</div>	
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card card-success">
+				<div class="card-header">
+					<h4 class="card-title">Acciones disponibles:</h4>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-md-4">
+							<button class="btn btn-block btn-info" type="reset">Limpiar campos</button>
+						</div>
+						<div class="col-md-4">
+							{% if old.id>0 %}
+							{% else %}
+								<div class="input-group" style="text-align:right;">
+			                      <input type="text" class="form-control" disabled="" value="Prospecto Caliente">
+			                      <div class="input-group-prepend">
+			                        <span class="input-group-text">
+			                          <input type="checkbox" id="prospectoCaliente">
+			                        </span>
+			                      </div>
+			                    </div>
+							{% endif %}
+						</div>
+						<div class="col-md-4">
+							<button class="btn btn-block btn-primary" type="submit">
+							{% if old.id>0 %}
+								Editar prospecto
+							{% else %}
+								Cargar prospecto
+							{% endif %}
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>	
+	</div>
+	{{ csrf.field | raw }}
+</form>
+
+
+<!-- The Modal -->
+<div class="modal" id="vehiculos0km">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Vehículos 0KM</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- The Modal -->
+<div class="modal" id="vehiculosUsados">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Seleccione un vehículo usado:</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <table id="tablaVehiculos" class="table table-bordered table-hover responsive" cellspacing="0" width="100%">
+			<thead>
+				<tr>
+					<th>
+					</th>
+					<th>
+						Dominio
+					</th>
+					<th>
+						Marca
+					</th>
+					<th>
+						Modelo
+					</th>
+					<th>
+						Año
+					</th>
+					<th>
+						Km
+					</th>
+					<th>
+						Color
+					</th>
+					<th>
+						Localidad
+					</th>
+					<th>
+						Precio<br>Contado
+					</th>
+					<th>
+						Precio<br>Lista
+					</th>
+					<th>
+						Entrega<br>Minima
+					</th>
+					<th>
+					 	Cil.
+					</th>
+					<th>
+						Tipo Motor
+					</th>
+					<th>
+						Trans.
+					</th>
+					<th>
+						Cant. Puertas
+					</th>
+					<th>
+						Ubicación
+					</th>
+					<th>
+						Ex Dueño
+					</th>
+					<th>
+						Estado
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+      </div>
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block custom_js %}
+<script>
+$(document).ready(function(){
+
+	var colapsado = 1;
+	var tablaProspectos = '';
+
+	function colapsar(){
+	  console.log("colapso");
+	  if(colapsado = 0)
+	  {
+	    $('#iconito').toggleClass('fa-plus fa-minus');
+	    colapsado = 1;
+	  }
+	  else
+	  {
+	    $('#iconito').toggleClass('fa-minus fa-plus');
+	    colapsado = 0;
+	  }
+	}
+
+	setTimeout(function() {
+		$('.alert-dismissible').slideUp();
+	}, 3000);
+
+	$('#fuente_prospecto').select2({
+    	theme: "bootstrap",
+   	 	width: '100%',
+  	});
+  	
+  	$('#np_vendedor').select2({
+   	 	theme: "bootstrap",
+    	width: '100%',
+  	});
+
+	function phoneFormatter() {
+	  $('#np_telefono').on('input', function() {
+	    var number = $(this).val().replace(/[^\d]/g, '')
+	    if (number.length == 7) {
+	      number = number.replace(/(\d{3})(\d{4})/, "$1-$2");
+	    } else if (number.length == 10) {
+	      number = number.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
+	    } else if (number.length > 12 && number.length < 14) {
+	    	number = number.replace(/(\d+)(\d{3})(\d{3})(\d{4})/, "+$1($2) $3-$4");
+	    } else {
+	    	number = number.replace(/(\d+)(\d{3})(\d{4})/, "($1) $2-$3");
+	    }
+	    $(this).val(number)
+	  });
+	};
+
+	$(phoneFormatter);
+
+	$('#cliente_provincia').select2({
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+	var ciudad = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  remote: {
+	    url: "{{path_for('cliente.ciudad.consultar')}}?consulta=",
+	    wildcard: '%QUERY',
+	    replace: function (url, uriEncodedQuery) {
+        return url+uriEncodedQuery+"&id_provincia="+$('#cliente_provincia').val();
+      },
+	  }
+	});
+
+	$('#bloodhoundCiudad .typeahead').typeahead({
+		  minLength: 0,
+		  highlight: true
+		},{
+	  name: 'localidad',
+	  display: 'nombre',
+	  source: ciudad,
+	  templates: {
+	  	suggestion: function (response) {
+        return '<p>' + response.nombre +' ('+response.cp+')</p>';
+      },
+		  empty:'No existe la ciudad.',
+		  }
+	});
+
+	$('#cliente_provincia').on('change',function(){
+		//Para que el typeahead pueda volver a cargar los datos cuando los campos esten vacios
+		//Primero se debe escribir algun caracter
+		//Segundo borrarlo, con esto se activara el trigger.
+		//La escritura como lectura son realizados en el objecto del input y el objeto del typeahead
+		$('#np_localidad').val('a').trigger('change');
+		$('#np_localidad').focus().typeahead('val','a').focus();
+		$('#np_localidad').val('').trigger('change');
+		$('#np_localidad').focus().typeahead('val','').focus();
+	});
+
+	var tablaVehiculos = $('#tablaVehiculos').DataTable( {
+		order:[[0,'desc']],
+    lengthMenu: [[5, 10], [5, 10]],
+    processing: true,
+    serverSide: true,
+    responsive: false,
+    info: false,
+    ajax:{
+      url:"{{path_for('vehicle.disponibles')}}",
+    },
+    columns: [
+      { 
+        name: 'created_at',
+        data: 'created_at',
+      },
+      { 
+        name: 'dominio',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+	      		var momentDate = moment(data.created_at, 'YYYY-MM-DD HH:mm:ss');
+	    			respuesta = '<div class="" data-html="true" data-toggle="tooltip" title="Agregado el<br>'+momentDate.format('DD/MM/YYYY')+'">'+data.get_usado.dominio+'</div>';
+	      	}
+	      	return respuesta;
+        },
+      },
+      { 
+        name: 'marca',
+        data: 'get_marca.nombre',
+      },
+      { 
+        name: 'modelo',
+        data: 'modelo',
+      },
+      { 
+        name: 'year',
+        data: 'year',
+      },
+      { 
+        name: 'kilometraje',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.kilometraje;
+        	}
+        	return respuesta;
+        },
+      },
+      { 
+        name: 'color',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.color;
+        	}
+        	return respuesta;
+        },
+      },
+      { 
+        name: 'id_localidad',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_localidad!=null){
+        		respuesta = data.get_localidad.nombre;
+        	}
+        	return respuesta;
+        },
+      },
+      { 
+        name: 'precio_venta',
+        data: 'precio_venta',
+        render: function(data,type,row){
+        	respuesta = '<label class="control-label precio_venta">'+formatCurrency(data)+'</label>';
+          return respuesta;
+        },
+      },
+      { 
+        name: 'precio_lista',
+        data: 'precio_lista',
+        render: function(data,type,row){
+          return formatCurrency(data);
+        },
+      },
+      { 
+        name: 'entrega_minima',
+        data: 'entrega_minima',
+        render: function(data,type,row){
+        	respuesta = '<a class="control-label simular entrega_minima" data-toggle="tooltip" title="Calcular Presupuesto" >'+formatCurrency(data)+'</a>';
+          return respuesta;
+        },
+      },
+      { 
+        name: 'motor',
+        data: 'motor',
+        render: function(data,type,row){
+          return (data).toFixed(1);
+        },
+      },
+      { 
+        name: 'id_tipo_motor',
+        data: 'get_tipo_motor.nombre',
+      },
+      { 
+        name: 'id_transmision',
+        data: 'get_transmision.nombre',
+      },
+      { 
+        name: 'cantidad_puertas',
+        data: 'cantidad_puertas',
+      },
+      { 
+        name: 'id_ubicacion',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_ubicacion!=null){
+        		respuesta = data.get_ubicacion.nombre;
+        	}
+        	return respuesta;
+        },
+      },
+      { 
+        name: 'exowner',
+        data: function(data,type,row){
+        	var respuesta = '';
+        	if(data.get_usado!=null){
+        		respuesta = data.get_usado.exowner;
+        	}
+        	return respuesta;
+        },
+      },
+      {
+      	name: 'estado',
+      	data: function(data,type,row){
+      		var estadoLista = '<span class="label label-info">'+data.get_estado_lista.nombre+'</span>';
+      		var publicado = (data.publicado)? '<span class="label label-info">Publicado</span>': '<span class="label label-danger">Sin publicar</span>';
+      		var vehiculo_estado = '';
+      		if(data.get_tipos_estado!=null){
+	      		if(data.id_estado == 1){
+	      			vehiculo_estado = '<span class="label label-info">'+data.get_tipos_estado.nombre+'</span>';
+	      		} else if (data.id_estado == 2){
+	      			vehiculo_estado = '<span class="label label-warning">'+data.get_tipos_estado.nombre+'</span>';
+	      		} else {
+	      			vehiculo_estado = '<span class="label label-success">'+data.get_tipos_estado.nombre+'</span>';
+	      		}
+	      	}
+      		return estadoLista+'&nbsp;'+publicado+'&nbsp;'+vehiculo_estado;
+	      }
+      }
+    ],
+    // ---------------------
+    columnDefs:[
+      {
+        targets:[1,2,3,4,5,6,7],
+        orderable: false,
+      },
+      {
+        targets: [0],
+        visible: false,
+      }
+    ],
+    createdRow: function (row, data, index) {
+      if(data.id_estado==2){
+        $(row).addClass('vehiculo_señado');
+      }
+    },
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	$('#vehiculosUsados').on('shown.bs.modal', function (e) {
+		var dataTable = $('#tablaVehiculos').DataTable();
+		dataTable.columns.adjust().draw();
+    	console.log("Modal");
+  	});
+
+});
+
+function formatCurrency(total) {
+var neg = false;
+if(total < 0) {
+    neg = true;
+    total = Math.abs(total);
+}
+return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+
+
+$("#np_telefono").on('input',function(e){
+	var telefono = $("#np_telefono").val();
+	telefono = telefono.replace("(", "");
+	telefono = telefono.replace(")", "");
+	telefono = telefono.replace("-", "");
+	telefono = telefono.replace("+", "");
+	telefono = telefono.replace(" ", "");
+
+	if(telefono.length > 6)
+	{
+		telefono = parseInt(telefono);
+
+		$.getJSON('/administracion/prospectos/revisartelefono/' + telefono, function( json ) 
+		{
+			if (Object.keys(json).length > 0) {
+				console.log( "JSON Data: " + JSON.stringify(json[0].telefono) );
+				var titulo =  'Ese número corresponde a un prospecto ya cargado [' + json[0].nombre + ' ' + json[0].apellido + '].';
+				$('#np_telefono').attr('data-original-title', titulo);
+				$('#np_telefono').tooltip('show');
+			}
+			else
+			{
+				$('#np_telefono').attr('data-original-title', " Ingresá un número...");
+				$('#np_telefono').tooltip('hide');
+				console.log("NO HAY CONCIDENCIAS");
+			}
+		});
+	}
+	else
+	{
+		$('#np_telefono').attr('data-original-title', " Ingresá un número...");
+		$('#np_telefono').tooltip('hide');
+	}
+});
+
+</script>
+{% endblock %}

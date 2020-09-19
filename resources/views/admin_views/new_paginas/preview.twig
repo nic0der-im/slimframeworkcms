@@ -1,0 +1,265 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block aditional_css %}
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css" />
+	{% if production %}
+
+		<link rel="stylesheet" href="/css/0km/sources/publicacion_0km.css">
+
+		{% else %}
+
+		<link rel="stylesheet" href="/css/0km/sources/publicacion_0km.css">
+
+	{% endif %}
+
+	
+
+{% endblock %}
+
+{% block title %}
+	{# ✅ #} {{pagina.titulo}} {# 🚘🏃‍ #}
+{% endblock %}
+
+{% block head %}   
+
+		<meta charset="utf-8" />
+		<meta name="description" content="{{pagina.descripcion}}" />
+		<meta name="keywords" content="{{pagina.keywords}}" />
+		<meta property="og:locale" content="es_AR" />
+		<meta property="og:title" content="{{pagina.titulo}} | Ciro Automotores" />
+		<meta property="og:description" content="{{pagina.descripcion}}"/>
+		<meta property="og:url" content="{{base_url()}}{{current_path}}"/>
+
+{% endblock %}
+
+{% block content %}
+
+<div data-spy="scroll" data-target="#bar0km" data-offset="0">
+	{% for bloque in pagina.getBloques %}
+
+		{% if loop.index == 2 %}
+		<nav class="navbar navbar-dark navbar-expand-lg bg-dark sticky-top p-0" id="bar0km">
+			<div class="container-fluid mt-0">
+				<div class="collapse navbar-collapse" id="btn0kmdrop">
+					<ul class="navbar-nav ml-auto">
+						{% for bloque in pagina.getBloques %}
+							{% if bloque.nombre is not empty %}
+							<li class="nav-item">
+								<a class="nav-link" data-href="{{bloque.href}}" href="#{{bloque.href}}">{{bloque.nombre}}</a>
+							</li>
+							{% endif %}
+						{% endfor %}
+						<li class="nav-item">
+							<a class="nav-link" data-href="solicita-cotizacion" href="#solicita-cotizacion">Comprar</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		{% endif %}
+
+		{% if bloque.tipo == 'fullscreen' %}
+		<div class="block-0km fullscreen" id="{{bloque.href}}">
+			<div class="block-0km-overlay"></div>
+			<img class="block-0km-img" src="{{bloque.getFullscreen.imagen}}">
+			<div class="block-0km-content">
+				<div class="container-fluid">
+					<div class="first-block title">{{ bloque.getFullscreen.titulo }}</div>
+					<div class="first-block subtitle">{{ bloque.getFullscreen.subtitulo }}</div>
+				</div>
+			</div>
+		</div>
+		{% elseif bloque.tipo == 'textoimg' %}
+			{% for item in bloque.getItemsTextoImg %}
+				<div class="block-0km block-with-text-img {% if item.orden is divisible by(2) %}inverse{% endif %}" id="{{bloque.href}}">
+					<div class="block-image">
+						<img data-srcset="{{item.imagen}}" data-src="{{item.imagen}}" class="lazy">
+					</div>
+					<div class="block-content">
+						<div class="block-text">
+							{% if item.titulo is not empty %}
+							<div class="block-title">{{item.titulo|trim}}</div>
+							{% endif %}
+							<div>{{item.parrafo|trim|raw}}</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		{% elseif bloque.tipo == 'galeria' %}
+			<div class="block-0km block-gallery" id="{{bloque.href}}">
+				<div class="block-title">Galería</div>
+				<div class="block-subtitle">{{bloque.subtitulo}}</div>
+				<div class="block-gallery-images">
+				{% for item in bloque.getFotosGaleria %}
+					{% if loop.index == 1 %}
+					<div class="block-gallery-img">
+						<img src="{{item.enlace}}" alt="{{item.alt}}">
+					</div>
+					{% else %}
+					<div class="block-gallery-img">
+						<img data-srcset="{{item.enlace}}" class="lazy" alt="{{item.alt}}">
+					</div>
+					{% endif %}
+				{% endfor %}
+				</div>
+			</div>
+		{% elseif bloque.tipo == 'fichatecnica' %}
+			<div class="block-0km block-fichatecnica" id="{{bloque.href}}">
+				<div class="container-fluid">
+					<div class="block-title">Ficha Técnica</div>				
+					<div class="accordion">
+						{% for item in bloque.getItemsFichaTecnica %}
+							<div class="card w-100">
+								<div class="card-header collapsed d-flex align-items-center" id="fth-{{item.id}}" data-toggle="collapse" data-target="#ft-{{item.id}}" aria-expanded="false" aria-controls="ft-{{item.id}}">
+									<div class="block-itemtitle">
+										{{item.titulo|trim}}
+									</div>
+									<i class="fa fa-angle-down"></i>
+								</div>
+								<div id="ft-{{item.id}}" class="collapse" aria-labelledby="fth-{{item.id}}" data-parent="#accordion">
+									<div class="card-body">
+										{{item.parrafo|trim|raw}}
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		{% elseif bloque.tipo == 'versiones' %}
+			<div class="block-header" id="{{bloque.href}}">
+				<div class="container-fluid">
+					<div class="block-title">{{bloque.nombre}}</div>
+				</div>
+			</div>
+			<div class="block-0km block-versiones" >				
+				<div class="container-fluid">					
+					<div class="versiones">
+						{% for item in bloque.getVersiones %}
+							<div class="card version-card {% if loop.index == 1 %}active{% endif %}" id="vcard-{{item.id}}" data-has="#vftcard-{{item.id}}">
+								<div class="card-content">
+									<img class="card-img-top lazy" data-srcset="{{item.enlace}}" data-src="{{item.enlace}}" alt="{{item.titulo|trim}}">
+									<div class="card-header text-primary">
+										{{item.titulo|trim}}
+									</div>
+									<div class="card-price">
+										$ {{item.getVehiculo.precio.precio}}
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			<div class="block-0km block-ficha-versiones">
+				<div class="container-fluid">
+						<div class="block-title">Ficha Técnica</div>					
+		      	{% for item in bloque.getVersiones %}
+							<div class="card vft-card {% if loop.index == 1 %}active{% endif %}" id="vftcard-{{item.id}}" data-belongs="#vcard-{{item.id}}">
+								<div class="card-body ">
+									{{item.contenido|raw}}
+								</div>
+							</div>
+						{% endfor %}
+				</div>
+			</div>
+		{% endif %}
+	{% endfor %}
+	<div class="block-0km block-cotizacion" id="solicita-cotizacion">
+		<div class="container-fluid">		
+			<div class="row">
+				<div class="col-lg-6 col-md-8 mx-auto text-center">
+					<div class="block-title"><i>Hacé realidad tu sueño.</i><br>Comprá tu {{pagina.titulo}}</div>
+					<a href="{{path_for('compratu0km.primerpaso', {titulo: pagina.url_name })}}" class="btn btn-outline-white2 mx-auto ">Comprar ahora</a>
+				</div>
+			</div>		
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+
+	$('body').scrollspy({ target: '#bar0km', offset: 25 });
+
+	$('.main_navbar').removeClass('sticky-top');
+
+	$('#bar0km .nav-link').click(function(e){
+		e.preventDefault();
+		var $div = $(this).data('href');
+		$('#'+$div).animatescroll();
+	});
+
+	if(document.body.clientWidth < 992) {
+		$('.block-gallery-images').slick({
+			
+		});
+	}
+
+	$('.versiones').slick({		
+	  slidesToShow: 3,
+	  responsive: [
+    {
+      breakpoint: 992,
+      settings: {
+        slidesToShow: 2,
+      }
+    },
+    {
+      breakpoint: 600,
+      settings: {
+        slidesToShow: 1,
+      }
+    }]
+	});
+
+	$(document).on('click', '.version-card', function(e){
+		e.preventDefault();
+
+		if(!$(this).hasClass('active')) {
+			var $vc = $('.version-card.active');
+			$vc.removeClass('active');
+			$($vc.data('has')).fadeOut();
+
+			var $ft = $($(this).data('has'));
+			$(this).addClass('active');
+			setTimeout(function(){
+				$ft.fadeIn();	
+			}, 300);
+			
+		}
+
+	});
+
+	$('.vft-card table').each(function(e){		
+		$tmp = $(this);
+		$parent = $(this).parent();
+		var $tr = $('<div class="table-responsive"></div>');
+		$tr.appendTo($parent);
+
+		$tmp.appendTo($tr);
+		
+	});
+	$('.vft-card table').addClass('table').addClass('table-bordered').addClass('table-striped').addClass('table-sm').addClass('table-version');
+
+});
+
+$(window).resize(function(){	
+	if(document.body.clientWidth < 992) {
+		if(!$('.block-gallery-images').hasClass('slick-initialized')) {
+			$('.block-gallery-images').slick({
+				lazyLoad: 'ondemand',
+			});
+		}
+	}
+	else {
+		if($('.block-gallery-images').hasClass('slick-initialized')) {
+			$('.block-gallery-images').slick('unslick');
+		}		
+	}
+});
+</script>
+{% endblock %}

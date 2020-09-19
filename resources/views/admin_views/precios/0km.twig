@@ -1,0 +1,317 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Cotizar vehículo 0km{% endblock %}
+{% block header_title %}Cotizar vehículo 0km{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('vehicle.index')}}">Vehículos</a>
+</li>
+<li class="breadcrumb-item active">
+	Financiar
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<section class="invoice">
+      <!-- title row -->
+      <div class="row">
+        <div class="col-lg-12">
+          <h2 class="page-header">
+            <i class="fa fa-dollar"></i> {{ nuevo.modelo }} [{{ nuevo.seg }}]
+            <small class="pull-right">Cotización al día de hoy</small>
+          </h2>
+        </div>
+        <!-- /.col -->
+      </div>
+      {#<!-- info row -->
+      <div class="row invoice-info">
+        <div class="col-sm-6 invoice-col">
+          <h5 style="background-color:#f7f7f7; text-align: center; padding: 7px 10px; margin-top: 0;">DATOS DEL VENDEDOR:</h5>
+          <address>
+            <strong>{{ auth.individuo.nombre }} {{ auth.individuo.apellido }}</strong><br>
+            Ciro Automotores {{ auth.empleado.agencia.nombre }}<br>
+            <b>Correo: </b> {{ auth.user.email }}<br>
+            <b>Teléfono: </b> {{ auth.individuo.telefono }}<br>
+          </address>
+        </div>
+        <!-- /.col -->
+        <div class="col-sm-6 invoice-col">
+          <h5 style="background-color:#f7f7f7; text-align: center; padding: 7px 10px; margin-top: 0;">DATOS DEL VEHÍCULO:</h5>
+          <address>
+            <strong>{{ nuevo.getMarca.nombre }}</strong><br>
+            <b>Modelo: </b> {{ nuevo.modelo }} {{ nuevo.catalogo }}<br>
+            <b>Motor: </b> {{ nuevo.motor }}<br>
+            <b>Carrocería: </b>{{ nuevo.carroceria }}
+          </address>
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->#}
+
+      {% if nuevo.marca == 13 %}
+      <div class="row">
+        <div class="col-lg-12">
+          <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">Seleccione la edición del vehículo para obtener el precio de revista:</h5>
+          <div class="table-responsive" >
+            <table class="table table-striped table-condensed precios_tabla" width="100%">
+              <thead>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Año</th>
+                <th>Precio:</th>
+                <th></th>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">Cálculo del crédito:</h5>
+
+          <div class="table-responsive">
+            <table class="table" width="100%">
+              <tbody>
+              <tr style="background-color:#d0c0c0;">
+                <th style="width:50%">Precio de lista del vehículo:</th>
+                <td><span class="pull-right">$ {{ nuevo.precio_sugerido }}</span></td>
+              </tr>
+              <tr>
+                <th>Precio de revista del vehículo:</th>
+                <td><span class="pull-right"> $<input type="text" id="precio_revista" name="precio_revista" value="{{ precio_revista }}" style="text-align: right; "></span></td>
+              </tr>
+              <tr>
+                <th>Total del crédito (70%):</th>
+                <td><a id="btn-precio_revista" class="btn btn-sm btn-success btn-flat btn-block">A calcular</a></td>
+              </tr>
+            </tbody></table>
+          </div>
+        </div>
+        <!-- /.col -->
+        <div class="col-lg-6">
+          <h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">Entrega mínima:</h5>
+
+          <div class="table-responsive">
+            <table class="table" width="100%">
+              <tbody>
+                  <tr style="background-color:#d0c0c0;">
+                    <th style="width:50%">Precio de lista del vehículo:</th>
+                    <td><span class="pull-right">$ {{  nuevo.precio_sugerido }}</span></td>
+                  </tr>
+                  <tr>
+                    <th>Prenda (6% del crédito):</th>
+                    <td><span id="prenda" class="pull-right"></span></td>
+                  </tr>
+                  <tr>
+                    <th>Gastos de sellado (3%):</th>
+                    <td><span id="sellado" class="pull-right"></span></td>
+                  </tr>
+                  <tr>
+                    <th>Gastos de otorgamiento:</th>
+                    <td><span id="otorgamiento" class="pull-right"></span></td>
+                  </tr>
+                  <tr>
+                    <th>Crédito a financiar:</th>
+                    <td><span id="credito" class="pull-right"></span></td>
+                  </tr>
+                  <tr>
+                    <th>Entrega Mínima:</th>
+                    <td><a id="btn-entrega" class="btn btn-sm btn-success btn-flat btn-block">A calcular</a></td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="row">
+        <!-- accepted payments column -->
+        <div class="col-lg-6">
+          <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">Cálculo del crédito:</h5>
+
+          <div class="table-responsive">
+            <table class="table" width="100%">
+              <tbody>
+              <tr style="background-color:#d0c0c0;">
+                <th style="width:50%">Precio de lista del vehículo:</th>
+                <td><span class="pull-right">$ {{ nuevo.precio_sugerido }}</span></td>
+              </tr>
+              <tr>
+                <th>70% del vehículo:</th>
+                <td><span class="pull-right">$ {{ nuevo.precio_sugerido * 0.7 }}</span></td>
+              </tr>
+
+              <tr>
+                <th>Total del crédito:</th>
+                <td><a class="btn btn-xs btn-success btn-flat btn-block">$ {{ nuevo.precio_sugerido * 0.7 }} {# {{ (nuevo.precio_sugerido * 0.7) - ((nuevo.precio_sugerido * 0.7) * (fijos.prenda / 100)) -  fijos.otorgamiento }} #}</a></td>
+              </tr>
+            </tbody></table>
+          </div>
+        </div>
+        <!-- /.col -->
+        <div class="col-lg-6">
+          <h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">Entrega mínima:</h5>
+
+          <div class="table-responsive">
+            <table class="table" width="100%">
+              <tbody>
+               <tr style="background-color:#d0c0c0;">
+                <th style="width:50%">Precio de lista del vehículo:</th>
+                <td><span class="pull-right">$ {{  nuevo.precio_sugerido }}</span></td>
+              </tr>
+              <tr>
+                <th>Flete y patentamiento: </th>
+                <td><span class="pull-right">$ {{ nuevo.flete_patentamiento }}</span></td>
+              </tr>
+              <tr>
+                <th>Prenda ({{ fijos.prenda }}% del crédito)</th>
+                <td><span class="pull-right">$ {{ (nuevo.precio_sugerido * 0.7) * (fijos.prenda / 100) }}</span></td>
+              </tr>
+              <tr>
+                <th>Gastos de sellado:</th>
+                <td><span class="pull-right">$ {{ nuevo.precio_sugerido * (fijos.sellado/100) }}</span></td>
+              </tr>
+              <tr>
+                <th>Gastos de otorgamiento:</th>
+                <td><span class="pull-right">$ {{ fijos.otorgamiento }}</span></td>
+              </tr>
+              <tr>
+                <th>Crédito a financiar:</th>
+                <td><span class="pull-right">- $ {{ nuevo.precio_sugerido * 0.7 }}</span></td>
+              </tr>
+              <tr>
+                <th>Bonificación:</th>
+                <td><span class="pull-right">- $<input type="text" id="bonificacion" name="bonificacion" value="{{ nuevo.bonificacion }}" style="text-align: right; "></span></td>
+              </tr>
+              <tr>
+                <th>Entrega Mínima:</th>
+                <td><a id="btn-entrega" class="btn btn-xs btn-success btn-flat btn-block">A calcular</a></td>
+              </tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <!-- /.row -->
+
+      <!-- this row will not appear when printing -->
+      <div class="row no-print">
+        <div class="col-lg-12">
+          <a id="link" disabled target="_blank" class="btn btn-default"><i class="fa fa-print"></i> Imprimir</a>
+          {% if nuevo.marca == 13 %}
+            <button type="button" onclick="calcular_chevrolet();" class="btn btn-success pull-right"><i class="fa fa-credit-card"></i> Calcular</button>
+          {% else %}
+            <button type="button" onclick="calcular_ford({{ (nuevo.precio_sugerido + nuevo.flete_patentamiento + nuevo.precio_sugerido * (fijos.sellado/100)) - ((nuevo.precio_sugerido * 0.7) - ((nuevo.precio_sugerido * 0.7) * (fijos.prenda / 100)) -  fijos.otorgamiento) }});"  class="btn btn-success pull-right"><i class="fa fa-credit-card"></i> Calcular</button>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.precios_tabla').DataTable( {
+      order:[[0,'desc']],
+      processing: true,
+      serverSide: true,
+      ajax: { url: "{{path_for('precios.listado')}}" },
+      columns: [
+      {
+        name: 'marca',
+        data: 'nombremarca.nombre'
+      },
+      {
+        name: 'nombre',
+        data: 'nombre'
+      },
+      {
+        name: 'anio',
+        data: 'anio'
+      },
+      {
+        name: 'precio',
+        data: 'precio.precio'
+      },
+      {
+        name: 'opciones',
+        data: function(data,type,row)
+        {
+          var funcion = 'cambiar_precio(' + data.id + ', '+  data["precio"]["precio"] + ');'
+          var boton = '<a class="btn btn-sm btn-flat btn-info pull-right" onclick="'+ funcion + '">Usar</a>';
+          return boton;
+        }
+      }],
+      "oSearch": {"sSearch": "{{ nuevo.modelo | split(' ')[0] }} 2018"},
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bInfo": false,
+      "searching": false,
+      "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "No existen cambios.",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+  });
+});
+
+function cambiar_precio(id, precio)
+{
+  $('#precio_revista').attr('value', precio);
+  $('#precio_id_vehiculo').attr('value', id);
+  return 1;
+}
+
+function calcular_ford(precio)
+{
+  var bonificacion = $("#bonificacion").val();
+  var total = precio - bonificacion;
+  $("#link").attr("href", "{{ path_for('precios.0km.ver.print',  {'id': nuevo.id } )}}/"+bonificacion);
+  $("#link").removeAttr("disabled");
+  $("#btn-entrega").html("$" + Math.round(total));
+  return 1;
+}
+
+function calcular_chevrolet()
+{
+  var precio_revista = $("#precio_revista").val();
+  var precio_lista = +"{{ nuevo.precio_sugerido }}";
+  var credito = precio_revista * 0.7;
+  var prenda = credito * 0.06;
+  var sellado = precio_revista * 0.03;
+  var otorgamiento = 9000;
+  var entrega_minima = (precio_lista + prenda + sellado + otorgamiento) - credito;
+  console.log(credito);
+  $("#link").attr("href", "{{ path_for('precios.0km.ver.print',  {'id': nuevo.id } )}}/"+precio_revista);
+  $("#link").removeAttr("disabled");
+  $("#btn-precio_revista").html("$" + Math.round(credito));
+  $("#prenda").html("$" + Math.round(prenda));
+  $("#sellado").html("$" + Math.round(sellado));
+  $("#otorgamiento").html("$" + Math.round(otorgamiento));
+  $("#credito").html("- $"+Math.round(credito));
+  $("#btn-entrega").html("$" + Math.round(entrega_minima));
+  return 1;
+}
+</script>
+{% endblock %}

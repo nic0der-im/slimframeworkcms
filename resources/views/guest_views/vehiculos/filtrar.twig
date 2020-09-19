@@ -1,0 +1,159 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block head %}
+<meta property="og:image" itemprop="image" content="{{base_url()}}/public/images/logo300x200.png">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="200">
+<meta property="og:type" content="article" />
+{% endblock %}
+
+{% block aditional_css %}
+
+	{% if production %}
+
+	<link rel="stylesheet" href="/dist/css/home.min.css" />
+	<link rel="stylesheet" href="/dist/css/filterbar.min.css" />
+	<link rel="stylesheet" href="/dist/css/vehicle-grid.min.css" />
+	<link rel="stylesheet" href="/dist/css/vehicles.min.css" />
+
+	{% else %}
+
+	<link rel="stylesheet" href="/css/basic/sources/home.css" />	
+	<link rel="stylesheet" href="/css/basic/sources/filterbar.css" />
+	<link rel="stylesheet" href="/css/basic/sources/vehicle-grid.css">
+	<link rel="stylesheet" href="/css/vehiculos/sources/vehicles.css">
+
+	{% endif %}
+	
+	{% for module in extra_modules %}
+		<!-- start {{ module.module }} css -->
+		{% for css in module.css %}
+		<link rel="stylesheet" href="{{css|raw}}" />
+		{% endfor %}
+		<!-- end {{ module.module }} css -->
+	{% endfor %}
+{% endblock %}
+
+{% block title %}{{titleMarca}}{{titleAnio}}{{titleUbicacion}}{{titleMotor}}{{titleTransmision}}{{titleModelo}} Filtrar {% endblock %}
+{% block content %}	
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-3 col-filtros d-none d-lg-block">
+				<div class="card mb-4">
+					{% include 'guest_views/guest_partials/navbar_filtros_filtrada.twig' %}
+				</div>
+			</div>
+			<div class="col-lg-9 col-vehicles">
+				<div class="filter_messages">
+					{% if filter_info_message is defined and filter_info_message is not empty %}
+						<div class="alert alert-info bg-primary alert-dismissible text-white fade show">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+							{{ filter_info_message }}
+						</div>
+					{% endif %}
+					{% if filter_warning_message is defined and filter_warning_message is not empty %}
+						<div class="alert alert-danger bg-danger alert-dismissible fade show text-white">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+							{{ filter_warning_message }}
+						</div>
+					{% endif %}
+				</div>				
+				<div id="grid">
+					{% set off_start = pagina_numero == 1 ? 0 : (pagina_numero-1) * 9 %}
+					{% set off_end = pagina_numero == 1 ? 9 : ((pagina_numero-1) * 9) %}
+					{% for publicacion in publicaciones|slice(off_start,off_end) %}					
+					<div class="card vehicle-card">
+						<div class="vehicle-mi">
+							<div class="vehicle-media">
+								<div class="carousel-inner">
+									{% if publicacion.vehiculo.getFotos | length > 0 %}
+										<img class="card-img-top" src="{{path_for('imagen',{'params':publicacion.vehiculo.getFotos[0].archivo},{'p':'small'})}}" alt="{{publicacion.titulo}}">
+										{#{% if publicacion.vehiculo.created_at > "now"|date_modify('-2 Week') %}
+											<img class="lazo" src="/images/2a.png">
+										{% elseif publicacion.rankSemana %}
+											<img class="lazo" src="/images/2b.png">
+										{% endif %}#}
+									{% else %}
+										<img class="card-img-top" src="{{path_for('imagen',{'params':'/asources/images/no-disponible.png'},{'p':'small'})}}" alt="Sin imagen para mostrar.">
+										<div class="overlayer">
+											<div class="w-100">
+												Vehículo sin imagen.<br>Por el momento...
+											</div>
+										</div>
+									{% endif %}
+								</div>
+							</div>
+							<button onClick="ga('send', 'event', 'pagina_inicio', 'publicaciones', 'btn_whatsapp');" class="btn-sm btn-whatsapp btn-outline-success" data-href="https://api.whatsapp.com/send?phone=543874898080&text={% if auth.individuo %}Hola,%20mi%20nombre%20es%20{{auth.individuo.nombre|url_encode}}%20{{auth.individuo.apellido|url_encode}}{% else %}Hola{% endif %}.%20Tengo%20una%20consulta%20sobre%20esta%20publicación%20*{{publicacion.titulo|url_encode}}*.%0A{{base_url()|url_encode}}{{path_for('vehicle.ver', {	'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })|url_encode}}" data-toggle="popover-whatsapp">
+								<i class="fa fa-whatsapp"></i>
+							</button>
+							<div class="card-block vehicle-params">
+								<div class="vehicle-param vehicle-title">{{ publicacion.titulo }}</div>
+								<div class="vehicle-param vehicle-price">$ {{publicacion.vehiculo.precio_venta | number_format(0, '.', '.')}}</div>
+								<div class="vehicle-param vehicle-data">{{ publicacion.vehiculo.year }} {{ publicacion.vehiculo.getUsado.kilometraje ? '| ' ~ publicacion.vehiculo.getUsado.kilometraje ~ 'km' : ''}}</div>
+								<div class="vehicle-param vehicle-localidad">{{ publicacion.vehiculo.getLocalidad.nombre }}</div>
+							</div>
+						</div>						
+						<div class="vehicle-view-pub">
+							<a href="{{path_for('vehicle.ver', { 'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}" class="btn btn-sm btn-primary btn-ver-publicacion pull-right">Ver publicación</a>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+
+				{% set pages = publicaciones|length %}
+				{% set pages = (pages / 9)|round(0, 'ceil') %}
+
+				{% if pages > 1 %}
+				<nav class="vehicle-paginator" id="vehicle-paginator" aria-label="pagination">
+					<ul class="pagination justify-content-center pagination-circle pg-blue mb-0">
+
+						{% if pagina_numero-1 >= 1 %}
+						<li class="page-item {% if pagina_numero-1 == 0 %}disabled{% endif %}">
+							<a class="page-link anterior" aria-label="Ir a la página anterior" title="Ir a la página anterior" href="{% if pagina_numero-1 == 1 or pagina_numero-1 == 0 %} {{path_for('vehicle.filter', { params: filtros_originales })}} {% else %} {{path_for('vehicle.filter_pagina', { id: pagina_numero-1, params: filtros_originales })}} {% endif %}">
+								<span aria-hidden="true">&laquo;</span>
+								<span class="sr-only">Ir a la página anterior</span>
+							</a>
+						</li>
+						{% endif %}
+						
+						{% for i in 1..pages %}
+							{% if loop.first %}
+								<li class="page-item pagina-{{i}} {% if loop.index == pagina_numero %}active{% endif %}"><a class="page-link" href="{{path_for('vehicle.filter', { params: filtros_originales })}}">{{i}}</a></li>
+							{% else %}
+								<li class="page-item pagina-{{i}} {% if loop.index == pagina_numero %}active{% endif %}"><a class="page-link" href="{{path_for('vehicle.filter_pagina', { id: i, params: filtros_originales })}}">{{i}}</a></li>
+							{% endif %}
+							
+						{% endfor %}
+						{% if pagina_numero+1 <= pages %}
+							<li class="page-item {% if pagina_numero+1 > pages %}disabled{% endif %}">
+								<a class="page-link siguiente" aria-label="Ir a la siguiente página" title="Ir a la siguiente página" href="{{path_for('vehicle.filter_pagina', { id: pagina_numero+1, params: filtros_originales })}}">
+									<span aria-hidden="true">&raquo;</span>
+									<span class="sr-only">Ir a la siguiente página</span>
+								</a>
+							</li>
+						{% endif %}
+					</ul>
+				</nav>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block custom_js %}
+	{% if production %}
+		
+		<script src="/dist/js/vehicle-grid.min.js"></script>
+
+	{% else %}
+		
+		<script src="/js/pages/vehicle-grid.js"></script>
+
+	{% endif %}
+{% endblock %}
+
+{% block custom_modules %}
+	{% for module in extra_modules %}
+		<!-- start {{ module.module }} -->
+		{% include module.settings.view %}
+		<!-- end {{ module.module }} -->
+	{% endfor %}
+{% endblock %}

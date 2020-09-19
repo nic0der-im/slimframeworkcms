@@ -1,0 +1,100 @@
+.search-bar-box {
+	background-color: #3286C6 ;
+	padding: 75px 0px;
+	min-height: 150px;
+	overflow: hidden;
+}
+
+.search-bar-box .container {
+	overflow-x: visible; 
+}
+
+h3 {
+	font-size: 1em;
+	color: #FFF !important;
+}
+
+.titulo404 {
+	font-family: AkzidenzBOLD !important;
+	font-size: 1em;
+	color: #FFF;
+}
+
+.search-bar-box h2 {
+	text-align: left;
+	font-size: 3em;
+	color: #eee;
+	margin-bottom: 15px;
+}
+
+.search-bar-box .col-lg-6:first-child {
+	max-width: 540px;
+	margin: 0px;
+}
+
+.search-bar-box input.searching {
+	border-bottom-right-radius: 0px;
+	border-bottom-left-radius: 0px;
+}
+.search-bar-box .col-lg-6:first-child form {
+	width: 100%;
+}
+
+.srb-highlight {
+	font-weight: normal;
+}
+.srb-item {
+}
+.search-bar-img {
+	position: absolute;
+	right: -800px;
+	height: 500px;
+	display: block;
+	margin-top: -50px;
+	-webkit-animation: searchbarcar 16s infinite;
+	-webkit-animation-fill-mode: forwards; /* Safari 4.0 - 8.0 */
+	animation-fill-mode: forwards;
+}
+
+@media screen and (max-width: 968px) {
+	.search-bar-box .col-lg-6:first-child {	
+		margin:auto;
+		float: none !important;
+		max-width: 100%;
+	}
+}
+
+@-webkit-keyframes searchbarcar {
+	0%   {right: -2400px;}
+	25%  {right: 0px;}
+	75%  {right: 0px}
+	100% {right: 2400;}
+}
+
+/* Standard syntax */
+@keyframes searchbarcar {
+	0%   {right: -2400px;}
+	25%  {right: 0px;}
+	75%  {right: 0px}
+	100% {right: 2400px;}
+}
+
+@media(max-width: 960px) {
+	.search-bar-box h2 {
+		text-align: center;
+	}
+}
+
+.ui-autocomplete {
+  opacity: 0;
+  display: none;
+  transition: opacity 300ms;
+  -moz-transition: opacity 300ms;
+  -webkit-transition: opacity 300ms;
+  -o-transition: opacity 300ms;
+}
+
+.ui-autocomplete.opened {
+  opacity: 1;
+  display: block;
+}

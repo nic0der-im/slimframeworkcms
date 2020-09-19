@@ -1,0 +1,261 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block aditional_css %}
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css" />
+	{% if production %}
+
+		<link rel="stylesheet" href="/css/0km/sources/publicacion_0km.css">
+
+		{% else %}
+
+		<link rel="stylesheet" href="/css/0km/sources/publicacion_0km.css">
+
+	{% endif %}
+
+{% endblock %}
+
+{% block title %}
+	{# ✅ #} Autos 0 Kilómetros | Ciro Automotores {# 🚘🏃‍ #}
+{% endblock %}
+
+{% block head %}   
+
+		<meta charset="utf-8" />
+		<meta name="description" content="Si querés un auto {{ pagina.titulo |replace({'Nuevo':''}) }} en Ciro Automotores tenemos autos usados en Jujuy y y autos cero kilómetros.!Hacé contacto ahora mismo!" />
+		<meta name="keywords" content="autos 0 kilometros, autos usados en salta, autos cero kilometros" />
+		<meta property="og:locale" content="es_AR" />
+		<meta property="og:title" content="Ciro Automotores - Podés comprar autos usado en Salta y Jujuy cero KM marca {{ pagina.titulo |replace({'Nuevo':''}) }}" />
+		<meta property="og:description" content="¡Compra el auto que más te guste! En Ciro Automotores tenemos autos usados en Salta y autos 0 KM. Podés tener un auto de la marca {{ pagina.titulo |replace({'Nuevo':''}) }}."/>
+		<meta property="og:site_name" content="Ciro Automotores"/>
+		<meta property="og:url" content="{{base_url()}}{{current_path}}"/>
+				<!-- Global site tag (gtag.js) - Google Analytics -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta content="width=device-width, initial-scale=1" name="viewport"/>
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid collapse show" id="step0">
+	<div class="alert alert-warning"  role="alert">
+	  Esperando información...
+	</div>
+</div>
+<div id="app">
+	<nav class="navbar navbar-dark navbar-expand-lg bg-dark sticky-top p-0" id="bar0km">
+			<div class="container-fluid mt-0">
+				<div class="collapse navbar-collapse" id="btn0kmdrop">
+					<ul class="navbar-nav ml-auto">
+						<li class="nav-item" v-for="bloque in secciones" v-if="bloque.nombre != ''">
+							<a class="nav-link" :data-href="bloque.href" :href="'#' + bloque.href"><% bloque.nombre%></a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	<div v-for="(bloque, index) in secciones">		
+		<div v-if="bloque.type=='fullscreen'" :id="bloque.href">			
+			<div class="block-0km fullscreen">
+				<div class="block-0km-overlay"></div>
+				<img class="block-0km-img lazyload" data-sizes="auto" :src="bloque.imagen">
+				<div class="block-0km-content">
+					<div class="container-fluid">
+						<div class="first-block title"><% bloque.titulo %></div>
+						<div class="first-block subtitle"><% bloque.subtitulo %></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div v-if="bloque.type == 'textoimg'" :id="bloque.href">
+			<div v-for="(item, index) in bloque.items">
+				<div :class="[ item.orden % 2 ? 'inverse' : '', 'block-0km block-with-text-img']">
+					<div class="block-image">
+						<img data-sizes="auto" :src="item.imagen" class="lazyload">
+					</div>
+					<div class="block-content">
+						<div class="block-text">						
+							<div v-if="item.titulo" class="block-title"><% item.titulo %></div>						
+							<div v-html="item.parrafo"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div v-if="bloque.type == 'galeria'" >
+			<div class="block-0km block-gallery" :id="bloque.href">
+				<div class="block-title">Galería</div>
+				<div class="block-subtitle"><% bloque.subtitulo %></div>				
+				<div class="block-gallery-images">
+					<div class="block-gallery-img" v-for="(imagen, index) in bloque.images">
+						<img data-sizes="auto" :src="imagen.imagen" :alt="imagen.alt" class="lazyload">
+					</div>
+				</div>				
+			</div>
+		</div>
+		<div v-if="bloque.type == 'versiones'">
+			<div class="block-header" :id="bloque.href">
+				<div class="container-fluid">
+					<div class="block-title"><% bloque.nombre %></div>
+				</div>
+			</div>
+			<div class="block-0km block-versiones" >				
+				<div class="container-fluid">					
+					<div class="versiones">
+						<div v-for="(item, index) in bloque.items" :class="[ item.orden % 2 ? 'inverse' : '', 'card version-card']" :id="'vcard-' + item.id" :data-has="'#vftcard-' + item.id">
+							<div class="card-content">
+								<img class="card-img-top lazy" :src="item.imagen">
+								<div class="card-header text-primary">
+									<% item.titulo %>
+								</div>
+								<div class="card-price">
+									$ <% item.vehiculo.precio.precio %>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="block-0km block-ficha-versiones">
+				<div class="container-fluid">
+						<div class="block-title">Ficha Técnica</div>					
+		      	<div v-for="(item, index) in bloque.items" :class="[ item.orden == 1 ? 'active' : '', 'card vft-card']" :id="'vftcard-' + item.id" :data-belong="'#vcard-' + item.id">							
+							<div class="card-body" v-html="item.parrafo">
+								
+							</div>
+						</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script src="//cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+});
+
+var app = new Vue({
+	delimiters: ['<%', '%>'],
+	el: '#app',
+	data: {
+		pagina: [],
+		secciones: [],
+	}
+});
+
+window.addEventListener("message", receiveMessage, false);
+
+function receiveMessage(event)
+{
+	app.pagina = event.data.pagina;
+	app.secciones = event.data.secciones;
+
+	app.$forceUpdate();
+
+	
+	
+}
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+
+	setTimeout(function() {
+		$('body').scrollspy({ target: '#bar0km', offset: 25 });
+
+		$('.main_navbar').removeClass('sticky-top');
+		if(document.body.clientWidth < 992) {
+				$('.block-gallery-images').slick({
+					
+				});
+			}
+
+			$('.versiones').slick({		
+			  slidesToShow: 3,
+			  responsive: [
+		    {
+		      breakpoint: 992,
+		      settings: {
+		        slidesToShow: 2,
+		      }
+		    },
+		    {
+		      breakpoint: 600,
+		      settings: {
+		        slidesToShow: 1,
+		      }
+		    }]
+			});
+
+			$('.vft-card table').each(function(e){		
+				$tmp = $(this);
+				$parent = $(this).parent();
+				var $tr = $('<div class="table-responsive"></div>');
+				$tr.appendTo($parent);
+
+				$tmp.appendTo($tr);
+				
+			});
+			$('.vft-card table').addClass('table').addClass('table-bordered').addClass('table-striped').addClass('table-sm').addClass('table-version');
+
+			$('#step0').collapse('hide');
+
+
+			$(window).resize(function(){	
+				if(document.body.clientWidth < 992) {
+					if(!$('.block-gallery-images').hasClass('slick-initialized')) {
+						$('.block-gallery-images').slick({
+							lazyLoad: 'ondemand',
+						});
+					}
+				}
+				else {
+					if($('.block-gallery-images').hasClass('slick-initialized')) {
+						$('.block-gallery-images').slick('unslick');
+					}		
+				}
+			});
+
+	}, 2000);
+	
+
+	$(document).on('click', '#bar0km .nav-link', function(e){
+		e.preventDefault();
+		var $div = $(this).data('href');
+		$('#'+$div).animatescroll();
+	});
+
+	
+
+	$(document).on('click', '.version-card', function(e){
+		e.preventDefault();
+
+		if(!$(this).hasClass('active')) {
+			var $vc = $('.version-card.active');
+			$vc.removeClass('active');
+			$($vc.data('has')).fadeOut();
+
+			var $ft = $($(this).data('has'));
+			$(this).addClass('active');
+			setTimeout(function(){
+				$ft.fadeIn();	
+			}, 300);
+			
+		}
+
+	});
+
+	
+
+});
+
+</script>
+{% endblock %}
+
+
+
+

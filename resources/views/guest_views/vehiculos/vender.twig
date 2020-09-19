@@ -1,0 +1,330 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block head %}
+<meta property="og:image" itemprop="image" content="{{base_url()}}/public/images/logo300x200.png">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="200">
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Ciro Automotores - Vendemos autos usados en Salta y Jujuy además de 0 KM" />
+<meta property="og:description" content="Ciro Automotores te ofrece los mejores autos usados en Salta y Jujuy. ¡Hacé contacto!" />
+{% endblock %}
+{% block aditional_css %}
+
+<link href="/dist/css/searchbar.min.css" rel="stylesheet" />
+<link href="/dist/css/sellcar.min.css" rel="stylesheet" />
+<link href="/dist/css/faqs.min.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.0/css/ionicons.css">
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css">
+<style type="text/css">
+.has-error input{
+	border-color: red !important;
+}
+</style>
+{% endblock %}
+{% block title %}Vendé tu auto {% endblock %}
+{% block content %}
+	<div class="sell-car-box">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-8 m-auto">
+					<h2 class="w-100 text-center">¿Necesitás vender tu vehículo?</h2>	
+					<h3 class="w-100 text-center">Publicalo en nuestro sitio web para encontrar el comprador ideal.</h3>
+				</div>		
+				<div class="col-lg-8 m-auto">
+					<div class="step1">
+						<form method="POST" name="form_sell_car_info" id="form_sell_car_info">
+							<div class="row">
+								<div class="col-lg-4">
+									<div class="form-group">
+										<select class="form-control fsci" name="form_sell_car_info_marca" placeholder="Marca" required="">
+											<option value="" selected="" disabled="">Marca</option>
+											{% for marca in marcas %}
+												<option value="{{ marca.id }}">{{marca.nombre}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<input value="" type="text" name="form_sell_car_info_modelo" class="form-control fsci" placeholder="Modelo" required="">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<input value="" type="number" name="form_sell_car_info_year" min="{{ "now"|date("Y")-12 }}" max="{{ "now"|date("Y") }}" class="form-control fsci" placeholder="Año" required="">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-4">
+									<div class="form-group">
+										<input value="" type="text" name="form_sell_car_info_motor" class="form-control fsci" placeholder="Motor" required="">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<select name="form_sell_car_info_tipomotor" class="form-control fsci" placeholder="Combustible" min="1" required="">
+											<option value="" selected="" disabled="">Combustible</option>
+											{% for motor in motores %}
+												<option value="{{ motor.id }}">{{motor.nombre}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<select name="form_sell_car_info_transmision" class="form-control fsci" placeholder="Transmisión" required="">
+											<option value="" selected="" disabled="">Transmisión</option>
+											{% for transmision in transmisiones %}
+												<option value="{{ transmision.id }}">{{transmision.nombre}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-4">
+									<div class="form-group">
+										<input name="form_sell_car_info_dominio" id="dominio" value="" type="text" class="form-control fsci" placeholder="Dominio" required="">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<input name="form_sell_car_info_kilometraje" value="" type="number" min="0"  class="form-control fsci" placeholder="Kilometraje" required="">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<input name="form_sell_car_info_cantidadpuertas" value="" type="number" class="form-control fsci" placeholder="Cantidad de puertas" required="">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-4">
+									<div class="form-group">
+										<input name="form_sell_car_info_color" value="" type="text" class="form-control fsci" placeholder="Color" required="">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<input name="form_sell_car_info_localidad" value="" type="text" class="form-control fsci" placeholder="Localidad" required="">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<input name="form_sell_car_info_precioventa" value="" type="number" min="0" class="form-control fsci" placeholder="Precio del vehículo" required="">
+									</div>
+								</div>
+							</div>
+							<input type="file" multiple class="veh_upload_main" name="veh_upload_main[]" hidden="hidden" accept="image/*"/>
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="form-group">
+										<div class="input-group veh_upload_files_box">
+											<div class="input-group-btn">
+												<button type="button" class="btn btn-app veh_upload_search_file"><i class="fa fa-image"></i> Buscar fotos</button>
+											</div>
+											<input type="text" class="form-control veh_upload_file_txt" value="" readonly="">											
+										</div>
+									</div>
+									<div class="body-images"></div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="form-group">
+										<textarea name="form_sell_car_info_observaciones" class="form-control fsci fw-ta" placeholder="Observaciones" required=""></textarea>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12 text-center">									
+									<button type="submit" class="btn btn-outline-default pull-right">Siguiente paso</button>									
+								</div>
+							</div>							
+							{{ csrf.field | raw }}
+						</form>
+					</div>
+					<div class="step2">
+					</div>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="card">
+						<div class="card-body">
+							<h4 class="card-title font-weight-bold">Mis Vehiculos</h4>
+							<table class="table table-bordered" id="tablaVehiculo">
+								<thead>
+									<tr>
+										<th>
+											Creado
+										</th>
+										<th>
+											Dominio
+										</th>
+										<th>
+											Marca
+										</th>
+										<th>
+											Modelo
+										</th>
+										<th>
+											Publicado
+										</th>
+										<th>
+											Opciones
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for item in vehiculos %}
+									<tr>
+										<td>
+											{{item.created_at | date('d/m/Y')}}
+										</td>
+										<td>
+											{{item.tercero.dominio}}
+										</td>
+										<td>
+											{{item.getMarca.nombre}}
+										</td>
+										<td>
+											{{item.modelo}}
+										</td>
+										<td>
+											{% if item.getPublicacion.id>0 %}
+												{% if item.getPublicacion.mostrar == 0 %}
+													Esta en Revision
+												{% else %}
+													SI
+												{% endif %}
+											{% else %}
+												<a class="btn btn-info" onclick="modalPublicar({{item.id}});" ><i class="ion ion-document-text"></i> Crear Publicacion</a>
+											{% endif %}
+										</td>
+										<td>
+											<a class="btn btn-danger btn-sm" href="{{path_for('vender.eliminar',{'id':item.id})}}" data-toggle="tooltip" data-container="body" title="Eliminar"><i class="ion ion-trash-a"></i></a>
+											{% if item.getPublicacion.id>0 %}
+											<a class="btn btn-info btn-sm" onclick="modalPublicar({{item.id}});" data-toggle="tooltip" data-container="body" title="Ver Publicacion"><i class="ion ion-document-text"></i></a>
+											{% endif %}
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<div class="modal fade" id="modalPublicacion">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Publicacion</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+      	<form class="form" method="POST" id="formPublicacion" >
+      		<div class="row">
+      			<div class="col-md-12">
+							<label for="titulo">Titulo Sugerido</label>
+							<input type="text" class="form-control" name="titulo" id="titulo">
+						</div>
+						<div class="col-md-12">
+							<label for="contenido">Contenido</label>
+							<textarea class="form-control"  name="contenido" id="contenido" placeholder="Contenido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la publicación.<br>Por ejemplo: <b>[terminaresto]</b>">
+							</textarea>	
+						</div>
+        	</div>
+        	<button type="submit" class="hidden" id="submitPublicacion" style="display:none;"></button>
+        	{{ csrf.field | raw }}
+      	</form>
+        
+      </div>
+      <div class="modal-footer">
+      	<a class="btn btn-success pull-right" id="btnPublicacion">Guardar Publicacion</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+	
+	<script src="//cdnjs.cloudflare.com/ajax/libs/salvattore/1.0.9/salvattore.min.js"></script>
+	<script src="//cdn.ckeditor.com/4.7.3/standard-all/ckeditor.js"></script>
+	{% include "guest_views/vehiculos/js_vender.twig" %}
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(e) {
+	CKEDITOR.replace( 'contenido', {
+		height: 200,
+		toolbarGroups: [
+			{"name":"basicstyles","groups":["basicstyles"]},
+			{"name":"links","groups":["links"]},
+			{"name":"paragraph","groups":["list","blocks", "align"]},
+			{"name":"document","groups":["mode"]},
+			{"name":"insert","groups":["insert"]},
+			{"name":"styles","groups":["styles"]},
+		],
+		// Remove the redundant buttons from toolbar groups defined above.
+		removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar,Image'
+	});
+
+	$('#btnPublicacion').on('click',function(){
+		$('#submitPublicacion').trigger('click');
+	});
+
+	$('#dominio').on('input',function(e){
+		var dominio = $('#dominio').val();
+		const patente = /^([A-ZÑ]{3}\s\d{3}|[A-ZÑ]{2}\s\d{3}\s[A-ZÑ]{2})$/g;
+		if(!patente.test(dominio)){
+			$('#dominio').focus();
+			$('#dominio').closest('.col-lg-4').addClass('has-error');
+		} else {
+			$('#dominio').closest('.col-lg-4').removeClass('has-error');
+		}
+	});
+});
+function modalPublicar(id){
+	var route = "{{path_for('vender.publicacion',{'id':99})}}".replace('99',id);
+	$('#formPublicacion').attr('action', route);
+	
+	$.ajax({
+    type: "get",
+    url: route,
+    success: function(data, textStatus, xhr){
+    	if(xhr.status == 204 ){
+    		$.toast({
+	        heading: 'Publicacion',
+	        text: 'La publicacion se encuentra en curso. No es posible editarlo.',
+	        showHideTransition: 'slide',
+	        icon: 'warning',
+	        position: 'bottom-right',
+	        hideAfter: false,
+	      });
+    	} else {
+    		$('#titulo').val(data.titulo);
+	    	CKEDITOR.instances.contenido.setData( data.contenido );
+	    	$('#modalPublicacion').modal('show');
+    	}
+    },
+    error: function(xhr, ajaxOptions,e) {
+      $.toast({
+        heading: 'Publicacion',
+        text: 'HA ocurrido un problema en nuestro servidor. Intente mas tarde.',
+        showHideTransition: 'slide',
+        icon: 'error',
+        position: 'bottom-right',
+        hideAfter: false,
+      });
+    }
+  });
+}
+</script>
+{% endblock %}

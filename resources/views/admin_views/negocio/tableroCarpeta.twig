@@ -1,0 +1,320 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+</style>
+{% endblock %}
+{% block title %}Carpetas{% endblock %}
+{% block header_title %}Carpetas{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+  <a > Carpetas</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+  {% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Listado:</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span> Acciones
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" data-toggle="modal" data-target="#modalCarpeta">Agregar Carpeta</a>
+          </div>
+        </div>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive p-0">
+					<table class="table table-hover" width="100%" id="tablaDatero">
+						<thead>
+							<tr>
+								<th>Creado</th>
+                <th>Titular</th>
+								<th>Vehiculo</th>
+								<th data-orderable="false" >Estado</th>
+								<th data-orderable="false" ></th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalCarpeta">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Nueva Carpeta</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form class="form-group" method="POST" action="{{path_for('carpeta.nuevo')}}" id="formCambiarSucursal">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label>Tipo del Auto</label>
+                <select class="form-control select2" name="tipo" id="tipo" required>
+                  <option value="U">USADO</option>
+                  <option value="N">NUEVO</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          {{ csrf.field | raw }}
+          <button type="submit" class="d-none" id="submitCarpeta" ></button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" id="btnCarpeta">Continuar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+  $('#tipo').select2({
+    minimumResultsForSearch: -1,
+    theme: "bootstrap",
+    width: '100%',
+  });
+
+  $.fn.dataTable.moment( 'DD/MM/YYYY' );
+  var tablaDatero = $('#tablaDatero').DataTable( {
+    order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    ajax:{
+      url:"{{path_for('carpeta.consultar')}}",
+    },
+    columns: [
+      {
+        name: 'created_at',
+        data: function(data,type,dataToSet){
+          var fecha = moment(data.created_at, 'YYYY-MM-DD').format('DD/MM/YYYY');
+          var creado = respuestaDiferenciaFecha(moment(data.created_at, 'YYYY-MM-DD HH:mm:ss'));
+          var autor = capitalizar(data.individuo.apellido)+' '+capitalizar(data.individuo.nombre);
+          return '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Creado '+creado+'<br>por '+autor+'">'+fecha+'</label>';
+        },
+      },
+      {
+        name: 'id_usuario',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.id_cliente>0){
+            var cliente = capitalizar(data.cliente.apellido)+' '+capitalizar(data.cliente.nombre);
+            var documento = data.cliente.tipo_documento.nombre+' '+data.cliente.documento;
+            respuesta = cliente+'<br>'+documento;
+          } else {
+            respuesta = 'Sin titular definido';
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'id_vehiculo',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.id_vehiculo>0){
+            respuesta = data.vehiculo.get_marca.nombre+' : '+data.vehiculo.modelo;
+          } else {
+            respuesta = 'Sin Vehiculo definido';
+          }
+          return respuesta;
+        }
+      },
+      {
+        name: 'estado',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          if(data.aprobado != null){
+            respuesta += '<span class="badge label-success">APROBADO</span>';
+            if(data.cerrado != null){
+              respuesta = '<span class="badge label-danger">CERRADO</span>';
+            }
+          }
+          return respuesta;
+        }
+      },
+      {
+        name: 'opciones',
+        data: function(data,type,dataToSet){
+          var href = "{{path_for('carpeta', {  'id': 99 })}}".replace('99',data.id);
+          respuesta = '';
+          respuesta += '<a class="btn btn-sm btn-info" href="'+href+'" data-toggle="tooltip" data-container="body" data-html="true" title="Ver"><span class="ion ion-eye"></span</a>';
+          return respuesta;
+        },
+        className: 'text-center',
+      }
+    ],
+    columnDefs:[
+      {
+        targets:[0,3],
+        width:"10%",
+      },
+      {
+        targets:[3],
+        orderable: false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#btnCarpeta').on('click',function(){
+    $('#submitCarpeta').trigger('click');
+  });
+
+});
+
+function eliminar(id_datero){
+  var route = "{{path_for('cliente.datero.eliminar',{'id':99})}}".replace('99',id_datero);
+  bootbox.confirm({
+    title: "Eliminar el Datero?",
+    message: "Desea eliminar el datero? Los clientes y vehiculos creados a partir del datero NO seran eliminados.",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: '<i class="ion ion-trash-a"></i> Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result){
+        $.ajax({
+          type: "get",
+          url: route,
+          success: function(data,status){
+            var table = $('#tablaDatero').DataTable();
+            table.ajax.reload(null, true);
+            $.toast({
+              heading: 'Datero',
+              text: data.message,
+              showHideTransition: 'slide',
+              icon: 'success',
+              position: 'bottom-right',
+            });
+          },
+          error: function(xhr, ajaxOptions,e) {
+            $.toast({
+              heading: 'Datero',
+              text: 'A ocurrido un problema. Por favor intente mas tarde.',
+              showHideTransition: 'slide',
+              icon: 'error',
+              position: 'bottom-right',
+              hideAfter: false,
+            });
+          }
+        });
+      }
+    }
+  });
+}
+
+function respuestaDiferenciaFecha(momentDate){
+  var minutos = moment().diff(momentDate,'minutes');
+  var respuesta = '';
+  if (minutos == 0){
+    respuesta = ' ahora';
+  } else if(minutos>60){
+    var horas = Math.floor(minutos / 60);
+    if(horas>24){
+      dias = Math.floor(horas / 24);
+      if(dias>30){
+        meses = Math.floor(dias / 30);
+        if(meses>2){
+          respuesta = ' hace '+meses + ' meses';
+        } else {
+          respuesta = momentDate.format('DD/MM/YYYY');
+        }
+      } else {
+        if(horas == 1){
+          respuesta = ' ayer';
+        } else {
+          respuesta = ' hace '+dias + ' dias';
+        }
+      }
+    } else {
+      if(horas == 1){
+        respuesta = ' hace 1 hora';
+      } else {
+        respuesta = ' hace '+horas + ' horas';
+      }
+    }
+  } else if(minutos>0) {
+    if( minutos <5){
+      respuesta = ' hace instantes';
+    } else {
+      respuesta = ' hace '+minutos + ' minutos';
+    }
+  } else {
+    minutos = minutos * (-1);
+    if(minutos>60){
+      var horas = Math.floor(minutos / 60);
+      if( horas > 24){
+        dias = Math.floor(horas / 24);
+        if(dias == 1){
+          respuesta = ' mañana';
+        } else {
+          respuesta = ' en '+dias+' dias';
+        }
+      } else if (horas == 1) {
+        respuesta = ' en 1 hora';
+      } else {
+        respuesta = ' en '+ horas + ' horas';
+      }
+    } else {
+      if(minutos < 5){
+        respuesta = ' en instante';
+      } else {
+        respuesta = ' en '+ minutos + ' minutos';
+      }
+    }
+  }
+  return respuesta;
+}
+
+function capitalizar(str){
+  return str.substr(0,1).toUpperCase()+str.substr(1);
+}
+</script>
+{% endblock %}

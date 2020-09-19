@@ -1,0 +1,226 @@
+<style type="text/css">
+	.input-xs {
+	  height: 22px!important;
+	  padding: 2px 5px;
+	  font-size: 12px;
+	  line-height: 1.5;
+	  border-radius: 3px;
+	}
+	input[type='number'] {
+    -moz-appearance:textfield;
+		}
+
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+		    -webkit-appearance: none;
+		}
+
+		@media (min-width: 768px) {
+			.form-inline .form-control {
+			    display: inline-block;
+			    width: 100%;
+			    vertical-align: middle;
+			}
+		}
+</style>
+<nav class="card-body flex-column navbar-filtros d-none d-lg-block">
+
+	<div class="category">
+		<div class="navbar-filtros-header">Marca</div>
+
+		{% for marca in marcas %}
+			{% if marca.tienevehiculos() != false %}
+			<div class="nav-link d-flex align-items-center">
+				<a href="{{path_for('vehicle.filter', {'params':'marca/'~sinacentos(marca.nombre)|trim|replace({' ':'-'})|e|lower})}}" onClick="ga('send', 'event', 'pagina_home', 'marca', 'filtro');">
+					{{marca.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{marca.tienevehiculos()}}</span>
+				</a>
+			</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Año</div>
+		{% for year, cantidad in years %}
+			<div class="nav-link align-items-center">
+				<a href="{{path_for('vehicle.filter', {'params':'year/'~sinacentos(year)|trim|replace({' ':'-'})|e|lower})}}" onClick="ga('send', 'event', 'pagina_home', 'year', 'filtro');">
+					{{year}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{cantidad}}</span>
+				</a>
+			</div>
+		{% endfor %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Ubicación</div>
+		{% for localidad in localidades %}
+			{% if localidad.tienevehiculos() != false %}
+			<div class="nav-link align-items-center">
+				<a href="{{path_for('vehicle.filter', {'params':'ubicacion/'~sinacentos(localidad.nombre)|trim|replace({' ':'-'})|e|lower})}}" onClick="ga('send', 'event', 'pagina_home', 'localidad', 'filtro');">
+					{{localidad.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{localidad.tienevehiculos()}}</span>
+				</a>
+			</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Motor</div>
+		{% for motor in motores %}
+			{% if motor.tienevehiculos() != false %}
+			<div class="nav-link align-items-center">
+				<a href="{{path_for('vehicle.filter', {'params':'motor/'~sinacentos(motor.nombre)|trim|replace({' ':'-'})|e|lower})}}" onClick="ga('send', 'event', 'pagina_home', 'motor', 'filtro');">
+					{{motor.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{motor.tienevehiculos()}}</span>
+				</a>
+			</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Transmisión</div>
+		{% for transmision in transmisiones %}
+			{% if transmision.tienevehiculos() != false %}
+			<div class="nav-link align-items-center">
+				<a href="{{path_for('vehicle.filter', {'params':'transmision/'~sinacentos(transmision.nombre)|trim|replace({' ':'-'})|e|lower})}}" onClick="ga('send', 'event', 'pagina_home', 'transmision', 'filtro');">
+					{{transmision.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{transmision.tienevehiculos()}}</span>
+				</a>
+			</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Precio</div>
+		<div class="nav-link">
+			<div class="form-inline">
+				<input type="number" class="form-control form-control-sm" id="precioMinimo" placeholder="Mínimo" style="width: 75px;">
+				&nbsp;-&nbsp;
+				<input type="number" class="form-control form-control-sm" id="precioMaximo" placeholder="Máximo" style="width: 75px;">
+				<a class="btn input-xs btnPrecio" id="btnPrecio" onClick="ga('send', 'event', 'pagina_home', 'precio', 'filtro');"><span class="fa fa-chevron-right"></span></a>
+			</div>
+		</div>
+	</div>
+</nav>
+<div class="nav flex-column navbar-filtros d-none">
+	<div class="list-group-item d-flex justify-content-between align-items-center">
+		Filtrar los vehículos por:
+	</div>
+	<a class="card-header navbar-filtros-header" data-toggle="collapse" href="#collapseMarca" role="button" aria-expanded="false" aria-controls="collapseMarca">Marca</a>
+	<div class="collapse" id="collapseMarca">
+    <div class="list-group">
+      {% for marca in marcas %}
+				{% if marca.tienevehiculos() != false %}
+				<a class="list-group-item d-flex justify-content-between align-items-center" href="{{path_for('vehicle.filter', {'params':'marca/'~sinacentos(marca.nombre)|trim|replace({' ':'-'})|e|lower})}}">
+					{{marca.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{marca.tienevehiculos()}}</span>
+				</a>
+				{% endif %}
+			{% endfor %}
+    </div>
+	</div>
+	<a class="card-header navbar-filtros-header" data-toggle="collapse" href="#collapseAnio" role="button" aria-expanded="false" aria-controls="collapseAnio">Año</a>
+	<div class="collapse" id="collapseAnio">
+    <div class="list-group">
+    	{% for year, cantidad in years %}
+			<a class="list-group-item d-flex justify-content-between align-items-center" href="{{path_for('vehicle.filter', {'params':'year/'~sinacentos(year)|trim|replace({' ':'-'})|e|lower})}}">
+				{{year}}&nbsp;
+				<span class="badge badge-primary badge-pill">{{cantidad}}</span>
+			</a>
+			{% endfor %}
+    </div>
+  </div>
+	<a class="card-header navbar-filtros-header" data-toggle="collapse" href="#collapseUbicacion" role="button" aria-expanded="false" aria-controls="collapseUbicacion">Ubicación</a>
+	<div class="collapse" id="collapseUbicacion">
+    <div class="list-group">
+    	{% for localidad in localidades %}
+				{% if localidad.tienevehiculos() != false %}
+				<a class="list-group-item d-flex justify-content-between align-items-center" href="{{path_for('vehicle.filter', {'params':'ubicacion/'~sinacentos(localidad.nombre)|trim|replace({' ':'-'})|e|lower})}}">
+					{{localidad.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{localidad.tienevehiculos()}}</span>
+				</a>
+				{% endif %}
+			{% endfor %}
+    </div>
+  </div>
+	<a class="card-header navbar-filtros-header" data-toggle="collapse" href="#collapseMotor" role="button" aria-expanded="false" aria-controls="collapseMotor">Motor</a>
+	<div class="collapse" id="collapseMotor">
+    <div class="list-group">
+    	{% for motor in motores %}
+				{% if motor.tienevehiculos() != false %}
+				<a class="list-group-item d-flex justify-content-between align-items-center" href="{{path_for('vehicle.filter', {'params':'motor/'~sinacentos(motor.nombre)|trim|replace({' ':'-'})|e|lower})}}">
+					{{motor.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{motor.tienevehiculos()}}</span>
+				</a>
+				{% endif %}
+			{% endfor %}
+    </div>
+  </div>
+	<a class="card-header navbar-filtros-header" data-toggle="collapse" href="#collapseTransmicion" role="button" aria-expanded="false" aria-controls="collapseTransmicion">Transmisión</a>
+	<div class="collapse" id="collapseTransmicion">
+    <div class="list-group">
+    	{% for transmision in transmisiones %}
+				{% if transmision.tienevehiculos() != false %}
+				<a class="list-group-item d-flex justify-content-between align-items-center" href="{{path_for('vehicle.filter', {'params':'transmision/'~sinacentos(transmision.nombre)|trim|replace({' ':'-'})|e|lower})}}">
+					{{transmision.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{transmision.tienevehiculos()}}</span>
+				</a>
+				{% endif %}
+			{% endfor %}
+    </div>
+  </div>
+	<a class="card-header navbar-filtros-header" data-toggle="collapse" href="#collapsePrecio" role="button" aria-expanded="false" aria-controls="collapsePrecio">Precio</a>
+	<div class="collapse" id="collapsePrecio">
+    <div class="card-body ">
+    	<div class="form-inline">
+				<input type="number" class="form-control form-control-sm col-4" id="precioMinimoMovil" placeholder="Mínimo" >
+				&nbsp;-&nbsp;
+				<input type="number" class="form-control form-control-sm col-4" id="precioMaximoMovil" placeholder="Máximo" >
+				<a class="btn input-xs btnPrecio col-1" id="btnPrecioMovil" ><span class="fa fa-chevron-right"></span></a>
+			</div>
+    </div>
+  </div>
+</div>
+<script >
+document.getElementById("btnPrecio").onclick = function(e){
+	var minimo = Number(document.getElementById("precioMinimo").value);
+	if(minimo == ''){
+		minimo = 0;
+	}
+	var maximo = Number(document.getElementById("precioMaximo").value);
+	if(maximo == ''){
+		maximo = 0;
+	}
+	if(minimo>0 || maximo>0){
+		if(minimo>0 && maximo>0){
+			if(minimo<maximo){
+				var route = "{{customurlfiltro(current_path, 'precio', 'minimo-maximo')}}".replace('minimo',minimo).replace('maximo',maximo);
+				document.getElementById("btnPrecio").href = route;
+			}
+		} else {
+			var route = "{{customurlfiltro(current_path, 'precio', 'minimo-maximo')}}".replace('minimo',minimo).replace('maximo',maximo);
+			document.getElementById("btnPrecio").href = route;
+		}
+	}
+};
+document.getElementById("btnPrecioMovil").onclick = function(e){
+	var minimo = Number(document.getElementById("precioMinimoMovil").value);
+	if(minimo == ''){
+		minimo = 0;
+	}
+	var maximo = Number(document.getElementById("precioMaximoMovil").value);
+	if(maximo == ''){
+		maximo = 0;
+	}
+	if(minimo>0 || maximo>0){
+		if(minimo>0 && maximo>0){
+			if(minimo<maximo){
+				var route = "{{customurlfiltro(current_path, 'precio', 'minimo-maximo')}}".replace('minimo',minimo).replace('maximo',maximo);
+				document.getElementById("btnPrecioMovil").href = route;
+			}
+		} else {
+			var route = "{{customurlfiltro(current_path, 'precio', 'minimo-maximo')}}".replace('minimo',minimo).replace('maximo',maximo);
+			document.getElementById("btnPrecioMovil").href = route;
+		}
+	}
+};
+</script>

@@ -1,0 +1,419 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+<style type="text/css">
+</style>
+{% endblock %}
+{% block title %}Suscriptores{% endblock %}
+{% block header_title %}Listado de Suscriptores{% endblock %}
+{% block breadcrumb %}
+	<li class="breadcrumb-item active">
+    Suscriptores
+  </li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Suscriptos:</h3>
+        <div class="card-tools dropdown pull-right">
+          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span> Acciones
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" id="btnCampaña">Enviar a Campaña</a>
+          </div>
+        </div>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-striped table-condensed" width="100%" id="tablaSuscripcion">
+						<thead>
+							<tr>
+								<th>Creado</th>
+                <th>Correo</th>
+                <th>Origen</th>
+                <th>Campañas</th>
+                <th>Listas</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+  <div class="col-md-12">
+    <div class="card card-success">
+      <div class="card-header">
+        <h3 class="card-title text-bold">Consultas:</h3>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-condensed" width="100%" id="tablaConsulta">
+            <thead>
+              <tr>
+                <th>Creado</th>
+                <th>Correo</th>
+                <th>Origen</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalCampaña">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+				<h4 class="modal-title">Seleccionar la campana a enviar</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form class="form-group" method="POST" action="{{path_for('suscripcion.campaña')}}" >
+          <input type="hidden" name="nombre" id="nombre" value="{{campañas[0].name}}">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="campaña">Campañas en getResponse</label>
+                <select class="form-control" name="campaña" id="campaña" >
+                  {% for index in campañas %}
+                    <option value="{{index.campaignId}}">{{index.name}} ({{index.description}})</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+          {{ csrf.field | raw }}
+          <button type="submit" class="d-none" id="submitCampaña" ></button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" id="btnEnviarCampaña">Enviar a campaña</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+  $.fn.dataTable.moment( 'DD/MM/YYYY' );
+  var tablaSuscripcion = $('#tablaSuscripcion').DataTable( {
+    order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    ajax:{
+      url:"{{path_for('suscripcion.consultar')}}",
+    },
+    columns: [
+      {
+        name: 'created_at',
+        data: function(data,type,dataToSet){
+          var fecha = moment(data.created_at, 'YYYY-MM-DD').format('DD/MM/YYYY');
+          var creado = respuestaDiferenciaFecha(moment(data.created_at, 'YYYY-MM-DD HH:mm:ss'));
+          return '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Creado '+creado+'">'+fecha+'</label>';
+        },
+      },
+      {
+        name: 'email',
+        data: 'email',
+      },
+      {
+        name: 'origen',
+        data: 'origen',
+      },
+      {
+        name: 'campañas',
+        data: function(data,type,dataToSet){
+          respuesta = '';
+          for (var i = data.campañas.length - 1; i >= 0; i--) {
+            respuesta += data.campañas[i].gr_name+' ';
+            if(data.campañas[i].gr_estado){
+              respuesta += 'Confirmado';
+            }
+            respuesta +='<br>';
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'listas',
+        data: function(data,type,dataToSet){
+          respuesta = '';
+          for (var i = data.listas.length - 1; i >= 0; i--) {
+            switch(data.listas[i].mc_listId){
+              case '4cad5cea31':
+                respuesta += 'Suscriptor ';
+              break;
+              case '136d2c9dbd':
+                respuesta += 'Registro ';
+              break;
+              case '49fa9673f2':
+                respuesta += 'Todos ';
+              break;
+            }
+            respuesta +='<br>';
+          }
+          return respuesta;
+        },
+      },
+      {
+        name: 'opciones',
+        data: function(data,type,dataToSet){
+          var respuesta = '';
+          var href = 'onclick="eliminar(99);"'.replace('99',data.id);
+          respuesta += '<a class="btn btn-sm btn-danger" '+href+' data-toggle="tooltip" data-container="body" data-html="true" title="Eliminar"><span class="ion ion-close-round"></span</a>';
+          return respuesta;
+        },
+        className: 'text-center',
+      }
+    ],
+    columnDefs:[
+      {
+        targets:[0,5],
+        width:"10%",
+      },
+      {
+        targets:[3,4,5],
+        orderable: false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  var tablaConsulta = $('#tablaConsulta').DataTable( {
+    order:[[0,'desc']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+    processing: true,
+    serverSide: true,
+    ajax:{
+      url:"{{path_for('suscripcion.paginas.consultar')}}",
+    },
+    columns: [
+      {
+        name: 'created_at',
+        data: function(data,type,dataToSet){
+          var fecha = moment(data.created_at, 'YYYY-MM-DD').format('DD/MM/YYYY');
+          var creado = respuestaDiferenciaFecha(moment(data.created_at, 'YYYY-MM-DD HH:mm:ss'));
+          return '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Creado '+creado+'">'+fecha+'</label>';
+        },
+      },
+      {
+        name: 'email',
+        data: 'email',
+      },
+      {
+        name: 'url',
+        data: 'url',
+      },
+      {
+        name: 'opciones',
+        data: function(data,type,dataToSet){
+          respuesta = '';
+          return respuesta;
+        },
+        className: 'text-center',
+      }
+    ],
+    columnDefs:[
+      {
+        targets:[0,3],
+        width:"10%",
+      },
+      {
+        targets:[3],
+        orderable: false,
+      },
+    ],
+    createdRow: function (row, data, index) {
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#btnCampaña').on('click',function(){
+    $('#modalCampaña').modal('show');
+  });
+
+  $('#campaña').on('change',function(){
+    $('#nombre').val($(this).find("option:selected").text().split('(')[0].trim());
+  });
+
+  $('#btnEnviarCampaña').on('click',function(){
+    $('#submitCampaña').trigger('click');
+  });
+
+});
+
+function eliminar(id){
+  var route = "{{path_for('suscripcion.eliminar',{'id':99})}}".replace('99',id);
+  bootbox.confirm({
+    title: "Eliminar al Suscriptor?",
+    message: "El suscriptor puede eliminarse por si solo tambien.",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: '<i class="ion ion-trash-a"></i> Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result){
+        $.ajax({
+          type: "get",
+          url: route,
+          success: function(data,status){
+            var table = $('#tablaSuscripcion').DataTable();
+            table.ajax.reload(null, true);
+            $.toast({
+              heading: 'Datero',
+              text: data.message,
+              showHideTransition: 'slide',
+              icon: 'success',
+              position: 'bottom-right',
+            });
+          },
+          error: function(xhr, ajaxOptions,e) {
+            $.toast({
+              heading: 'Datero',
+              text: 'A ocurrido un problema. Por favor intente mas tarde.',
+              showHideTransition: 'slide',
+              icon: 'error',
+              position: 'bottom-right',
+              hideAfter: false,
+            });
+          }
+        });
+      }
+    }
+  });
+}
+
+function respuestaDiferenciaFecha(momentDate){
+  var minutos = moment().diff(momentDate,'minutes');
+  var respuesta = '';
+  if (minutos == 0){
+    respuesta = ' ahora';
+  } else if(minutos>60){
+    var horas = Math.floor(minutos / 60);
+    if(horas>24){
+      dias = Math.floor(horas / 24);
+      if(dias>30){
+        meses = Math.floor(dias / 30);
+        if(meses>2){
+          respuesta = ' hace '+meses + ' meses';
+        } else {
+          respuesta = momentDate.format('DD/MM/YYYY');
+        }
+      } else {
+        if(horas == 1){
+          respuesta = ' ayer';
+        } else {
+          respuesta = ' hace '+dias + ' dias';
+        }
+      }
+    } else {
+      if(horas == 1){
+        respuesta = ' hace 1 hora';
+      } else {
+        respuesta = ' hace '+horas + ' horas';
+      }
+    }
+  } else if(minutos>0) {
+    if( minutos <5){
+      respuesta = ' hace instantes';
+    } else {
+      respuesta = ' hace '+minutos + ' minutos';
+    }
+  } else {
+    minutos = minutos * (-1);
+    if(minutos>60){
+      var horas = Math.floor(minutos / 60);
+      if( horas > 24){
+        dias = Math.floor(horas / 24);
+        if(dias == 1){
+          respuesta = ' mañana';
+        } else {
+          respuesta = ' en '+dias+' dias';
+        }
+      } else if (horas == 1) {
+        respuesta = ' en 1 hora';
+      } else {
+        respuesta = ' en '+ horas + ' horas';
+      }
+    } else {
+      if(minutos < 5){
+        respuesta = ' en instante';
+      } else {
+        respuesta = ' en '+ minutos + ' minutos';
+      }
+    }
+  }
+  return respuesta;
+}
+</script>
+{% endblock %}

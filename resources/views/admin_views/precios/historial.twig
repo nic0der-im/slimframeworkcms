@@ -1,0 +1,107 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Historico de precios{% endblock %}
+{% block header_title %}Historico de precios{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item" >
+	<a href="{{path_for('precios.index')}}">Precios</a>
+</li>
+<li class="breadcrumb-item active" >
+	Historial
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="col-lg-12">
+	<section class="invoice">
+      <!-- title row -->
+      <div class="row">
+        <div class="col-lg-12">
+          <h2 class="page-header">
+            <i class="fa fa-dollar"></i>{{ vehiculo.marca.nombre }} {{ vehiculo.nombre }}
+            <small class="pull-right">Cotización historica del vehículo</small>
+          </h2>
+        </div>
+        <!-- /.col -->
+      </div>
+
+      <!-- info row -->
+      <div class="row invoice-info">
+        <!-- /.col -->
+        <div class="col-lg-12 invoice-col">
+          <h5 style="background-color:#f7f7f7; text-align: center; padding: 7px 10px; margin-top: 0;">DATOS DEL VEHÍCULO:</h5>
+          <address>
+            <strong>{{ vehiculo.nombremarca.nombre }}</strong><br>
+            <b>Modelo: </b> {{ vehiculo.nombre }} {{ nuevo.catalogo }}<br>
+            <b>Año: </b> {{ vehiculo.anio }}<br>
+            <b>ID DB-RIO: </b>{{ vehiculo.id_rio }} [{{vehiculo.marca}}]
+          </address>
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+
+      <div class="row">
+        <!-- accepted payments column -->
+        <div class="col-md-8">
+          <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">Gráfica historica de precios:</h5>
+          <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+          <div id="chart_div"></div>
+        </div>
+        <div class="col-md-4">
+          <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">Lista de precios:</h5>
+          <div class="table-responsive">
+            <table class="table" width="100%">
+              <tbody>
+                  {% for elemento in historial %}
+                  <tr>
+                    <th>{{ elemento.mes }}</th>
+                    <td><span id="prenda" class="pull-right">$ {{ elemento.precio }}</span></td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+        </div>
+      </div>
+      <!-- /.row -->
+    </section>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+  <script type="text/javascript">
+  google.charts.load('current', {packages: ['corechart', 'line']});
+google.charts.setOnLoadCallback(drawBasic);
+
+function drawBasic() {
+
+      var data = new google.visualization.DataTable();
+      data.addColumn('date', 'Fecha');
+      data.addColumn('number', '$');
+
+      data.addRows([
+        {% for elemento in historial %}
+          {% set fecha = elemento.mes | split('-') %}
+          [new Date({{fecha[0]}},{{fecha[1] - 1}},{{fecha[2]}}), {{ elemento.precio }}],
+        {% endfor %}
+      ]);
+
+      var options = {
+        hAxis: {
+          title: 'Tiempo'
+        },
+        vAxis: {
+          title: 'Precio'
+        }
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+      chart.draw(data, options);
+    }
+    </script>
+{% endblock %}

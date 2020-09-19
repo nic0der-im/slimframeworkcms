@@ -1,0 +1,637 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+  <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+  <style>
+  #chartdiv {
+    width: 100%;
+    height: 500px;
+  }
+  .amcharts-chart-div a {display:none !important;}
+  </style>
+{% endblock %}
+{% block title %}Rendimiento y Estadísticas de prospectos{% endblock %}
+{% block header_title %}Rendimiento y Estadísticas de prospectos{% endblock %}
+{% block breadcrumb %}
+	<li class="breadcrumb-item">
+    <a href="{{path_for('prospectos.todos')}}">Prospectos</a>
+  </li>
+	<li class="breadcrumb-item active">
+    Rendimiento y Estadísticas
+  </li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Estadísticas generales del mes {{ dateTime | date('F') }}</h3>
+        <div class="card-tools pull-right">
+          <a class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-sm-2 col-xs-6">
+            <div class="description-block border-right">
+              {% if consultas > consultas_anterior %}
+                <span class="description-percentage text-green">
+                  <i class="fa fa-caret-up"></i>
+                  +{{ consultas - consultas_anterior }}
+                </span>
+              {% elseif consultas < consultas_anterior %}
+                <span class="description-percentage text-red">
+                  <i class="fa fa-caret-down"></i>
+                  {{ consultas - consultas_anterior }}
+                </span>
+              {% else %}
+                <span class="description-percentage text-yellow">
+                  <i class="fa fa-caret-left"></i>
+                  {{ consultas - consultas_anterior }}
+                </span>
+              {% endif %}
+              <h5 class="description-header">{{ consultas }}</h5>
+              <span class="description-text">FORMULARIO PAGINA</span>
+            </div>
+            <!-- /.description-block -->
+          </div>
+          <!-- /.col -->
+          <div class="col-sm-2 col-xs-6">
+            <div class="description-block border-right">
+              {% if mastarde > mastarde_anterior %}
+                <span class="description-percentage text-green">
+                  <i class="fa fa-caret-up"></i>
+                  +{{ mastarde - mastarde_anterior }}
+                </span>
+              {% elseif mastarde < mastarde_anterior %}
+                <span class="description-percentage text-red">
+                  <i class="fa fa-caret-down"></i>
+                  {{ mastarde - mastarde_anterior }}
+                </span>
+              {% else %}
+                <span class="description-percentage text-yellow">
+                  <i class="fa fa-caret-left"></i>
+                  =
+                </span>
+              {% endif %}
+              <h5 class="description-header">{{ mastarde }}</h5>
+              <span class="description-text">MÁS TARDE</span>
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="col-sm-2 col-xs-6">
+            <div class="description-block border-right">
+              {% if citaspactadas > citaspactadas_anterior %}
+                <span class="description-percentage text-green">
+                  <i class="fa fa-caret-up"></i>
+                  +{{ citaspactadas - citaspactadas_anterior }}
+                </span>
+              {% elseif citaspactadas < citaspactadas_anterior %}
+                <span class="description-percentage text-red">
+                  <i class="fa fa-caret-down"></i>
+                  {{ citaspactadas - citaspactadas_anterior }}
+                </span>
+              {% else %}
+                <span class="description-percentage text-yellow">
+                  <i class="fa fa-caret-left"></i>
+                  =
+                </span>
+              {% endif %}
+              <h5 class="description-header">{{ citaspactadas }}</h5>
+              <span class="description-text">Citas pactadas</span>
+            </div>
+            <!-- /.description-block -->
+          </div>
+          <!-- /.col -->
+          <div class="col-sm-2 col-xs-6">
+            <div class="description-block border-right">
+               {% if concretados > concretados_anterior %}
+                <span class="description-percentage text-green">
+                  <i class="fa fa-caret-up"></i>
+                  +{{ concretados - concretados_anterior }}
+                </span>
+              {% elseif concretados < concretados_anterior %}
+                <span class="description-percentage text-red">
+                  <i class="fa fa-caret-down"></i>
+                  {{ concretados - concretados_anterior }}
+                </span>
+              {% else %}
+                <span class="description-percentage text-yellow">
+                  <i class="fa fa-caret-left"></i>
+                  =
+                </span>
+              {% endif %}
+              <h5 class="description-header">{{ concretados }}</h5>
+              <span class="description-text">CONCRETADOS</span>
+            </div>
+            <!-- /.description-block -->
+          </div>
+          <div class="col-sm-2 col-xs-6">
+            <div class="description-block border-right">
+               {% if perdidos > perdidos_anterior %}
+                <span class="description-percentage text-green">
+                  <i class="fa fa-caret-up"></i>
+                  +{{ perdidos - perdidos_anterior }}
+                </span>
+              {% elseif perdidos < perdidos_anterior %}
+                <span class="description-percentage text-red">
+                  <i class="fa fa-caret-down"></i>
+                  {{ perdidos - perdidos_anterior }}
+                </span>
+              {% else %}
+                <span class="description-percentage text-yellow">
+                  <i class="fa fa-caret-left"></i>
+                  =
+                </span>
+              {% endif %}
+              <h5 class="description-header">{{ perdidos }}</h5>
+              <span class="description-text">PERDIDOS</span>
+            </div>
+            <!-- /.description-block -->
+          </div>
+          <div class="col-sm-2 col-xs-6">
+            <div class="description-block">
+               {% if (prospectos_mes_count) > (mastarde_anterior+perdidos_anterior+concretados_anterior+citaspactadas_anterior+consultas_anterior) %}
+                <span class="description-percentage text-green">
+                  <i class="fa fa-caret-up"></i>
+                  +{{ (prospectos_mes_count) - (mastarde_anterior+perdidos_anterior+concretados_anterior+citaspactadas_anterior+consultas_anterior) }}
+                </span>
+              {% elseif (prospectos_mes_count) < (mastarde_anterior+perdidos_anterior+concretados_anterior+citaspactadas_anterior+consultas_anterior) %}
+                <span class="description-percentage text-red">
+                  <i class="fa fa-caret-down"></i>
+                  {{ (prospectos_mes_count) - (mastarde_anterior+perdidos_anterior+concretados_anterior+citaspactadas_anterior+consultas_anterior) }}
+                </span>
+              {% else %}
+                <span class="description-percentage text-yellow">
+                  <i class="fa fa-caret-left"></i>
+                  =
+                </span>
+              {% endif %}
+              <h5 class="description-header">{{ prospectos_mes_count }}</h5>
+              <span class="description-text badge bg-blue">CANTIDAD TOTAL</span>
+            </div>
+            <!-- /.description-block -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div class="card collapsed-card">
+      <div class="card-header">
+        <h3 class="card-title">Rendimiento de los prospectos - Gráfica historica</h3>
+        <div class="card-tools pull-right">
+          <a class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="chartdiv"></div>
+      </div>
+    </div>
+  </div>
+	<div class="col-xs-12">
+		<div class="row">
+		   {% for vendedor in vendedores %}
+	        <div class="col-md-4">
+	          <!-- Widget: user widget style 1 -->
+	          <div class="card card-widget widget-user">
+	            <!-- Add the bg color to the header using any of the bg-* classes -->
+	            <div class="widget-user-header" style="background-color: #3c8dbc; color: #FFF;">
+	              <div class="widget-user-image">
+	                <img class="img-circle" src="{{base_url}}/images/default-avatar.png" alt="User Avatar">
+	              </div>
+	              <!-- /.widget-user-image -->
+	              <h3 class="widget-user-username">{{ vendedor.individuo.apellido | upper }}, {{ vendedor.individuo.nombre }}</h3>
+	              <h5 class="widget-user-desc">Vendedor {{ vendedor.agencia.nombre | upper}}</h5>
+	            </div>
+	            <div class="card-footer no-padding">
+	              <ul class="list-group">
+	              	{% set concretados = 0 %}
+	              	{% set perdidos = 0 %}
+	              	{% set sinrespuesta = 0 %}
+	              	{% set total = 0 %}
+                  {% set total2 = 0 %}
+                  {% set dia = 0 %}
+	              	{% for prospecto in prospectos_mes %}
+	              		{% if prospecto.id_vendedor == vendedor.id_usuario %}
+	              			{% set total = total+1 %}
+	              		{% endif %}
+	              	{% endfor %}
+                  {% for prospecto in prospectos_dia %}
+                    {% if prospecto.id_vendedor == vendedor.id_usuario %}
+                      {% set dia = dia + 1 %}
+                    {% endif %}
+                  {% endfor %}
+                  {% for prospecto in prospectos %}
+                    {% if prospecto.id_vendedor == vendedor.id_usuario %}
+                      {% set total2 = total2+1 %}
+                      {% if prospecto.estado == 1 %}
+                        {% set sinrespuesta = sinrespuesta+1 %}
+                      {% elseif prospecto.estado == 3 %}
+                        {% set perdidos = perdidos+1 %}
+                      {% elseif prospecto.estado == 4 %}
+                        {% set concretados = concretados+1 %}
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+	                <li class="list-group-item">
+										<a>Concretados<span class="pull-right badge bg-blue">{{ concretados }}</span></a>
+									</li>
+	                <li class="list-group-item list-group-item-action">
+										<a data-toggle="modal" data-target="#modal_perdido_id_{{vendedor.id_usuario}}">Perdidos <span class="pull-right badge bg-red">{{ perdidos }}</span></a>
+									</li>
+	                <li class="list-group-item list-group-item-action">
+										<a data-toggle="modal" data-target="#modal_sr_id_{{vendedor.id_usuario}}">Llamar más tarde:<span class="pull-right badge bg-red">{{ sinrespuesta }}</span></a>
+									</li>
+	                <li class="list-group-item">
+										<a>Prospectos del mes:<span class="pull-right badge bg-aqua">{{ total }}</span></a>
+									</li>
+                  <li class="list-group-item list-group-item-action">
+										<a data-toggle="modal" data-target="#modal_dia_id_{{vendedor.id_usuario}}">Prospectos del día:<span class="pull-right badge bg-aqua">{{ dia }}</span></a>
+									</li>
+                  <li class="list-group-item">
+										<a>Total prospectos historico:<span class="pull-right badge bg-green">{{ total2 }}</span></a>
+									</li>
+                  <li class="list-group-item">
+                    <div class="row justify-content-center">
+                      <div class="btn-group">
+                      <a href="{{path_for('prospectos.restar', { 'id': vendedor.id_usuario })}}" class="btn btn-sm btn-flat btn-default"><i class="fa fa-minus fa-x5"></i></a>
+                      <a class="btn btn-flat btn-primary btn-sm text-white">Usados <span class="badge bg-aqua">{{ vendedor.ventas_usados }}</span></a>
+                      <a href="{{path_for('prospectos.sumar', { 'id': vendedor.id_usuario })}}" class="btn btn-sm btn-flat btn-default"><i class="fa fa-plus fa-x5"></i></a>
+                      </div>
+                      <div class="btn-group">
+                      <a href="{{path_for('prospectos.restar0km', { 'id': vendedor.id_usuario })}}" class="btn btn-sm btn-flat btn-default"><i class="fa fa-minus fa-x5"></i></a>
+                      <a class="btn btn-flat btn-primary btn-sm text-white">0KM <span class="badge bg-aqua">{{ vendedor.ventas_0km }}</span></a>
+                      <a href="{{path_for('prospectos.sumar0km', { 'id': vendedor.id_usuario })}}" class="btn btn-sm btn-flat btn-default"><i class="fa fa-plus fa-x5"></i></a>
+                      </div>
+                    </div>
+                  </li>
+	              </ul>
+	            </div>
+	          </div>
+          </div>
+	        <div id="modal_sr_id_{{vendedor.id_usuario}}" class="modal fade" role="dialog">
+           <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+               <h4 class="modal-title">Prospectos sin llamar:</h4>
+               <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body p-0">
+               <p>El vendedor <span class="badge bg-aqua">{{ vendedor.individuo.apellido | upper }}, {{ vendedor.individuo.nombre }}</span> tiene prospectos <span class="badge bg-blue">{{ sinrespuesta }}</span> sin llamar.</p>
+               <div class="row">
+                  <div class="table-responsive">
+                    <table class="table table-hover tablaLlamar" width="100%">
+                      <thead>
+                        <tr>
+                          <th>Nombre</th>
+                          <th>Localidad</th>
+                          <th>Telefono</th>
+                          <th>Observaciones</th>
+                          <th>Fecha</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for prospecto in prospectos %}
+                          {% if prospecto.id_vendedor == vendedor.individuo.id_usuario  %}
+                            {% if prospecto.estado == 1 %}
+                            <tr>
+                              <td>{{ prospecto.nombre }} {{prospecto.apellido}}</td>
+                              <td>{{ prospecto.localidad }}</td>
+                              <td>{{ prospecto.telefono }}</td>
+                              <td>{{prospecto.getHistorial|last.observaciones}} </td>
+                              <td>{{ prospecto.created_at }}</td>
+                              <td width="20%">
+                                <form name="nuevo_prospecto" action="{{path_for('prospectos.transferir')}}" method="POST">
+                                  <select class="form-control" name="np_vendedor" id="np_vendedor" placeholder="Vendedor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Elige un vendedor para transferir el prospecto.">
+                                  <option></option>
+                                  {% for u in agencias %}
+                                    <option value="{{ u.id_usuario }}">{{ u.individuo.nombre }} {{ u.individuo.apellido }}</option>
+                                  {% endfor %}
+                                  </select>
+                                  <button class="btn-llamar btn btn-sm btn-block btn-flat btn-primary" type="submit">Transferir prospecto</button>
+                                <input hidden name="prospecto_id" id="prospecto_id" value="{{ prospecto.id }}">
+                                <input hidden name="desde_rendimiento" id="desde_rendimiento" value="1">
+                                {{ csrf.field | raw }}
+                                </form>
+                              </td>
+                            </tr>
+                            {% endif %}
+                          {% endif %}
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+               </div>
+              </div>
+              <div class="modal-footer">
+               <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+             </div>
+            </div>
+           </div>
+          </div>
+          <div id="modal_perdido_id_{{vendedor.id_usuario}}" class="modal fade" role="dialog">
+           <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+               <h4 class="modal-title">Prospectos perdidos:</h4>
+               <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body p-0">
+               <p>El vendedor <span class="badge bg-aqua">{{ vendedor.individuo.apellido | upper }}, {{ vendedor.individuo.nombre }}</span> tiene prospectos <span class="badge bg-red">{{ perdidos }}</span> perdidos.</p>
+               <div class="row">
+                 <div class="table-responsive">
+                    <table class="table table-hover tablaPerdidos" width="100%" >
+                      <thead>
+                        <tr>
+                          <th>Nombre</th>
+                          <th>Localidad</th>
+                          <th>Telefono</th>
+                          <th>Observaciones</th>
+                          <th>Fecha</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for prospecto in prospectos %}
+                          {% if prospecto.id_vendedor == vendedor.individuo.id_usuario  %}
+                            {% if prospecto.estado == 3 %}
+                            <tr>
+                              <td>{{ prospecto.nombre }} {{prospecto.apellido}}</td>
+                              <td>{{ prospecto.localidad }}</td>
+                              <td>{{ prospecto.telefono }}</td>
+                              <td>{{prospecto.getHistorial|last.observaciones}} </td>
+                              <td>{{ prospecto.created_at }}</td>
+                              <td width="20%">
+                                <form name="nuevo_prospecto" action="{{path_for('prospectos.transferir')}}" method="POST">
+                                  <select class="form-control" name="np_vendedor" id="np_vendedor" placeholder="Vendedor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Elige un vendedor para transferir el prospecto.">
+                                  {% for u in agencias %}
+                                    <option value="{{ u.id_usuario }}">{{ u.individuo.nombre }} {{ u.individuo.apellido }}</option>
+                                  {% endfor %}
+                                  </select>
+                                  <button class="btn-llamar btn btn-sm btn-block btn-flat btn-primary" type="submit">Transferir prospecto</button>
+                                <input hidden name="prospecto_id" id="prospecto_id" value="{{ prospecto.id }}">
+                                <input hidden name="desde_rendimiento" id="desde_rendimiento" value="1">
+                                {{ csrf.field | raw }}
+                                </form>
+                              </td>
+                            </tr>
+                            {% endif %}
+                          {% endif %}
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+               </div>
+              </div>
+              <div class="modal-footer">
+               <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+             </div>
+            </div>
+           </div>
+          </div>
+          <div id="modal_dia_id_{{vendedor.id_usuario}}" class="modal fade" role="dialog">
+           <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+               <h4 class="modal-title">Prospectos de hoy:</h4>
+               <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body p-0">
+               <p>El vendedor <span class="badge bg-aqua">{{ vendedor.individuo.apellido | upper }}, {{ vendedor.individuo.nombre }}</span> tiene estos prospectos hoy.</p>
+               <div class="row">
+                 <div class="table-responsive">
+                    <table class="table table-hover tablaHoy" width="100%" >
+                      <thead>
+                        <tr>
+                          <th>?</th>
+                          <th>Nombre</th>
+                          <th>Localidad</th>
+                          <th>Telefono</th>
+                          <th>Observaciones</th>
+                          <th>Fecha</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for prospecto in prospectos_dia %}
+                          {% if prospecto.id_vendedor == vendedor.individuo.id_usuario  %}
+                            <tr>
+                              <td>
+                                {% if prospecto.estado == 0 %}
+                                  <span class="badge label-warning">Sin atender</span>
+                                {% elseif prospecto.estado == 1 %}
+                                  <span class="badge label-info">Llamar más tarde</span>
+                                {% elseif prospecto.estado == 2 %}
+                                  <span class="badge label-primary">Cita pactada</span>
+                                {% elseif prospecto.estado == 3 %}
+                                  <span class="badge label-danger">Perdido</span>
+                                {% elseif prospecto.estado == 4 %}
+                                  <span class="badge label-success">Concretado</span>
+                                {% endif %}
+                              </td>
+                              <td>{{ prospecto.nombre }} {{prospecto.apellido}}</td>
+                              <td>{{ prospecto.localidad }}</td>
+                              <td>{{ prospecto.telefono }}</td>
+                              <td>{{ prospecto.getHistorial|last.observaciones}} </td>
+                              <td>{{ prospecto.created_at }}</td>
+                              <td width="20%">
+                                <form name="nuevo_prospecto" action="{{path_for('prospectos.transferir')}}" method="POST">
+                                  <select class="form-control" name="np_vendedor" id="np_vendedor" placeholder="Vendedor" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Elige un vendedor para transferir el prospecto.">
+                                  <option></option>
+                                  {% for u in agencias %}
+                                    <option value="{{ u.id_usuario }}">{{ u.individuo.nombre }} {{ u.individuo.apellido }}</option>
+                                  {% endfor %}
+                                  </select>
+                                  <button class="btn-llamar btn btn-sm btn-block btn-flat btn-primary" type="submit">Transferir prospecto</button>
+                                <input hidden name="prospecto_id" id="prospecto_id" value="{{ prospecto.id }}">
+                                <input hidden name="desde_rendimiento" id="desde_rendimiento" value="1">
+                                {{ csrf.field | raw }}
+                                </form>
+                              </td>
+                            </tr>
+                          {% endif %}
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+               </div>
+              </div>
+              <div class="modal-footer">
+               <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+             </div>
+            </div>
+           </div>
+          </div>
+	      {% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+<script src="https://www.amcharts.com/lib/3/lang/es.js"></script>
+
+<script type="text/javascript">
+
+$('.tablaHoy, .tablaPerdidos , .tablaLlamar').DataTable( {
+  lengthChange: false,
+  searching: false,
+  paging: false,
+  info: false,
+  ordering: false,
+  "language": {
+    "sProcessing":     "Procesando...",
+    "sLengthMenu":     "Mostrar _MENU_ registros",
+    "sZeroRecords":    "No se encontraron resultados",
+    "sEmptyTable":     "No hay registros.",
+    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+    "sInfoPostFix":    "",
+    "sSearch":         "Buscar:",
+    "sUrl":            "",
+    "sInfoThousands":  ",",
+    "sLoadingRecords": "Cargando...",
+    "oPaginate": {
+      "sFirst":    "Primero",
+      "sLast":     "Último",
+      "sNext":     "Siguiente",
+      "sPrevious": "Anterior"
+    },
+    "oAria": {
+      "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+      "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+    }
+  }
+});
+
+var chart = AmCharts.makeChart("chartdiv", {
+    "type": "serial",
+    "theme": "light",
+    "language": "es",
+    "legend": {
+        "equalWidths": false,
+        "useGraphSettings": true,
+        "valueAlign": "left",
+        "valueWidth": 120
+    },
+    "dataProvider": {{amchart|json_encode|raw}},
+    "valueAxes": [{
+        "id": "prospectosAxis",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "position": "left",
+        "title": "Prospectos"
+    }, {
+        "id": "fechaAxis",
+        "axisAlpha": 0,
+        "gridAlpha": 0,
+        "labelsEnabled": false,
+        "title":"Fecha",
+    }],
+    "graphs": [{
+        "id":"cantidadTotal",
+        "alphaField": "alpha",
+        "balloonText": "Total [[value]]",
+        "fillAlphas": 0.7,
+        "legendValueText": "[[fecha]] es [[value]]",
+        "title": "Cantidad total del ",
+        "type": "column",
+        "valueField": "total",
+    }, {
+        "balloonText": "Concretados:[[value]]",
+        "lineColor":"#57ae05",
+        "bullet": "round",
+        "bulletBorderAlpha": 1,
+        "useLineColorForBulletBorder": true,
+        "bulletColor": "#FFFFFF",
+        "labelPosition": "right",
+        "legendValueText": "[[value]]",
+        "title": "Concretados",
+        "fillAlphas": 0,
+        "valueField": "concretados",
+    }, {
+        "balloonText": "Perdidos:[[value]]",
+        "lineColor":"#0508ae",
+        "bullet": "square",
+        "bulletBorderAlpha": 1,
+        "bulletBorderThickness": 1,
+        "legendValueText": "[[value]]",
+        "title": "Perdidos",
+        "fillAlphas": 0,
+        "valueField": "perdidos",
+    }],
+    "chartCursor": {
+        "categoryBalloonDateFormat": "DD MMMM",
+        "cursorAlpha": 0.1,
+        "cursorColor":"#000000",
+        "fullWidth":true,
+        "valueBalloonsEnabled": false,
+        "zoomable": false
+    },
+    "dataDateFormat": "YYYY-MM-DD",
+    "categoryField": "fecha",
+    "categoryAxis": {
+        "dateFormats": [{
+            "period": "DD",
+            "format": "DD"
+        }, {
+            "period": "WW",
+            "format": "MMM DD"
+        }, {
+            "period": "MM",
+            "format": "MMM"
+        }, {
+            "period": "YYYY",
+            "format": "YYYY"
+        }],
+        "parseDates": true,
+        "autoGridCount": false,
+        "axisColor": "#555555",
+        "gridAlpha": 0.1,
+        "gridColor": "#FFFFFF",
+        "gridCount": 50
+    },
+    "chartScrollbar": {
+        "graph": "cantidadTotal",
+        "scrollbarHeight": 80,
+        "backgroundAlpha": 0,
+        "selectedBackgroundAlpha": 0.1,
+        "selectedBackgroundColor": "#888888",
+        "graphFillAlpha": 0,
+        "graphLineAlpha": 0.5,
+        "selectedGraphFillAlpha": 0,
+        "selectedGraphLineAlpha": 1,
+        "autoGridCount": true,
+        "color": "#AAAAAA"
+    },
+    "export": {
+      "enabled": false,
+      "menu": [ {
+      "class": "export-main",
+      "menu": [ {
+        "label": "Descargar",
+        "menu": [ "PNG", "JPG" ]
+      } ]
+      } ],
+     }
+  });
+  chart.addListener("rendered", zoomChart);
+  zoomChart();
+
+  function zoomChart() {
+      //chart.zoomToIndexes(3, 6);
+      var hoy = new Date();
+
+      chart.zoomToDates(new Date(2018, hoy.getMonth(),1), new Date());
+  }
+
+</script>
+{% endblock %}

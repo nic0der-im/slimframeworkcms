@@ -1,0 +1,171 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+	<link rel="stylesheet" href="{{ base_url() }}/asources/css/vehiculos.css">
+{% endblock %}
+{% block title %}Crear publicación{% endblock %}
+{% block header_title %}
+Crear publicación <small>{{vehiculo.getMarca.nombre}} {{vehiculo.modelo}} {{vehiculo.year}}</small>
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+	<a href="{{path_for('publicaciones.index')}}">Listado de publicaciones</a>
+</li>
+<li class="breadcrumb-item active">
+	Nuevo
+</li>
+{% endblock %}
+{% block content %}
+	<div class="row publicacion create">
+		<form name="veh_upload_basic_form" method="POST" action="{{path_for('publicaciones.crear', {'id': vehiculo.id})}}">
+			<div class="col-lg-12">
+				<div class="row">
+					{% if usado_tercero %}
+					<div class="col-lg-8">
+						<div class="card card-primary">
+							<div class="row no-margin">
+								<div class="col-sm-12">
+									<div class="card-header">
+										<h3 class="card-title text-bold">Información básica del vehículo</h3>
+									</div>
+									<div class="card-body vehicle-box">
+										<div class="vehicle-features">
+											<div class="row no-margin">
+												<div class="col-md-4 col-xs-6 no-padding vehicle-kilometraje">{{usado_tercero.kilometraje}}</div>
+												<div class="col-md-4 col-xs-6 no-padding vehicle-dominio">{{usado_tercero.dominio |default('-')}}</div>
+												<div class="col-md-4 col-xs-6 no-padding vehicle-color">{{usado_tercero.color |default('-')}}</div>
+												<div class="col-md-4 col-xs-6 no-padding vehicle-gnc">{{usado_tercero.gnc |default('No')}}</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					{% endif %}
+					<div class="col-lg-4 md-pull-right">
+						<div class="card card-info">
+							<div class="card-body">
+								<div id="vehicle-carousel" class="carousel vehicle-carousel slide" data-ride="carousel">
+									<ol class="carousel-indicators">
+										{% if vehiculo.getFotos is iterable %}
+											{% for foto in vehiculo.getFotos %}
+												{% if loop.first %}
+													<li data-target="#vehicle-carousel" data-slide-to="{{loop.index - 1 }}" class="active"></li>
+												{% else %}
+													<li data-target="#vehicle-carousel" data-slide-to="{{loop.index - 1 }}"></li>
+												{% endif %}
+											{% endfor %}
+										{% else %}
+											<li data-target="#vehicle-carousel" data-slide-to="{{loop.index - 1 }}" class="active"></li>
+										{% endif %}
+									</ol>
+									<div class="carousel-inner" role="listbox">
+										{% if vehiculo.getFotos is iterable %}
+											{% for foto in vehiculo.getFotos %}
+												<div class="carousel-item {% if loop.first %}active{% endif %}">
+													<img class="img-fluid" src="{{ base_url() }}{{foto.archivo}}">
+												</div>
+											{% endfor %}
+										{% endif %}
+									</div>
+									<a class="carousel-control-prev" href="#vehicle-carousel" role="button" data-slide="prev">
+										<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+										<span class="sr-only">Previous</span>
+									</a>
+									<a class="carousel-control-next" href="#vehicle-carousel" role="button" data-slide="next">
+										<span class="carousel-control-next-icon" aria-hidden="true"></span>
+										<span class="sr-only">Next</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-8">
+						<div class="card card-info">
+							<div class="card-header">
+								<h3 class="card-title text-bold">Crear publicación</h3>
+							</div>
+							<div class="card-body">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-3">
+											<label for="pub_crear_id_vehiculo">ID Vehículo</label>
+											<input type="text" class="form-control" name="pub_crear_id_vehiculo" id="pub_crear_id_vehiculo" readonly="" value="{{vehiculo.id}}" required>
+										</div>
+										<div class="col-sm-3">
+											<label for="pub_crear_id_usuario">ID Usuario</label>
+											<input type="text" class="form-control" name="pub_crear_id_usuario" id="pub_crear_id_usuario" readonly="" value="{{auth.user.id}}" required>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-sm-12">
+											<label for="pub_crear_titulo">Titulo de la publicación</label>
+											<input type="text" class="form-control" name="pub_crear_titulo" id="pub_crear_titulo" placeholder="Titulo de la publicación" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la publicación.<br>Por ejemplo: <b>[terminaresto]</b>" value="{{ titulo }}">
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-sm-12">
+											<label for="pub_crear_contenido">Contenido</label>
+											<textarea class="form-control"  name="pub_crear_contenido" id="pub_crear_contenido" placeholder="Contenido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la publicación.<br>Por ejemplo: <b>[terminaresto]</b>">
+											{% if usado_tercero.observaciones|length < 10 %}
+<p>En <strong>Ciro Automotores</strong>&nbsp;podes acceder a estas <strong>formas de pago</strong></p>
+<p>En <em><strong>Ciro Automotores</strong></em> encontrara m&uacute;ltiples opciones para que puedas tener tu auto deseado, ya sea un <em><strong>Auto Usado o un 0Km</strong></em> tenemos constantemente promociones especiales.</p>
+<p><strong>&iexcl;Si lo queres! Lo haremos posible.</strong></p>
+<ul>
+	<li>Auto Usado (hasta 2005) (1)</li>
+	<li>Financiado m&aacute;s info&hellip; (2)</li>
+	<li>Efectivo, Cheques y Pagare (Precios Especiales)</li>
+</ul>
+<p>Nuestros Autos <strong>Calidad Asegurada</strong></p>
+<ul>
+	<li>Mec&aacute;nica, Motor, Chasis todo en optimo estado. (3)</li>
+	<li>Papeles y Documentos todo al d&iacute;a y correctos a la hora de la entrega.&nbsp;(3)</li>
+</ul><p>Para <strong>ubicarnos</strong> y <strong>contactarnos</strong>: &nbsp;</p><p style="text-align:center"><a class="btn btn-md btn-primary btn-flat" href="https://ciroautomotores.com.ar/contacto" onclick="ga('send', 'event', 'pagina_publicacion_usado', 'consulta_web', 'btn_descripcion');" target="_blank">CLICK AQUI</a></p>
+											{% else %}
+												{{ usado_tercero.observaciones | raw }}
+											{% endif %}
+											</textarea>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12">
+						<div class="card card-info">
+							<div class="card-header">
+								<h3 class="card-title text-bold">Fin del formulario</h3>
+							</div>
+							<div class="card-body">
+								<button class="btn btn-primary btn-flat pull-right" type="submit">Crear publicación</button>
+								<button class="btn btn-default btn-flat pull-left" type="reset">Limpiar campos</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(function(){
+	CKEDITOR.replace( 'pub_crear_contenido', {
+		height: 200,
+		toolbarGroups: [
+			{"name":"basicstyles","groups":["basicstyles"]},
+			{"name":"links","groups":["links"]},
+			{"name":"paragraph","groups":["list","blocks", "align"]},
+			{"name":"document","groups":["mode"]},
+			{"name":"insert","groups":["insert"]},
+			{"name":"styles","groups":["styles"]},
+			{"name":"about","groups":["about"]}
+		],
+		// Remove the redundant buttons from toolbar groups defined above.
+		removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar'
+	});
+});
+</script>
+{% endblock %}

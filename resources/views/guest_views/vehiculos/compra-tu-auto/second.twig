@@ -1,0 +1,644 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block head %}
+<meta property="og:image" itemprop="image" content="{{base_url()}}/public/images/logo300x200.png">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="200">
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Ciro Automotores - Vendemos autos usados en Salta y Jujuy además de 0 KM" />
+<meta property="og:description" content="Ciro Automotores te ofrece los mejores autos usados en Salta y Jujuy. ¡Hacé contacto!" />
+{% endblock %}
+{% block aditional_css %}
+
+  <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.0/css/ionicons.css">
+  <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css">
+  <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/responsive/2.2.1/css/responsive.dataTables.min.css">
+  {% if production %}
+    <link rel="stylesheet" href="/dist/css/home.min.css" />
+    <link rel="stylesheet" href="/dist/css/vehicle-grid.min.css">
+    <link rel="stylesheet" href="/dist/css/vehicles.min.css">
+    <link rel="stylesheet" type="text/css" href="dist/css/compra-tu-auto.min.css">
+  {% else %}
+    <link rel="stylesheet" href="/css/basic/sources/home.css" />    
+    <link rel="stylesheet" href="/css/basic/sources/vehicle-grid.css">
+    <link rel="stylesheet" href="/css/vehiculos/sources/vehicles.css">
+    <link rel="stylesheet" type="text/css" href="css/vehiculos/sources/compra-tu-auto.css">
+  {% endif %}
+
+{% endblock %}
+{% block title %}Comprá tu auto {% endblock %}
+{% block content %}
+<div class="box-compra" id="simulator">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-8 col-sm-12 mx-lg-auto">
+        <div class="card">
+          <div class="row">            
+            <div class="col-lg-4 col-sm-12 box-compra-nav-col">
+              <ul class="nav" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="pills-dream-car-tab" data-toggle="pill" href="#pills-dream-car" role="tab" aria-controls="pills-dream-car" aria-selected="true">
+                    <div class="nav-step">Segundo paso</div>
+                    Elegí cómo lo querés pagar
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-8 col-sm-12 box-compra-body">
+              <div class="card-body">
+                <div class="tab-content w-100" id="pills-tabContent">
+                  <div class="tab-pane fade show active dream-car" id="pills-dream-car" role="tabpanel" aria-labelledby="pills-dream-car-tab">                    
+                    <div class="h4 font-weight-light">¿Cómo lo querés pagar?</div>
+                    <div class="list-group paymethods">
+                      <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                          <div class="paymethod">
+                            <img class="rounded-circle" src="https://cdn2.iconfinder.com/data/icons/business-271/141/16-512.png" alt="Card image cap">
+                            <div class="pm-info">
+                              <div class="pm-title">Efectivo</div>
+                              <div class="pm-descripcion">Pagá en efectivo y accedé a un increíble descuento del 10% en la compra de tu vehículo.</div>
+                              <span class="badge badge-pill badge-success font-weight-light">Opción preferida por nuestros compradores</span>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                          <div class="paymethod">
+                            <img class="rounded-circle" src="images/if_car.png" alt="Card image cap">
+                            <div class="pm-info">
+                              <div class="pm-title">Entregar tu usado como parte de pago</div>
+                              <div class="pm-descripcion">Es simple: valuamos tu usado en nuestra concesionaria y el resto podés pagarlo en efectivo o financiarlo.</div>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                          <div class="paymethod">
+                            <img class="rounded-circle" src="https://cdn2.iconfinder.com/data/icons/business-271/135/40-512.png" alt="Card image cap">
+                            <div class="pm-info">
+                              <div class="pm-title">Créditos y financiaciones</div>
+                              <div class="pm-descripcion">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                              tempor incididunt ut labore et dolore magna aliqua</div>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script src="/asources/js/typeahead.bundle.min.js"></script>
+<script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+<script src="//cdn.datatables.net/responsive/2.2.1/js/dataTables.responsive.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
+
+{% if production %}
+  <script src="/dist/js/compra-tu-auto.min.js"></script>
+{% else %}
+  <script src="/js/pages/compra-tu-auto.js"></script>
+{% endif %}
+
+<script type="text/javascript">
+$(document).ready(function(e) {
+
+  $('#divVehiculoBottom').hide();
+  $('#divUsadoBottom').hide();
+  $('#divFinancacionBottom').hide();
+  $('#divSegundo').slideUp(1000);
+
+  var precio = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+      url: "{{path_for('compratuauto.consultar')}}?consulta=",
+      wildcard: '%QUERY',
+      replace: function (url, uriEncodedQuery) {
+        return url+uriEncodedQuery+"&id_marca="+$('#marca').val()+"&anio="+$('#anio').val();
+      },
+    }
+  });
+
+  $('#bloodhoundUsado .typeahead').typeahead({
+      minLength: 0,
+      highlight: true
+    },{
+    name: 'modelo',
+    display: 'nombre',
+    source: precio,
+    templates: {
+      suggestion: function (data) {
+        var response = data.nombre;
+        if(data.precio!=null){
+          response = response;
+        }
+        return '<p>' + response +'</p>';
+      },
+      empty: function(){
+        var response = "";
+        if($('#marca').val()==null || $('#anio').val() == null || $('#anio').val() == ''){
+          response = "Selecciona la marca y el año.";
+        } else {
+          response = 'No tenemos sugerencias para el vehiculo.';
+        }
+        return response;
+      },
+    }
+  }).on('typeahead:selected', function(event, selection) {
+    if(selection.precio !=null){
+      $('#precio').val(selection.precio.precio);
+    } else {
+      $('#precio').val(0);
+    }
+  });
+
+  $('#marca,#anio').on('change',function(){
+    $('#modelo').val('a').trigger('change');
+    $('#modelo').focus().typeahead('val','a').focus();
+    $('#modelo').val('').trigger('change');
+    $('#modelo').focus().typeahead('val','').focus();
+    $('#precio').val('');
+  });
+
+  $('#tablaUsados').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+        targets:[0,1],
+        width:"15%",
+      },
+      {
+        targets:[4],
+        width:"7%",
+      },
+      {
+      	targets:[3],
+        width:"10%",
+        className: 'text-right',
+      },
+    ],
+    footerCallback: function ( row, data, start, end, display ) {
+        var api = this.api(), data;
+        var intVal = function ( i ) {
+            return typeof i === 'string' ?
+                i.replace(/[\$,]/g, '')*1 :
+                typeof i === 'number' ?
+                    i : 0;
+        };
+        total = api
+            .column( 3 )
+            .data()
+            .reduce( function (a, b) {
+                return intVal(a) + intVal(b);
+            }, 0 );
+
+        $( api.column( 3 ).footer() ).html(
+            '$'+total
+        );
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Utiliza el buscador para agregar tus Usados",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#btnAgregar').on('click',function(){
+      var table = $('#tablaUsados').DataTable();
+      var marca = $("#marca option:selected").text();
+      var anio = $('#anio').val();
+      var modelo = $('#modelo').val();
+      var precio = $('#precio').val();
+      if(marca != null && anio != null && anio<={{ "now"|date("Y") }} && anio>{{ "now"|date("Y")-12 }} && modelo!=null && precio>0){
+        table.row.add([
+          marca,
+          anio,
+          modelo,
+          '$'+precio,
+          '<a class="btn btn-danger btnQuitar" data-toggle="tooltip" data-container="body" title="Quitar" ><span class="ion ion-minus-round"></span></a>'
+        ])
+      	.draw()
+        .node();
+        calcularTotales();
+        if($('#divUsadoBottom').is(":hidden")){
+          $('#divUsadoBottom').slideDown(null,function(){
+            $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+          });
+        }
+      } else {
+        $.toast({
+          heading: 'Usados',
+          text: 'Por favor completa los datos y verificalos.',
+          showHideTransition: 'slide',
+          icon: 'warning',
+          position: 'bottom-right',
+        });
+      }
+  });
+
+  $('#tablaUsados tbody').on( 'click', 'a.btnQuitar', function () {
+    var table = $('#tablaUsados').DataTable();
+    table.row( $(this).parents('tr') )
+        .remove()
+        .draw();
+    if (!table.data().any()) {
+      $('#divUsadoBottom').slideUp();
+    }
+  });
+
+  var publicacion = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+      url: "{{path_for('compratuauto.publicados')}}?consulta=%QUERY",
+      wildcard: '%QUERY',
+    }
+  });
+
+  $('#bloodhoundVehiculo .typeahead').typeahead({
+      minLength: 0,
+      highlight: true
+    },{
+    name: 'vehiculo',
+    display: 'titulo',
+    source: publicacion,
+    templates: {
+      suggestion: function (data) {
+        var response = data.titulo;
+        var url_metodos_pago = "{{path_for('compratuauto.metodos-pago', {titulo: '@@', id:'##'})}}";
+
+        var url_titulo = data.titulo.replace(/\W/g, '-').toLowerCase();
+
+        url_metodos_pago = url_metodos_pago.replace('@@', url_titulo).replace('##', data.id);
+        return '<a href="' + url_metodos_pago + '">' + response +'</a>';
+      },
+      empty: function(){
+        var response = "&nbsp; Ups, no hay coincidencias, intenta de nuevo.";
+        if($('#vehiculo').val()==""){
+          response = "&nbsp; Empezá a soñar.";
+        }
+        return response;
+      },
+    }
+  }).on('typeahead:selected', function(event, selection) {
+
+    var url_metodos_pago = "{{path_for('compratuauto.metodos-pago', {titulo: '@@', id:'##'})}}";
+    var url_titulo = selection.titulo.replace(/\W/g, '-').toLowerCase();
+    url_metodos_pago = url_metodos_pago.replace('@@', url_titulo).replace('##', selection.id);
+
+    location.href = url_metodos_pago;
+
+    /*
+
+    var table = $('#tablaVehiculos').DataTable();
+    var array = table.column( 0 ).data().toArray();
+		var array = array.map(function(item) {
+	    return parseInt(item, 10);
+	  });
+    if(!array.includes(selection.id)){
+      table.row.add([
+        selection.id,
+        selection.year,
+        selection.titulo,
+        selection.kilometraje,
+        formatCurrency(selection.precio_venta),
+        formatCurrency(selection.calculo_credito),
+        formatCurrency(selection.calculo_entrega_minima),
+        '<a class="btn btn-danger btnSacar" data-toggle="tooltip" data-container="body" title="Quitar" ><span class="ion ion-minus-round"></span></a>'
+      ])
+      .draw()
+      .node();
+      calcularTotales();
+      $('#divVehiculoTop').slideUp(null,function(){
+        $('#divVehiculoBottom').slideDown(null,function(){
+          $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+        });
+        $('#divSegundo').slideDown(1500);
+      });
+
+      */    
+  });
+
+  $('#tablaVehiculos').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+        targets:[1,3],
+        width:"10%",
+      },
+      {
+        targets:[6],
+        width:"7%",
+      },
+      {
+        targets:[4,5],
+        width:"10%",
+        className: 'text-right',
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Utiliza el buscador y selecciona uno de nuestros autos",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#tablaVehiculos tbody').on( 'click', 'a.btnSacar', function () {
+    var table = $('#tablaVehiculos').DataTable();
+    var tr = $(this).parents('tr');
+    $('#vehiculo').val('a').trigger('change');
+    $('#vehiculo').focus().typeahead('val','a').focus();
+    $('#vehiculo').val('').trigger('change');
+    $('#vehiculo').focus().typeahead('val','').focus();
+    $('#divSegundo').slideUp(1500);
+    $('#divVehiculoBottom').slideUp(null,function(){
+      $('#divVehiculoTop').slideDown(null,function(){
+        table.row( tr )
+          .remove()
+          .draw();
+      });
+    });
+  });
+
+  $('#tablaResumen').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+        targets:[0],
+        width:"7%",
+      },
+      {
+        targets:[4],
+        className: 'text-center',
+      },
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Detalles.",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#tablaFinanciacion').DataTable( {
+    lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+    columnDefs:[
+      {
+        targets:[0],
+        width:"7%",
+      },
+      {
+        targets:[4,5],
+        className: 'text-center',
+      },
+    ],
+    footerCallback: function ( row, data, start, end, display ) {
+        var api = this.api(), data;
+        var intVal = function ( i ) {
+            return typeof i === 'string' ?
+                i.replace(/[\$,]/g, '')*1 :
+                typeof i === 'number' ?
+                    i : 0;
+        };
+        total = api
+            .column( 4 )
+            .data()
+            .reduce( function (a, b) {
+                return intVal(a) + formatNumberFromCurrency(b);
+            }, 0 );
+
+        $( api.column( 4 ).footer() ).html(
+            formatCurrency(total)
+        );
+    },
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Consulta las cuotas para tu prestamo.",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      },
+      "oAria": {
+        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+      }
+    }
+  });
+
+  $('#btnConsultar').on('click',function(){
+    var cuotas = $('#cuotas').val();
+    var banco = $('#banco').val();
+    var prestamo = $('#prestamo').val();
+    var table = $('#tablaVehiculos').DataTable();
+    var array = table.column( 1 ).data().toArray();
+    if(banco != null && cuotas != null && cuotas<=100 && prestamo!=null && prestamo>0 && array.length>0){
+      var anio = array[0];
+      var route = "{{path_for('compratuauto.financiar',{},{banco:'AAA',anio:'BBB',monto:'CCC',cuotas:'DDD'})}}"
+        .replace('AAA',banco)
+        .replace('BBB',anio)
+        .replace('CCC',prestamo)
+        .replace('DDD',cuotas)
+        .replace(/&amp;/g,'&');
+      $.ajax({
+        type: "get",
+        url: route,
+        success: function(data,status){
+          var table = $('#tablaFinanciacion').DataTable();
+          table.clear().draw();
+          for (var i = 0; i < data.length; i++) {
+            var row = data[i];
+            table.row.add([
+              row.cuota,
+              formatCurrency(row.cuota_interes),
+              formatCurrency(row.cuota_capital),
+              formatCurrency(row.iva),
+              formatCurrency(row.subtotal),
+              formatCurrency(row.saldo)
+            ])
+            .draw()
+            .node();
+          }
+          if($('#divFinancacionBottom').is(":hidden")){
+            $('#divFinancacionBottom').slideDown(null,function(){
+              $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+            });
+          }
+        },
+        error: function(xhr, ajaxOptions,e) {
+          $.toast({
+            heading: 'Financiacion',
+            text: 'A ocurrido un problema. Por favor intente mas tarde.',
+            showHideTransition: 'slide',
+            icon: 'error',
+            position: 'bottom-right',
+            hideAfter: false,
+          });
+        }
+      });
+    } else {
+      $.toast({
+        heading: 'Financiacion',
+        text: 'Por favor completa los datos y verificalos.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+      });
+    }
+  });
+
+});
+
+function calcularTotales(){
+  var table = $('#tablaUsados').DataTable();
+  var column = table.column( 3 );
+
+  var total = column.data().reduce( function (a,b) {
+    return a + formatNumberFromCurrency(b);
+  },0);
+
+  table = $('#tablaVehiculos').DataTable();
+  var row = table.data().toArray()[0];
+
+  table = $('#tablaResumen').DataTable();
+  table.clear().draw();
+  var credito = formatNumberFromCurrency(row[5]);
+  var entrega_minima = formatNumberFromCurrency(row[6]);
+  table.row.add([
+    1,
+    row[2]+' Precio Credito : ',
+    credito,
+    0,
+    formatCurrency(credito)
+  ])
+  .draw()
+  .node();
+  table.row.add([
+    2,
+    row[2]+' Entrega Minima : ',
+    entrega_minima,
+    total,
+    formatCurrency(entrega_minima - total)
+  ])
+  .draw()
+  .node();
+  var saldo = entrega_minima - total;
+  var financiar = credito;
+  if(saldo<0){
+    financiar += saldo;
+    saldo = 0;
+  }
+  $('#tablaResumenSaldo').text(formatCurrency(saldo));
+  $('#tablaResumenFinanciar').text(formatCurrency(financiar));
+  $('#prestamo').val(financiar);
+}
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+
+function formatNumberFromCurrency(total){
+	return Number(total.replace('.','').replace(',','.').replace(/[^0-9\.-]+/g,""));
+}
+
+</script>
+{% endblock %}

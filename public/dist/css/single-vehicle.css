@@ -1,0 +1,407 @@
+.single-vehicle {
+	margin-bottom: 1em;
+}
+
+.single-vehicle .vehicle-info {
+	font-size: 100%;	
+}
+.btn-social {
+    font-size: .8em;
+    border-radius: 0px;
+    margin-top: 1em;
+}
+
+.single-vehicle .vehicle-card .carousel-inner {
+	border-radius: 0px;
+}
+.single-vehicle .card-block:first-child {
+	padding: .5em 1em;
+}
+
+.single-vehicle .vehicle-info {
+	padding: 1em .5em;
+	padding-bottom: 0px;
+}
+
+.single-vehicle .vehicle-mi {
+	padding: 1.5em;
+}
+/*
+.single-vehicle .col-lg-8 {
+	padding-right: 0px;
+}
+.single-vehicle .col-lg-4 {
+	padding-left: 0px;
+}
+*/
+
+.single-vehicle .carousel-item img {
+	height: 450px;
+	object-fit: all;
+}
+
+.single-vehicle .consulta_whatsapp {
+	font-size: .8em;
+}
+
+@media (max-width: 972px) {
+	.single-vehicle .consulta_whatsapp {
+		font-size: 1.1em;
+		margin: .3em 0em;
+		padding-bottom: .3em;
+	}
+}
+
+
+.single-vehicle .consulta_whatsapp a {
+	font-size: 1em;
+	margin-top: .3em;
+}
+
+.similares .vehicle-info {
+	font-size: 120%;
+}
+
+.similares .btn-view-publicacion {
+	margin-top: 1em;
+}
+
+.single-vehicle .vehicle-card {
+	margin-bottom: 0px;
+}
+
+.single-vehicle .left-card {
+	max-width: 15%;
+}
+
+.single-vehicle .carousel-card {
+	min-width: 100%;
+	max-width: 100%;
+}
+
+.single-vehicle .vehicle-info .vehicle-price {
+	margin-top: 0px;
+}
+
+.single-vehicle .carousel-card {
+	border-bottom-left-radius: 0px;
+}
+.single-vehicle .basic_info-card {
+	border-bottom-right-radius: .5em;
+}
+
+.single-vehicle .ficha_tecnica {
+	min-width: 100%;
+	max-width: 100%;
+	border-top-right-radius: 0px;
+	border-top-left-radius: 0px;
+}
+
+.single-vehicle .basic_info-card {
+	position: sticky;
+  top: 37px;
+  margin-bottom: 1em;
+  z-index: 100;
+}
+
+.single-vehicle .contenido {
+	min-width: 100%;
+	max-width: 100%;
+	border-top-right-radius: 0px;
+	border-top-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+	border-bottom-left-radius: .5em !important;
+}
+
+/*
+.single-vehicle .vehicle-card .card-header {
+	margin: -.5em -1em;
+	margin-bottom: inherit;
+	font-weight: bold;
+	height: 48px;
+	padding: 0em 1em;
+	line-height: 48px;
+}
+
+
+.single-vehicle .vehicle-card.ficha_tecnica .card-block {
+	padding-bottom: 0px;
+	
+}
+*/
+.single-vehicle .vehicle-card .list-group {
+	margin: 0 -1em;
+}
+
+.single-vehicle .vehicle-card .list-group li:first-child {
+	border-top: none;
+}
+
+.single-vehicle .vehicle-card .list-group li {
+	padding: .5em 1em;
+}
+/*
+.single-vehicle .vehicle-card.contenido .card-header {
+	margin-bottom: 1em;
+}
+*/
+
+/******************/
+
+.single-vehicle .vehicle-titlef {
+	font-size: 1.5em;
+	font-weight: 500;
+	line-height: 1.2;
+}
+
+.single-vehicle .vehicle-price {
+	font-size: 2.8em;
+	line-height: normal;
+	font-weight: 400;
+	margin-bottom: .3em;
+
+}
+.single-vehicle .fw-ta.consulta {
+	min-height: 75px;
+	margin-bottom: .5em;
+	padding: .8em;
+	transition: 300ms;
+}
+
+.single-vehicle .fw-ta.consulta:focus {
+	min-height: 150px;
+}
+
+.single-vehicle .vehicle-card.ficha_tecnica .list-group li {
+	font-size: 14px;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+.single-vehicle .vehicle-card.ficha_tecnica .list-group li .lgi-item {
+	font-weight: normal;
+	text-transform: none;
+}
+
+@media(max-width: 992px) {
+
+	.single-vehicle {	
+		margin: 0px 0;
+		margin-top: -1em;
+		padding: 0em;
+	}
+
+	.single-vehicle .basic_info-card {
+		position: relative;
+	  top: 0px;
+	  border-top-left-radius: 0px;
+	  border-bottom-left-radius: 0px;
+	  
+	  margin: 0px;
+	}
+
+	.single-vehicle .vehicle-card .carousel-inner {
+    border-top-right-radius: 0em;
+    border-top-left-radius: 0em;
+	}
+
+	.single-vehicle .col-lg-8 {
+		padding-right: 15px;
+	}
+	.single-vehicle .col-lg-4 {
+		padding: 0px;
+	}
+
+	.single-vehicle .carousel-item img {
+		height: 300px;
+		object-fit: all;
+	}
+	.single-vehicle .left-col, .single-vehicle .right-col {
+		padding: 0px 0px;
+	}
+
+	.single-vehicle .vehicle-card {
+		margin-bottom: 0px;
+		border: 0px;
+	}
+
+	.single-vehicle .vehicle-mi {
+		padding: 0em;
+	}
+
+	.single-vehicle .vehicle-price {
+		margin: 0em;
+	}
+
+	.single-vehicle .vehicle-info {
+		padding: .5em 1em;
+		margin-top: -5px;
+		width: 100%;
+		background-color: #f8f8f8;
+		
+		margin-bottom: 0px;
+	}
+
+	
+/*
+	.single-vehicle .basic_info-card .card-header {
+		margin: 0px;
+		padding: 0em 1em;
+	}
+	*/
+	.single-vehicle .basic_info-card .card-block {
+		padding: 0px;
+
+	}
+
+
+	.single-vehicle .basic_info-card,
+	.single-vehicle .carousel-card,
+	.single-vehicle .ficha_tecnica,
+	.single-vehicle .contenido {
+		min-width: 100%;
+		max-width: 100%;
+		border: 0px !important;
+	}
+
+	.single-vehicle .card-group {
+		margin: 0px -15px;
+	}
+/*
+	.single-vehicle .vehicle-card .card-header {
+		margin-bottom: .3em;
+		border-radius: 0px;
+		background-color: #0059B6;
+		color: #fff;
+	}*/
+}
+
+
+/************/
+.social-views {
+    background: #ffd9d9;
+    border: 1px solid #ffa0a0;
+    border-radius: 5px;
+    padding: 5px;
+    text-align: center;
+    max-width: 400px;
+    margin: 0px auto;
+    margin-bottom: 20px;
+}
+span.social-span {
+    font-size: 35px;
+    text-align: center;
+    font-weight: bold;
+    color: #c14644;
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+span.visitas_txt p {
+    font-size: 14px;
+    line-height: 16px;
+    color: #c14644;
+    font-weight: bold;
+    display: table-cell;
+    vertical-align: middle;
+}
+.vieron {
+    vertical-align: middle;
+    display: table-cell;
+}
+span.visitas_txt {
+    display: table;
+    height: 100%;
+    text-align: center;
+    width: 100%;
+}
+.vehicle-info div {
+    padding: 0px 5px;
+}
+.social-views {
+    margin-bottom: 20px;
+}
+
+
+@media (max-width: 575px) {
+	.social-views {
+	    max-width: 200px;
+	}
+}
+
+
+
+/* nuevo */
+
+.main-vehicle-card {
+	border-radius: .5em;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+.col-info-sticky {
+	position: sticky;
+	top: calc(37px);
+}
+
+.col-informacion {
+	
+}
+
+.col-informacion .info-card {
+	margin-bottom: 1em;
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+	border-left: 0px;
+	border-radius: .5em;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+.col-informacion .info-card .vehicle-param {
+	display: flex;
+	color: #333;
+	margin: 0px;
+}
+
+.col-informacion .info-card .vehicle-title,
+.basic_info-card .vehicle-price {
+	font-size: 140%;
+	font-weight: bold;
+	color: #242424;	
+	display: inline-flex;
+}
+
+.col-informacion .info-card .vehicle-price,
+.basic_info-card .vehicle-price {		
+	font-size: 40px;
+	font-weight: 300;
+	flex-basis: 100%;
+}
+
+.col-informacion .info-card .vehicle-vistas,
+.basic_info-card .vehicle-vistas {
+	align-items: center;
+	padding-bottom: .5em;
+}
+
+.col-informacion .info-card .vehicle-vistas span,
+.basic_info-card .vehicle-vistas {
+	font-size: 12px;
+	color: #de0e0b;
+	font-weight: bold;
+}
+
+.col-informacion .info-card .vehicle-vistas img,
+.basic_info-card .vehicle-vistas img {
+	height: 30px;
+}
+
+.btn-mobile { width: 100%; margin-bottom: .5em; }
+
+.btn-mobile:last-of-type {
+	margin-bottom: 0px;
+}
+
+.step1 { display: none; margin-top: 1em; }

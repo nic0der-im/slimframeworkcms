@@ -1,0 +1,178 @@
+<style type="text/css">
+	.input-xs {
+	  height: 22px!important;
+	  padding: 2px 5px;
+	  font-size: 12px;
+	  line-height: 1.5;
+	  border-radius: 3px;
+	}
+	input[type='number'] {
+    -moz-appearance:textfield;
+		}
+
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+		    -webkit-appearance: none;
+		}
+
+		@media (min-width: 768px) {
+			.form-inline .form-control {
+			    display: inline-block;
+			    width: 100%;
+			    vertical-align: middle;
+			}
+		}
+</style>
+<nav class="card-body flex-column navbar-filtros d-none d-lg-block">
+	<div class="category">
+		<div class="navbar-filtros-header">Marca</div>
+		{% if filtros.marca is not defined %}
+			{% for marca in marcas %}
+				<div class="nav-link align-items-center">
+					<a href="{{customurlfiltro(current_path, 'marca', marca.nombre)}}">{{marca.nombre}}&nbsp;</a>
+					<span class="badge badge-primary badge-pill">{{marca.cantidad}}</span>
+				</div>
+			{% endfor %}
+		{% else %}
+			<span class="badge badge-primary">{{filtros.marca.show}} <a href="{{customurlfiltroborrar(current_path, '/marca/')}}"><i class="fa fa-close text-white"></i></a></span>
+		{% endif %}
+	</div>
+	{#
+	{% if filtros.marca is defined %}
+		<div class="category">
+			<div class="navbar-filtros-header">Modelo</div>
+			{% if filtros.modelo is not defined %}
+				{% for modelo, cantidad in modelos %}
+					<div class="nav-link align-items-center">
+						<a href="{{customurlfiltro(current_path, 'modelo', modelo)}}">
+							{{modelo}}&nbsp;
+							<span class="badge badge-primary badge-pill">{{cantidad}}</span>
+						</a>
+					</div>
+				{% endfor %}
+			{% else %}
+				<span class="badge badge-primary">{{filtros.modelo.show}} <a href="{{customurlfiltroborrar(current_path, '/modelo/')}}"><i class="fa fa-close text-white"></i></a></span>
+			{% endif %}
+		</div>
+	{% endif %}
+	#}
+	<div class="category">
+		<div class="navbar-filtros-header">Año</div>
+		{% if filtros.year is not defined %}
+			{% for item in years %}
+				<div class="nav-link">
+					<a href="{{customurlfiltro(current_path, 'year', item.year)}}">
+						{{item.year}}&nbsp;
+						<span class="badge badge-primary badge-pill">{{item.cantidad}}</span>
+					</a>
+				</div>
+			{% endfor %}
+		{% else %}
+			<span class="badge badge-primary">{{filtros.year.show}} <a href="{{customurlfiltroborrar(current_path, '/year/')}}"><i class="fa fa-close text-white"></i></a></span>
+		{% endif %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Ubicación</div>
+		{% if filtros.ubicacion is not defined %}
+			{% for localidad in localidades %}
+				<div class="nav-link">
+					<a href="{{customurlfiltro(current_path, 'ubicacion', localidad.nombre)}}">
+						{{localidad.nombre}}&nbsp;
+						<span class="badge badge-primary badge-pill">{{localidad.cantidad}}</span>
+					</a>
+				</div>
+			{% endfor %}
+		{% else %}									
+			<span class="badge badge-primary">{{filtros.ubicacion.show}} <a href="{{customurlfiltroborrar(current_path, '/ubicacion/')}}"><i class="fa fa-close text-white"></i></a></span>
+		{% endif %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Motor</div>
+		{% if filtros.motor is not defined %}
+			{% for motor in motores %}
+				<div class="nav-link">
+					<a href="{{customurlfiltro(current_path, 'motor', motor.nombre)}}">
+						{{motor.nombre}}&nbsp;
+						<span class="badge badge-primary badge-pill">{{motor.cantidad}}</span>
+					</a>
+				</div>
+			{% endfor %}
+		{% else %}
+			<span class="badge badge-primary">{{filtros.motor.show}} <a href="{{customurlfiltroborrar(current_path, '/motor/')}}"><i class="fa fa-close text-white"></i></a></span>
+		{% endif %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Transmisión</div>
+		{% if filtros.transmision is not defined %}
+			{% for transmision in transmisiones %}
+				<div class="nav-link">
+					<a href="{{customurlfiltro(current_path, 'transmision', transmision.nombre)}}">
+						{{transmision.nombre}}&nbsp;
+						<span class="badge badge-primary badge-pill">{{transmision.cantidad}}</span>
+					</a>
+				</div>
+			{% endfor %}
+		{% else %}
+			<span class="badge badge-primary">{{filtros.transmision.show}} <a href="{{customurlfiltroborrar(current_path, '/transmision/')}}"><i class="fa fa-close text-white"></i></a></span>
+		{% endif %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Precio</div>
+		{% if filtros.precio is not defined %}
+			<div class="nav-link">
+				<div class="form-inline">
+					<input type="number" class="form-control form-control-sm" id="precioMinimo" placeholder="Mínimo" style="width: 75px;">
+					&nbsp;-&nbsp;
+					<input type="number" class="form-control form-control-sm" id="precioMaximo" placeholder="Máximo" style="width: 75px;">
+					<a class="btn input-xs btnPrecio" id="btnPrecio" ><span class="fa fa-chevron-right"></span></a>
+				</div>
+			</div>
+		{% else %}
+			<span class="badge badge-primary">{{filtros.precio.show}} <a href="{{customurlfiltroborrar(current_path, '/precio/')}}"><i class="fa fa-close text-white"></i></a></span>
+		{% endif %}
+	</div>
+</nav>
+<script >
+document.getElementById("btnPrecio").onclick = function(e){
+	var minimo = Number(document.getElementById("precioMinimo").value);
+	if(minimo == ''){
+		minimo = 0;
+	}
+	var maximo = Number(document.getElementById("precioMaximo").value);
+	if(maximo == ''){
+		maximo = 0;
+	}
+	if(minimo>0 || maximo>0){
+		if(minimo>0 && maximo>0){
+			if(minimo<maximo){
+				var route = "{{customurlfiltro(current_path, 'precio', 'minimo-maximo')}}".replace('minimo',minimo).replace('maximo',maximo);
+				document.getElementById("btnPrecio").href = route;
+			}
+		} else {
+			var route = "{{customurlfiltro(current_path, 'precio', 'minimo-maximo')}}".replace('minimo',minimo).replace('maximo',maximo);
+			document.getElementById("btnPrecio").href = route;
+		}	
+	}
+};
+document.getElementById("btnPrecioMovil").onclick = function(e){
+	var minimo = Number(document.getElementById("precioMinimoMovil").value);
+	if(minimo == ''){
+		minimo = 0;
+	}
+	var maximo = Number(document.getElementById("precioMaximoMovil").value);
+	if(maximo == ''){
+		maximo = 0;
+	}
+	if(minimo>0 || maximo>0){
+		if(minimo>0 && maximo>0){
+			if(minimo<maximo){
+				var route = "{{customurlfiltro(current_path, 'precio', 'minimo-maximo')}}".replace('minimo',minimo).replace('maximo',maximo);
+				document.getElementById("btnPrecioMovil").href = route;
+			}
+		} else {
+			var route = "{{customurlfiltro(current_path, 'precio', 'minimo-maximo')}}".replace('minimo',minimo).replace('maximo',maximo);
+			document.getElementById("btnPrecioMovil").href = route;
+		}	
+	}
+};
+</script>

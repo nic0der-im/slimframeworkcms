@@ -1,0 +1,99 @@
+<div class="filter_mobile">
+	<nav class="navbar ciromark navbar-dark">		
+		<span class="btn-close-filter_mobile">&times;</span>
+		<span class="navbar-title">Filtros</span>
+	</nav>
+	<div class="filter_box">
+		<div class="filter-header">
+			<span>Marca</span>
+		</div>
+		<div class="filter-body">
+			{% for marca in marcas %}
+				{% if marca.tienevehiculos() != false %}
+					<span class="badge badge-pill badge-light">{{marca.nombre}}</span>					
+				{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Año</div>
+		{% for year, cantidad in years %}
+			<div class="nav-link align-items-center">
+				<a href="{{path_for('vehicle.filter', {'params':'year/'~sinacentos(year)|trim|replace({' ':'-'})|e|lower})}}">
+					{{year}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{cantidad}}</span>
+				</a>
+			</div>
+		{% endfor %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Ubicación</div>
+		{% for localidad in localidades %}
+			{% if localidad.tienevehiculos() != false %}
+			<div class="nav-link align-items-center">
+				<a href="{{path_for('vehicle.filter', {'params':'ubicacion/'~sinacentos(localidad.nombre)|trim|replace({' ':'-'})|e|lower})}}">
+					{{localidad.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{localidad.tienevehiculos()}}</span>
+				</a>
+			</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Motor</div>
+		{% for motor in motores %}
+			{% if motor.tienevehiculos() != false %}
+			<div class="nav-link align-items-center">
+				<a href="{{path_for('vehicle.filter', {'params':'motor/'~sinacentos(motor.nombre)|trim|replace({' ':'-'})|e|lower})}}">
+					{{motor.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{motor.tienevehiculos()}}</span>
+				</a>
+			</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Transmisión</div>
+		{% for transmision in transmisiones %}
+			{% if transmision.tienevehiculos() != false %}
+			<div class="nav-link align-items-center">
+				<a href="{{path_for('vehicle.filter', {'params':'transmision/'~sinacentos(transmision.nombre)|trim|replace({' ':'-'})|e|lower})}}">
+					{{transmision.nombre}}&nbsp;
+					<span class="badge badge-primary badge-pill">{{transmision.tienevehiculos()}}</span>
+				</a>
+			</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	<div class="category">
+		<div class="navbar-filtros-header">Precio</div>
+		<div class="nav-link">
+			<div class="form-inline">
+				<input type="number" class="form-control form-control-sm" id="precioMinimo" placeholder="Mínimo" style="width: 75px;">
+				&nbsp;-&nbsp;
+				<input type="number" class="form-control form-control-sm" id="precioMaximo" placeholder="Máximo" style="width: 75px;">
+				<a class="btn input-xs btnPrecio" id="btnPrecio" ><span class="fa fa-chevron-right"></span></a>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	$(document).on('click', '.openMobileFilter', function() {
+		$( ".filter_mobile" ).animate({
+			top: "-=105vh",
+		}, 300, function() {
+			$('body').css('position', 'fixed');
+		});
+	});
+
+	$('.btn-close-filter_mobile').click(function(){
+		$( ".filter_mobile" ).animate({
+			top: "+=105vh",
+		}, 300, function() {
+			$('body').css('position', 'static');
+		});
+	});
+
+});
+</script>

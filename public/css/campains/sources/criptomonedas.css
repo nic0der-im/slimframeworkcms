@@ -1,0 +1,143 @@
+body {
+	/*background-image: url('/images/campains/criptomonedas/criptomonedas.png');*/
+	background-color: #3286C6;
+	background-size: cover;
+	min-height: 100vh !important;
+	background-attachment: fixed;
+}
+
+.precios-mundiales {
+	background: transparent;
+}
+
+.precios-mundiales.banner-card {
+	margin: inherit;
+	border: 0px;
+}
+.precios-mundiales .banner-content {
+	
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  z-index: 10;
+}
+
+.precios-mundiales .banner-title {
+	color: #fff;
+	font-size: 40px;
+	font-weight: normal;
+	font-family: BEMIO!important;
+}
+
+.precios-mundiales .banner-text {
+	color: #fff;
+	font-size: 23px;
+	font-weight: lighter;
+}
+
+.precios-mundiales .card-img-top {
+	border-radius: 20px;
+	top: -50px;
+}
+
+
+
+.precios-mundiales .vehicle-card .carousel-inner {
+	border: 0px;
+	overflow: hidden;
+	margin-top: -20px;
+}
+
+.precios-mundiales .vehicle-card .vehicle-mi {
+	border-radius: .5em;
+	overflow: hidden;
+}
+
+.publicaciones {
+	height: 100vh;
+}
+
+#contacto-mundial {
+	padding-top: 5em;
+	padding-bottom: 5em;
+}
+
+#contacto-mundial .title-contacto {
+	
+	font-size: 40px;
+	font-family: BEMIO!important;
+	color: #fff;
+	text-align: center;
+	
+}
+
+.balon {
+	font-size: 40px;
+	text-align: center;
+}
+
+
+
+#contacto-mundial .subtitle-contacto {
+	font-weight: lighter;
+	font-size: 20px;
+	color: #fff;
+	text-align: center;
+	margin-bottom: 1em;
+}
+
+
+#contacto-mundial {
+	margin-bottom: 1em;
+}
+
+.contacto-mundial {	
+	border: 0px;
+	border-radius: 1em;
+	padding: .75em;
+	overflow: hidden;
+}
+
+.contacto-mundial label {
+	text-align: center;
+	font-size: 16px;
+	font-weight: bold;	
+}
+
+.contacto-mundial button {
+	font-family: BEMIO!important;
+	font-weight: normal;
+	font-size: 1.5em;
+	white-space: pre-wrap;
+}
+
+.contacto-mundial button.btn-sm {
+	font-family: Roboto!important;
+	font-weight: bold;
+	font-size: 1.3em;
+}
+
+.mundial-background {
+	position: absolute;
+	width: 101%;
+	height: 101%;
+	object-fit: cover;
+	top: 0px;
+	left: 0px;
+	filter: blur(1px);
+}
+
+.has-error {
+	border: 1px solid red;
+}
+
+.step1 {
+	display: none;
+}
+
+.congrats-title {
+	font-size: 30px;
+	font-family: BEMIO!important;
+}

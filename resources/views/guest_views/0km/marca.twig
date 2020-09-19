@@ -1,0 +1,88 @@
+{% extends "guest_views/base_fixed.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+
+.col-img-vehicle,
+.card-vehicle {
+    height: 400px; 
+    color: #fff;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;  
+    text-shadow: 1px 1px 3px #616161;
+}
+
+.col-img-vehicle {
+    padding: 0px;
+}
+
+.card-vehicle {
+    display: flex;
+    align-items: center;
+    background-color: rgba(0,0,0, .3);
+}
+.card-vehicle p {
+    font-size: 40px;
+    margin: 0px;
+    line-height: 1;
+}
+
+.card-vehicle span {
+    font-family: 'Roboto';
+    font-weight: lighter;
+}
+.col-img-vehicle a {
+    text-decoration: none;
+}
+
+.col-img-vehicle {
+    margin-bottom: 30px;
+}
+</style>
+
+{% endblock %}
+{% block title %}
+    {# ✅ #} {{marca.nombre|trim|replace({' ':'_'})}} | Autos 0 KM{# 🚘🏃 #}‍
+{% endblock %}
+{% block head %}
+
+<meta charset="utf-8" />
+<meta name="description" content="{# 👁‍🗨 #} Si querés un auto {{ pagina.titulo |replace({'Nuevo':''}) }} en Ciro Automotores tenemos autos usados en Jujuy y y autos cero kilómetros. {# 🔥 #} !Hacé contacto ahora mismo! {# 🔥 #}" />
+<meta name="keywords" content="autos 0 kilometros, autos usados en salta, autos cero kilometros" />
+<meta property="og:locale" content="es_AR" />
+<meta property="og:title" content="Ciro Automotores - Podés comprar autos usado en Salta y Jujuy cero KM marca {{ pagina.titulo |replace({'Nuevo':''}) }}" />
+<meta property="og:description" content="¡Compra el auto que más te guste! En Ciro Automotores tenemos autos usados en Salta y autos 0 KM. Podés tener un auto de la marca {{ pagina.titulo |replace({'Nuevo':''}) }}."/>
+<meta property="og:site_name" content="Ciro Automotores"/>
+<meta property="og:url" content="{{base_url()}}{{current_path}}"/>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid vehicles">    
+    {% for pagina in marca.paginas %}
+        {{ pagina.getBloques[0].getBloques | json_encode }}
+    <div class="row">
+        <div class="col-md-12 col-img-vehicle" style="background-image:url({{pagina.getBloques[0].getFullscreen.imagen}})">
+            <a onclick="ga('send', 'event', 'landing_0km', '{{ pagina.url_name }}', 'modelo');" href="{{path_for('paginas.ver', {titulo: pagina.url_name})}}">
+                <div class="card-vehicle" >
+
+                    <div class="container">
+                        <p>{{pagina.titulo}}</p>
+                        <span>{{pagina.descripcion}}</span>
+                    </div>
+                </div>                
+            </a>
+        </div>
+    </div>   
+    {% endfor %}
+</div>
+{% endblock %}
+{% block custom_js %}
+{% endblock %}
+
+
+
+

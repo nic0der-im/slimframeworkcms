@@ -1,0 +1,133 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+	
+{% endblock %}
+{% block title %}Editar página{% endblock %}
+{% block header_title %}Editar página{% endblock %}
+{% block breadcrumb %}<li><a href="{{path_for('paginas.index')}}">Páginas</a></li><li class="active"><a href="{{path_for('paginas.index')}}">Editar página</a></li>{% endblock %}
+{% block content %}
+	<div class="row publicacion create">
+		<form name="page_0km_crear_form" method="POST" action="{{path_for('paginas.editarpost')}}">
+			<div class="col-sm-12">
+				<div class="row">					
+					<div class="col-sm-12">
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Descripción de la página:</h3>
+								<input type="hidden" name="pagina_id" id="pagina_id" value="{{ pagina.id }}">
+							</div>
+							<div class="box-body">
+								<div class="form-group">									
+									<div class="row">
+										<div class="col-sm-6">
+											<label for="page_0km_titulo">Titulo de la página:</label>
+											<input type="text" class="form-control" name="page_0km_titulo" id="page_0km_titulo" placeholder="Titulo de la página" value="{{pagina.titulo}}">
+										</div>
+										<div class="col-sm-6">
+											<label for="page_0km_titulo">Descripción de la página:</label>
+											<input type="text" class="form-control" name="page_0km_descripcion" id="page_0km_descripcion" placeholder="Descripción de la página" value="{{pagina.contenido}}">
+										</div>
+										<div class="col-sm-12">
+											<label for="page_0km_url_parallax">Parallax de la página (url de imagen galeria):</label>
+											<input type="text" class="form-control" name="page_0km_url_parallax" id="page_0km_url_parallax" placeholder="Titulo de la página" value="{{pagina.url_parallax}}">
+										</div>
+										<div class="col-sm-6">
+											<label for="id_marca">Marca del Vehiculo a Publicar en la Pagina</label>
+											<select class="form-control" name="id_marca" id="id_marca" placeholder="Condición" autocomplete="off" required>
+												{% for row in marcas %}
+													{% if row.id==pagina.id_marca %}
+														<option class="option" value="{{row.id}}" selected="true">
+															{{row.nombre}}
+														</option>
+													{% else %}
+														<option class="option" value="{{row.id}}">
+															{{row.nombre}}
+														</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="box box-info">
+							<div class="box-header with-border">
+								<h3 class="box-title text-bold">Carrusel de presentación:</h3>
+							</div>
+							<div class="box-body">
+								<div class="form-group">			
+									<ul  class="nav nav-tabs">
+										<li class="active">
+							        <a  href="#1a" data-toggle="tab">Primer carrusel:</a>
+										</li>
+										<li><a href="#2a" data-toggle="tab">Segundo carrusel:</a>
+										</li>
+										<li><a href="#3a" data-toggle="tab">Tercer carrusel:</a>
+										</li>
+									</ul>
+									<br>
+									<div class="tab-content clearfix">
+									  <div class="tab-pane active" id="1a">
+						          <div class="row" style="text-align:center;">
+												<div class="col-sm-4">
+													<label for="page_0km_c1_imagen">Imagen (url):</label>
+													<input type="text" class="form-control" name="page_0km_c1_imagen" id="page_0km_c1_imagen" placeholder="Ingrese el link" value="{{pagina.carrusel1_img}}">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c1_titulo">Titulo</label>
+													<input type="text" class="form-control" name="page_0km_c1_titulo" id="page_0km_c1_titulo" placeholder="Titulo del carrusel" value="{{pagina.carrusel1_titulo}}">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c1_parrafo">Parrafo</label>
+													<input type="text" class="form-control" name="page_0km_c1_parrafo" id="page_0km_c1_parrafo" placeholder="Parrafo del carrusel" value="{{pagina.carrusel1_parrafo}}">
+												</div>
+											</div>
+										</div>
+										<div class="tab-pane" id="2a">
+						         <div class="row" style="text-align:center;">
+												<div class="col-sm-4">
+													<label for="page_0km_c2_imagen">Imagen (url):</label>
+													<input type="text" class="form-control" name="page_0km_c2_imagen" id="page_0km_c2_imagen" placeholder="Ingrese el link" value="{{pagina.carrusel2_img}}">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c2_titulo">Titulo</label>
+													<input type="text" class="form-control" name="page_0km_c2_titulo" id="page_0km_c2_titulo" placeholder="Titulo del carrusel" value="{{pagina.carrusel2_titulo}}">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c2_parrafo">Parrafo</label>
+													<input type="text" class="form-control" name="page_0km_c2_parrafo" id="page_0km_c2_parrafo" placeholder="Parrafo del carrusel" value="{{pagina.carrusel2_parrafo}}">
+												</div>
+											</div>
+										</div>
+						        <div class="tab-pane" id="3a">
+						          <div class="row" style="text-align:center;">
+												<div class="col-sm-4">
+													<label for="page_0km_c3_imagen">Imagen (url):</label>
+													<input type="text" class="form-control" name="page_0km_c3_imagen" id="page_0km_c3_imagen" placeholder="Ingrese el link" value="{{pagina.carrusel3_img}}">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c3_titulo">Titulo</label>
+													<input type="text" class="form-control" name="page_0km_c3_titulo" id="page_0km_c3_titulo" placeholder="Titulo del carrusel" value="{{pagina.carrusel3_titulo}}">
+												</div>
+												<div class="col-sm-4">
+													<label for="page_0km_c3_parrafo">Parrafo</label>
+													<input type="text" class="form-control" name="page_0km_c3_parrafo" id="page_0km_c3_parrafo" placeholder="Parrafo del carrusel" value="{{pagina.carrusel3_parrafo}}">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<button class="btn btn-primary btn-flat pull-right" type="submit">Editar página</button>
+						<button class="btn btn-default btn-flat pull-left" type="reset">Limpiar campos</button>
+					</div>
+				</div>
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+{% endblock %}
+{% block custom_js %}
+{% endblock %}

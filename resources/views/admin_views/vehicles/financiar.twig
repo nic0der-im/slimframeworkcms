@@ -1,0 +1,658 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Financiación del vehículo {{ params.vehiculo.modelo }}{% endblock %}
+{% block header_title %}Financiación del vehículo {{ params.vehiculo.modelo }}{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item" >
+	<a href="{{path_for('vehicle.index')}}">Listado de vehículos
+	</a></li>
+<li class="breadcrumb-item active" >
+	Financiación
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	<div class="col-md-8">
+		<div class="card card-success">
+			<div class="card-body">
+				<!-- /.col -->
+			    <div class="row invoice-info">
+			        <div class="col-sm-12 invoice-col">
+			          <h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">DATOS DEL VENDEDOR:</h5>
+			          <div class="row">
+			          	<div class="col-md-6">
+			          		<address>
+				            	<strong>{{ auth.individuo.nombre }} {{ auth.individuo.apellido }}</strong><br>
+				            	<strong>Sucursal:</strong> Ciro Automotores {{ auth.empleado.agencia.nombre }}<br>
+				            	<b>Correo: </b> {{ auth.user.email }}<br>
+				            	<b>Teléfono: </b> {{ auth.individuo.telefono }}<br>
+				          	</address>
+				        </div>
+				       	<div class="col-md-3 pull-right">
+				       		<img class="img-fluid" style="width:80%; text-align:center;" src="{{static_assets}}/images/logo.png"></img>
+				       	</div>
+				      </div>
+				      <br>
+			          <div class="row">
+			          	<div class="col-md-6">
+				          <h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">DATOS BÁSICOS DEL VEHÍCULO:</h5>
+				          <address>
+				            <b>Modelo: </b> {{ params.vehiculo.marca }} {{ params.vehiculo.modelo }}<br>
+				            <b>Color: </b> {{ params.usado.color }}<br>
+				            <b>Año:</b> {{ params.vehiculo.year }}<br>
+				            <b>Motor: </b> {{ params.vehiculo.tipo_motor }} {{ params.vehiculo.motor }}<br>
+				            <b>Transmisión:</b> {{ params.vehiculo.transmision }}<br>
+				            <b>Kilometraje:</b> {{ params.usado.kilometraje }} km<br>
+				          </address>
+				         </div>
+				         <div class="col-md-6">
+				          <h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">DATOS DE LA FINANCIACIÓN:</h5>
+				          <address>
+				            <b>Precio de contado: </b> ${{ params.vehiculo.precio_venta|round }}<br>
+				            <b>Precio de lista:</b> ${{ params.vehiculo.precio_lista|round }}<br>
+				            <b>Entrega mínima: </b> ${{ params.vehiculo.CalculoEntregaMinimaAttribute|round }}<br>
+				            <br>
+				            {#<b>Crédito:</b> ${{ params.vehiculo.CalculoCreditoAttribute|round }}<br>#}
+				          </address>
+				          <button class="btn btn-success btn-sm btn-block" data-toggle="modal" data-target="#calculocredito"><i class="fa fa-dollar"></i> SIMULAR CRÉDITO</button>
+
+
+
+
+				         </div>
+				      </div>
+			        </div>
+			    </div>
+			    <!-- /.row -->
+			    <div class="row">
+			      	<div class="col-sm-6">
+			    		<button type="button" class="btn btn-info btn-md btn-block" data-toggle="modal" data-target="#myModal"><i class="fa fa-dollar"></i> Sol. Bonificación</button>
+			    	</div>
+			    	<div class="col-sm-6">
+			    		<button type="button" class="btn btn-primary btn-md btn-block" data-toggle="modal" data-target="#myModal"><i class="fa fa-globe"></i> Página Cliente</button>
+			    	</div>
+			    </div>
+
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="card">
+			<div class="card-body">
+				<!-- /.col -->
+			    <div class="row invoice-info">
+			        <div class="col-sm-12 invoice-col">
+			          <h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">FOTOS DEL VEHÍCULO:</h5>
+			          {% if params.images is defined %}
+						<div id="vehicle-carousel" class="carousel vehicle-carousel slide" data-ride="carousel">
+							<ol class="carousel-indicators">
+								{% if params.images is iterable %}
+									{% for imagen in params.images %}
+										{% if loop.first %}
+											<li data-target="#vehicle-carousel" data-slide-to="{{loop.index - 1 }}" class="active"></li>
+										{% else %}
+											<li data-target="#vehicle-carousel" data-slide-to="{{loop.index - 1 }}"></li>
+										{% endif %}
+									{% endfor %}
+								{% else %}
+									<li data-target="#vehicle-carousel" data-slide-to="{{loop.index - 1 }}" class="active"></li>
+								{% endif %}
+							</ol>
+							<div class="carousel-inner" role="listbox">
+								{% if params.images is iterable %}
+									{% for imagen in params.images %}
+										{% if loop.first %}
+											<div class="item active">
+												<img src="{{ base_url() }}{{imagen.archivo}}">
+											</div>
+										{% else %}
+											<div class="item">
+												<img src="{{ base_url() }}{{imagen.archivo}}">
+											</div>
+										{% endif %}
+									{% endfor %}
+								{% else %}
+									<div class="item active">
+										<img src="{{ base_url() }}{{params.images.archivo}}">
+									</div>
+								{% endif %}
+							</div>
+							<a class="left carousel-control" href="#vehicle-carousel" role="button" data-slide="prev">
+								<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+								<span class="sr-only">Anterior</span>
+							</a>
+							<a class="right carousel-control" href="#vehicle-carousel" role="button" data-slide="next">
+								<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+								<span class="sr-only">Siguiente</span>
+							</a>
+						</div>
+						{% else %}
+						<div class="row no-margin">
+							<div class="col-sm-12">
+								<img class="image-not-found" src="{{ base_url() }}/asources/images/no-disponible.png">
+							</div>
+						</div>
+						{% endif %}
+			        </div>
+			    </div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+				<h4 class="modal-title">Solicitar Bonificación:</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body" id="cuerpo">
+        <p>En caso de necesitar una bonificación con un pago en efectivo sobre el precio de un vehículo puede escribir la cantidad deseada aquí y la solicitud será enviada al gerente de venta de su salón para su aprobación.</p>
+        <b>Precio de contado: </b> ${{ params.vehiculo.precio_venta|round }}<br>
+        <label>Bonificación: $</label>
+        <input type="number" name="solicitud" id="solicitud" placeholder="1000">
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="solicitar_btn" class="btn btn-secondary" onclick="solicitar();">Solicitar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="calculocredito" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+				<h4 class="modal-title">Simulador de créditos:</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body px-0" id="cuerpo">
+        <ul class="nav nav-pills nav-fill">
+					<li class="nav-item"><p class="nav-link disabled"><i class="fa fa-calculator"></i>  Simuladores:</li></p>
+          <li class="nav-item"><a class="nav-link active" href="#tab_1-1" data-toggle="tab" aria-expanded="false">MG</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tab_2-2" data-toggle="tab" aria-expanded="false">Rio</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tab_3-3" data-toggle="tab" aria-expanded="true">Mila</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab_1-1">
+            <div class="row p-2" id="cuerpocredito_1">
+            	<div class="col-md-4" >
+								<h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">FORMULARIO SIMULADOR:</h5>
+            		<img class="img-thumbnail" src="images/simuladores/mg.jpg" style="vertical-align:center;">
+            	</div>
+            	<div class="col-md-8">
+            		<div class="card-body">
+              		<form class="form-horizontal">
+		              <div class="card-body">
+		                <div class="form-group">
+		                  <label for="input_vehiculo_year" class="col-sm-4 control-label">Año:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_vehiculo_year" placeholder="Año del vehículo" min="2005" max="2018" value="{{ params.vehiculo.year }}">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_monto_prestamo" class="col-sm-4 control-label">Monto prestamo:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_monto_prestamo" placeholder="Monto de la operación" value="{{ params.vehiculo.CalculoEntregaMinimaAttribute }}">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_monto_meses" class="col-sm-4 control-label">Cantidad cuotas:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_monto_meses" placeholder="Cantidad cuotas en meses" min="1" max="48" value="12">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_TNA" class="col-sm-4 control-label">T.N.A (%)**:</label>
+		                  <div class="col-sm-8">
+		                  	{% set tna = 0 %}
+		                  	{% if params.vehiculo.year >= 2013 and params.vehiculo.year <= 2017 %}
+		                  		{% set tna = 50 %}
+		                  	{% elseif params.vehiculo.year >= 2008 and params.vehiculo.year <= 2012 %}
+		                  		{% set tna = 52 %}
+		                  	{% elseif params.vehiculo.year >= 2003 and params.vehiculo.year <= 2007 %}
+		                  		{% set tna = 58 %}
+		                  	{% elseif params.vehiculo.year == 2018 %}
+		                  		{% set tna = 50 %}
+		                  	{% endif %}
+		                    <input type="number" class="form-control" id="input_TNA" value="{{ tna }}">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_seguro" class="col-sm-4 control-label">Seguro Unidad:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_seguro" placeholder="Seguro de la Unidad en Pesos" min="1" max="20000" value="0">
+		                  </div>
+		                </div>
+		              </div>
+		              <!-- /.box-body -->
+		            </form>
+		        </div>
+		       	<button class="btn btn-flat btn-sm btn-block btn-success" onclick="simular(1);" id="btn_simular_1">Simular crédito</button>
+            	</div>
+            </div>
+          </div>
+          <!-- /.tab-pane -->
+          <div class="tab-pane" id="tab_2-2">
+            <div class="row p-2" id="cuerpocredito_2">
+            	<div class="col-md-4">
+								<h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">FORMULARIO SIMULADOR:</h5>
+            		<img class="img-fluid" src="https://www.santanderrio.com.ar/banco/wcm/connect/f0b8a167-c859-4830-a68b-43ffb8252f8a/isologo_header.png?MOD=AJPERES&amp;CACHEID=f0b8a167-c859-4830-a68b-43ffb8252f8a" style="background-color: red;">
+            	</div>
+            	<div class="col-md-8">
+            		<div class="card-body">
+              		<form class="form-horizontal">
+		              <div class="card-body">
+		                <div class="form-group">
+		                  <label for="input_2_vehiculo_year" class="col-sm-4 control-label">Año:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_2_vehiculo_year" placeholder="Año del vehículo" min="2005" max="2018" value="{{ params.vehiculo.year }}">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_2_tipo_cliente" class="col-sm-4 control-label">Linea de producto:</label>
+		                  <div class="col-sm-8">
+			                  <select onchange="cambiar_tna_rio();" id="input_2_tipo_cliente" class="form-control">
+			                    <option value="1">Línea Clientes</option>
+			                    <option value="2">Línea Clientes Select</option>
+			                    <option value="3">Línea No Clientes</option>
+			                    <option value="4">Línea Utilitarios</option>
+			                    <option value="5">Línea Camiones</option>
+			                  </select>
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_2_monto_prestamo" class="col-sm-4 control-label">Monto prestamo:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_2_monto_prestamo" placeholder="Monto de la operación" value="{{ params.vehiculo.CalculoEntregaMinimaAttribute }}">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_2_monto_meses" class="col-sm-4 control-label">Cantidad cuotas:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_2_monto_meses" placeholder="Cantidad cuotas en meses" min="1" max="60" value="36">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_2_TNA" class="col-sm-4 control-label">T.N.A (%)**:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_2_TNA" value="32.5">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_2_seguro" class="col-sm-4 control-label">Seguro Unidad:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_2_seguro" placeholder="Seguro de la Unidad en Pesos" min="1" max="20000" value="0">
+		                  </div>
+		                </div>
+		              </div>
+		              <!-- /.box-body -->
+		            </form>
+		        </div>
+		       	<button class="btn btn-flat btn-sm btn-block btn-success" onclick="simular(2);" id="btn_simular">Simular crédito</button>
+            	</div>
+            </div>
+          </div>
+          <!-- /.tab-pane -->
+          <div class="tab-pane " id="tab_3-3">
+            <div class="row p-2" id="cuerpocredito_3">
+            	<div class="col-md-4">
+								<h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">FORMULARIO SIMULADOR:</h5>
+            		<img class="img-thumbnail" src="images/simuladores/mila.jpg" >
+            	</div>
+            	<div class="col-md-8">
+            		<div class="card-body">
+              		<form class="form-horizontal">
+		              <div class="card-body">
+		                <div class="form-group">
+		                  <label for="input_3_vehiculo_year" class="col-sm-4 control-label">Año:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_3_vehiculo_year" placeholder="Año del vehículo" min="2005" max="2018" value="{{ params.vehiculo.year }}">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_3_monto_prestamo" class="col-sm-4 control-label">Monto prestamo:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_3_monto_prestamo" placeholder="Monto de la operación" value="{{ params.vehiculo.CalculoEntregaMinimaAttribute }}">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_3_monto_meses" class="col-sm-4 control-label">Cantidad cuotas:</label>
+		                  <div class="col-sm-8">
+		                    <input type="number" class="form-control" id="input_3_monto_meses" placeholder="Cantidad cuotas en meses" min="1" max="48" value="12">
+		                  </div>
+		                </div>
+		                <div class="form-group">
+		                  <label for="input_3_TNA" class="col-sm-4 control-label">T.N.A (%)**:</label>
+		                  <div class="col-sm-8">
+		                  	{% set tna = 34 %}
+		                    <input type="number" class="form-control" id="input_3_TNA" value="{{ tna }}">
+		                  </div>
+		                </div>
+		              </div>
+		              <!-- /.box-body -->
+		            </form>
+		        </div>
+		       	<button class="btn btn-flat btn-sm btn-block btn-success" onclick="simular(3);" id="btn_simular_3">Simular crédito</button>
+            	</div>
+            </div>
+          </div>
+          <!-- /.tab-pane -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript">
+function solicitar()
+{
+	var html = '<div class="overlay" style="text-align:center;"><i class="fa fa-refresh fa-spin fa-5x"></i><br><h3>SOLICITANDO BONIFICACIÓN</h3><hr>El sistema esta calculando la bonificación en base a su perfil.</div>';
+	$( "#cuerpo" ).html(html);
+	$( "#solicitar_btn").hide();
+	setTimeout(intermedio, 10000);
+	return 1;
+}
+
+function intermedio()
+{
+	var html = '<div class="overlay" style="text-align:center;"><i class="fa fa-check fa-5x"></i><br><h3>BONIFICACIÓN APROBADA</h3><hr>Su perfil calificó para una bonificación de $1000.</div>';
+	$( "#cuerpo" ).html(html);
+	$( "#solicitar_btn").show();
+	return 1;
+}
+
+var html_ex = [];
+function simular(banco)
+{
+	if( banco == 1)
+	{
+		// entradas:
+		var tna = $("#input_TNA").val();
+		var prestamo = $("#input_monto_prestamo").val();
+		var meses = $("#input_monto_meses").val();
+		var seguro_unidad = $("#input_seguro").val();
+
+		// calculos:
+		var tem = ( tna * 30 / 365 );
+		var ind = ( tem / 100 );
+		var a = ( 1 + ind);
+		var b = Math.pow(a, meses);
+		var cuota_pura = ( prestamo * b * ind)/(b - 1);
+		var saldo = prestamo;
+
+		// generación de la tabla:
+		html_ex[1] = $("#cuerpocredito_1").html();
+		var html = 	'<div class="table-responsive"><table class="table table-hover"><tbody><tr><th>Cuota</th><th>Saldo</th><th>Cta. Interés</th><th>Cta. Capital</th><th>Seg. Unidad</th><th>Seg. Vida</th><th>Gtos Ad. Seguros</th><th>Cta. pura</th><th>Cta. total</th>';
+		var i;
+		for (i = 1; i < parseInt(meses)+1; i++)
+		{
+			var cuota_interes = ((saldo * tem) / 100);
+			var cuota_capital = cuota_pura - cuota_interes;
+			var seguro = seguro_unidad;
+			var seguro_vida = saldo * 0.003;
+			var subtotal = cuota_interes + cuota_capital + seguro_vida + seguro;
+
+			html += '<tr><td>' + i + '</td><td>' + formatCurrency(saldo) + '</td><td>' + formatCurrency(cuota_interes) + '</td><td>' + formatCurrency(cuota_capital) + '</td><td>' + formatCurrency(seguro) + '</td><td>' + formatCurrency(seguro_vida) + '</td><td>$0.00</td><td>' + formatCurrency(cuota_pura) + '</td><td><span class="label label-success">' + formatCurrency(subtotal) + '</span></td></tr>';
+			saldo -= cuota_capital;
+		}
+		html += '</tbody></table></div><button type="button" id="volver_btn" onclick="volver_atras(1);" class="btn btn-secondary pull-right">Volver atras</button>';
+
+		$("#cuerpocredito_1").html(html);
+		$("#btn_simular_1").hide();
+	}
+	else if( banco == 2)
+	{
+		// entradas:
+		var tna = $("#input_2_TNA").val();
+		var prestamo = $("#input_2_monto_prestamo").val();
+		var meses = $("#input_2_monto_meses").val();
+		var tasa = (tna / 12) / 100;
+		var saldo = prestamo;
+
+		// generación de la tabla:
+		html_ex[2] = $("#cuerpocredito_2").html();
+		var html = 	'<div class="table-responsive"><table class="table table-hover"><tbody><tr><th>Cuota</th><th>Cta. Capital</th><th>Cta. Interés</th><th>IVA</th><th>Cta. total</th><th>Saldo</th>';
+		var i = 0;
+		for (i = 1; i < parseInt(meses)+1; i++)
+		{
+			var pagoprint_negativo = ExcelFormulas.PPMT(tasa, i, meses, prestamo);
+			var pagoprint_positivo = (-1) * pagoprint_negativo;
+			var pagoprint = Math.ceil(pagoprint_positivo);
+
+			var pmt = ExcelFormulas.PMT(tasa, meses, prestamo, 0, 0);
+			var pagoint_negativo = ExcelFormulas.IPMT(prestamo, pmt , tasa, i-1);
+			var pagoint_positivo = (-1) * pagoint_negativo;
+			var pagoint = Math.ceil(pagoint_positivo);
+
+			var iva_negativo = (pagoint * 0.21);
+			var iva = Math.ceil(iva_negativo);
+
+			var total = iva + pagoint + pagoprint;
+			saldo -= pagoprint;
+			if(saldo < 0)
+			{
+				saldo = 0;
+			}
+			html += '<tr><td>' + i + '</td><td>' + formatCurrency(pagoprint) + '</td><td>' + formatCurrency(pagoint) + '</td><td>' + formatCurrency(iva) + '</td><td>' + formatCurrency(total) + '</td><td><span class="label label-success">' + formatCurrency(saldo) + '</span></td></tr>';
+		}
+		html += '</tbody></table></div><button type="button" id="volver_btn" onclick="volver_atras(2);" class="btn btn-secondary pull-right">Volver atras</button>';
+
+		$("#cuerpocredito_2").html(html);
+		$("#btn_simular_2").hide();
+
+
+
+	}
+	else if( banco == 3)
+	{
+		// entradas:
+		var tna = $("#input_3_TNA").val();
+		var prestamo = $("#input_3_monto_prestamo").val();
+		var meses = $("#input_3_monto_meses").val();
+		var tasa = (tna / 12) / 100;
+		var saldo = prestamo;
+
+		// generación de la tabla:
+		html_ex[3] = $("#cuerpocredito_3").html();
+		var html = 	'<div class="table-responsive"><table class="table table-hover"><tbody><tr><th>Cuota</th><th>Cta. Capital</th><th>Cta. Interés</th><th>IVA</th><th>Cta. total</th><th>Saldo</th>';
+		var i = 0;
+		for (i = 1; i < parseInt(meses)+1; i++){
+			var pagoprint_negativo = ExcelFormulas.PPMT(tasa, i, meses, prestamo);
+			var pagoprint_positivo = (-1) * pagoprint_negativo;
+			var pagoprint = Math.ceil(pagoprint_positivo);
+
+			var pmt = ExcelFormulas.PMT(tasa, meses, prestamo, 0, 0);
+			var pagoint_negativo = ExcelFormulas.IPMT(prestamo, pmt , tasa, i-1);
+			var pagoint_positivo = (-1) * pagoint_negativo;
+			var pagoint = Math.ceil(pagoint_positivo);
+
+			var iva_negativo = (pagoint * 0.21);
+			var iva = Math.ceil(iva_negativo);
+
+			var total = iva + pagoint + pagoprint;
+			saldo -= pagoprint;
+			if(saldo < 0)
+			{
+				saldo = 0;
+			}
+			html += '<tr><td>' + i + '</td><td>' + formatCurrency(pagoprint) + '</td><td>' + formatCurrency(pagoint) + '</td><td>' + formatCurrency(iva) + '</td><td>' + formatCurrency(total) + '</td><td><span class="label label-success">' + formatCurrency(saldo) + '</span></td></tr>';
+		}
+		html += '</tbody></table></div><button type="button" id="volver_btn" onclick="volver_atras(3);" class="btn btn-secondary pull-right">Volver atras</button>';
+
+		$("#cuerpocredito_3").html(html);
+		$("#btn_simular_3").hide();
+
+	}
+
+	return 1;
+}
+
+function cambiar_tna_rio()
+{
+	var tipo = $("#input_2_tipo_cliente").val();
+	if(tipo == 1)
+	{
+		$("#input_2_TNA").val(32.5);
+	}
+	else if(tipo == 2)
+	{
+		$("#input_2_TNA").val(31.5);
+	}
+	else if(tipo == 3)
+	{
+		$("#input_2_TNA").val(32.5);
+	}
+	else if(tipo == 4)
+	{
+		$("#input_2_TNA").val(32.5);
+	}
+	else if(tipo == 5)
+	{
+		$("#input_2_TNA").val(32.5);
+	}
+}
+
+function volver_atras(banco)
+{
+	if(banco == 1)
+	{
+		$("#cuerpocredito_1").html(html_ex[1]);
+	}
+	else if(banco == 2)
+	{
+		$("#cuerpocredito_2").html(html_ex[2]);
+	}
+	else if(banco == 3)
+	{
+		$("#cuerpocredito_3").html(html_ex[3]);
+	}
+  	return 1;
+}
+
+function formatear(amount) {
+  return "$" + parseFloat(amount).toFixed(2);
+}
+
+function formatCurrency(total) {
+  var neg = false;
+  if(total < 0) {
+      neg = true;
+      total = Math.abs(total);
+  }
+  return (neg ? "-$" : '$') + parseFloat(total, 10).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, "$1.").toString();
+}
+
+
+var ExcelFormulas = {
+
+	PVIF: function(rate, nper) {
+		return Math.pow(1 + rate, nper);
+	},
+
+	FVIFA: function(rate, nper) {
+		return rate == 0? nper: (this.PVIF(rate, nper) - 1) / rate;
+	},
+
+	PMT: function(rate, nper, pv, fv, type) {
+		if (!fv) fv = 0;
+		if (!type) type = 0;
+
+		if (rate == 0) return -(pv + fv)/nper;
+
+		var pvif = Math.pow(1 + rate, nper);
+		var pmt = rate / (pvif - 1) * -(pv * pvif + fv);
+
+		if (type == 1) {
+			pmt /= (1 + rate);
+		};
+
+		return pmt;
+	},
+
+	IPMT: function(pv, pmt, rate, per) {
+		var tmp = Math.pow(1 + rate, per);
+		return 0 - (pv * tmp * rate + pmt * (tmp - 1));
+	},
+
+	PPMT: function(rate, per, nper, pv, fv, type) {
+		if (per < 1 || (per >= nper + 1)) return null;
+		var pmt = this.PMT(rate, nper, pv, fv, type);
+		var ipmt = this.IPMT(pv, pmt, rate, per - 1);
+		return pmt - ipmt;
+	},
+
+	DaysBetween: function(date1, date2) {
+		var oneDay = 24*60*60*1000;
+		return Math.round(Math.abs((date1.getTime() - date2.getTime())/oneDay));
+	},
+
+	// Change Date and Flow to date and value fields you use
+	XNPV: function(rate, values) {
+		var xnpv = 0.0;
+		var firstDate = new Date(values[0].Date);
+		for (var key in values) {
+			var tmp = values[key];
+			var value = tmp.Flow;
+			var date = new Date(tmp.Date);
+			xnpv += value / Math.pow(1 + rate, this.DaysBetween(firstDate, date)/365);
+		};
+		return xnpv;
+	},
+
+	XIRR: function(values, guess) {
+		if (!guess) guess = 0.1;
+
+		var x1 = 0.0;
+		var x2 = guess;
+		var f1 = this.XNPV(x1, values);
+		var f2 = this.XNPV(x2, values);
+
+		for (var i = 0; i < 100; i++) {
+			if ((f1 * f2) < 0.0) break;
+			if (Math.abs(f1) < Math.abs(f2)) {
+				f1 = this.XNPV(x1 += 1.6 * (x1 - x2), values);
+			}
+			else {
+				f2 = this.XNPV(x2 += 1.6 * (x2 - x1), values);
+			}
+		};
+
+		if ((f1 * f2) > 0.0) return null;
+
+		var f = this.XNPV(x1, values);
+		if (f < 0.0) {
+			var rtb = x1;
+			var dx = x2 - x1;
+		}
+		else {
+			var rtb = x2;
+			var dx = x1 - x2;
+		};
+
+		for (var i = 0; i < 100; i++) {
+			dx *= 0.5;
+			var x_mid = rtb + dx;
+			var f_mid = this.XNPV(x_mid, values);
+			if (f_mid <= 0.0) rtb = x_mid;
+			if ((Math.abs(f_mid) < 1.0e-6) || (Math.abs(dx) < 1.0e-6)) return x_mid;
+		};
+
+		return null;
+	}
+
+};
+
+</script>
+{% endblock %}

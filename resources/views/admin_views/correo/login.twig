@@ -1,0 +1,59 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %} Correo{% endblock %}
+{% block header_title %} Correo {% endblock %}
+{% block breadcrumb %}
+	<li> </li>
+	<li> </li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-8 col-md-12">
+		<form name="nuevo_prospecto" action="{{path_for('correo.login')}}" method="POST">
+			<div class="card card-info">
+				<div class="card-header">
+					<h3 class="card-title text-bold">Por favor vuelva a ingresar al sistema</h3>
+				</div>
+				<div class="card-body">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-6 col-sm-12">
+								<label for="email">Email <small class="text-muted"></small></label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
+									<input type="text" class="form-control" name="email" id="email" placeholder="Nombre" autocomplete="off" required data-toggle="tooltip" data-placement="auto" value="{{ auth.user.email }}">
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6 col-sm-12">
+								<label for="password">Contraseña <small class="text-muted"></small></label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+									<input type="password" class="form-control" name="password" id="password" placeholder="Localidad" autocomplete="off" data-toggle="tooltip" data-placement="auto" >
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="box-footer" >
+						<button class="btn btn-primary btn-flat pull-right" type="submit">Ingresar</button>
+					</div>
+				</div>
+			</div>
+			{{ csrf.field | raw }}
+		</form>
+	</div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script>
+	$(document).ready(function(){
+
+	});
+</script>
+{% endblock %}

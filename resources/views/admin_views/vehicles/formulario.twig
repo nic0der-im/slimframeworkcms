@@ -1,0 +1,277 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+input[type='number'] {
+  -moz-appearance:textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+</style>
+{% endblock %}
+{% block title %}
+  Formularios
+{% endblock %}
+{% block header_title %}
+	{{vehiculo.getMarca.nombre|title}} {{vehiculo.modelo|title}}
+{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item" >
+	<a href="{{path_for('vehicle.index')}}" >Vehículos</a>
+</li>
+<li class="breadcrumb-item active" >
+	Formularios
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  {% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	{% if return_to %}
+		<input type="hidden" name="return_to" value="{{return_to}}">
+	{% endif %}
+	<div class="col-lg-8">
+		<div class="card card-info">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Formularios Disponibles</h3>
+			</div>
+			<div class="card-body">
+        <ul class="list-group">
+          {% for item in tipos %}
+          <li class="list-group-item ">
+            <b>{{item.nombre}}</b>
+            {% if item.arancel > 0  %}
+            Costo: ${{item.arancel|number_format(2, ',', '.')}}
+            {% endif %}
+            <a class="badge btn btn-primary pull-right" onclick="modal({{item.id}});" >Agregar</a>
+            {% if item.descripcion %}
+            <br>
+            <i>{{item.descripcion}}</i>
+            {% endif %}
+            {% if item.formularios|length > 0 %}
+              <br>
+              {% if item.caducidad > 0 %}
+              Existentes:
+              {% else %}
+              Informacion:
+              {% endif %}
+              {% for formulario in item.formularios %}
+                {% if item.caducidad > 0 %}
+                <a class="btn {{formulario.fecha_vto| date('d/m/Y') < "now"| date('d/m/Y')?'btn-warning' :'btn-success'}} btn-sm" onclick="formulario({{formulario.id}});" data-toggle="tooltip" data-container="body" data-html="true" title=" {{formulario.fecha_vto| date('d/m/Y') < "now"| date('d/m/Y')?'Vencido' :'Mas informacion'}} " >
+                {{formulario.fecha_vto | date('d/m/Y')}}
+                </a>
+                {% else %}
+                <a class="btn btn-info btn-sm" onclick="formulario({{formulario.id}});" data-toggle="tooltip" data-container="body" data-html="true" title="Mas informacion" >
+                  {% if formulario.responsable == '' and formulario.observaciones == '' %}
+                  {{formulario.fecha | date('d/m/Y')}}
+                  {% else %}
+                  {{formulario.responsable}} {{formulario.observaciones}}
+                  {% endif %}
+                </a>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+			</div>
+      <div class="card-footer">
+        {% if tipo == 1 %}
+        <a href="{{path_for('vehicle.modify',{id:vehiculo.id})}}" class="btn btn-warning">VOLVER EDITOR</a>
+        {% endif %}
+        {% if return_to %}
+        <a href="{{return_to}}" class="btn btn-primary pull-right">TERMINAR</a>
+        {% else %}
+        <a href="{{path_for('vehicle.index')}}" class="btn btn-primary pull-right">TERMINAR</a>
+        {% endif %}
+      </div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalFormulario" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="tituloFormulario">Registrar nueva Entrada de Formulario</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form class="form" action="{{path_for('vehicle.formulario.asociar',{id:vehiculo.id})}}" method="post">
+          <input type="hidden" name="id" id="id" value="0">
+          <input type="hidden" name="id_formulario" id="id_formulario">
+          <input type="hidden" name="id_vehiculo_formulario" id="id_vehiculo_formulario">
+          <div class="row" id="divVencimiento">
+            <div class="col-md-5">
+							<label for="fecha">Inicio</label>
+							<input type="text" class="form-control datepicker" name="fecha" id="fecha" autocomplete="off">
+						</div>
+						<div class="col-md-5">
+							<label for="fecha_vto">Vencimiento</label>
+							<input type="text" class="form-control datepicker" name="fecha_vto" id="fecha_vto" autocomplete="off">
+						</div>
+						<div class="col-md-2">
+							<label for="dias">Dias</label>
+							<input type="text" class="form-control" name="dias" id="dias" readonly value="0">
+						</div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="">Costo</label>
+              <input type="text" class="form-control" id="arancel" name="arancel" placeholder="">
+            </div>
+            <div class="col-md-9">
+              <label for="">Responsable</label>
+              <input type="text" class="form-control" id="responsable" name="responsable" placeholder="">
+            </div>
+            <div class="col-md-12">
+              <label for="">Observaciones</label>
+              <input type="text" class="form-control" id="observaciones" name="observaciones" placeholder="">
+            </div>
+          </div>
+          {{ csrf.field | raw }}
+          <button type="submit" class="d-none" id="submitFormulario"></button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <a type="button" class="btn btn-danger" id="btnEliminar">Eliminar</a>
+        <a type="button" class="btn btn-primary" id="btnAsociar">Continuar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript">
+
+$(document).ready(function(e) {
+
+	$('#fecha').datepicker({
+			language:'es-ES',
+			zIndex: 1151,
+		  autoHide: true,
+		  autoPick: true,
+		  format: 'dd/mm/yyyy',
+		});
+	$('#fecha_vto').datepicker({
+			language:'es-ES',
+			zIndex: 1151,
+		  autoHide: true,
+		  autoPick: true,
+		  format: 'dd/mm/yyyy',
+		});
+
+  $('#fecha').on('pick.datepicker', function (e) {
+    var hasta = $('#fecha_vto').datepicker('getDate');
+    if (e.date <= hasta) {
+      var dias = Math.round((hasta-e.date)/(1000*60*60*24));
+      $('#dias').val(dias);
+    } else {
+      $('#fecha').datepicker('setDate', hasta);
+      $('#dias').val(0);
+    }
+  });
+  $('#fecha_vto').on('pick.datepicker', function (e) {
+    var desde = $('#fecha').datepicker('getDate');
+    if (e.date >= desde) {
+      var dias = Math.round((e.date-desde)/(1000*60*60*24));
+      $('#dias').val(dias);
+    } else {
+      $('#fecha_vto').datepicker('setDate', desde);
+      $('#dias').val(0);
+    }
+  });
+
+  $('#btnAsociar').on('click',function(){
+    $('#submitFormulario').trigger('click');
+  });
+});
+
+function modal(id){
+	var route = "{{path_for('formulario.obtener',{id:99})}}".replace('99',id);
+	$.ajax({
+    type: "get",
+    url: route,
+    success: function(data,status) {
+      $('#id').val(0);
+			$('#id_formulario').val(data.id);
+      $('#id_vehiculo_formulario').val(0);
+      $('#responsable').val("");
+      $('#observaciones').val("");
+			$('#dias').val(data.caducidad);
+			$('#arancel').val(data.arancel);
+      if (data.caducidad==0) {
+        $('#divVencimiento').hide();
+      } else {
+        $('#divVencimiento').show();
+      }
+      var vto = new Date();
+      vto.setDate(vto.getDate() + data.caducidad);
+      $('#dias').val(data.caducidad);
+      $('#fecha_vto').datepicker('setDate', vto);
+      $('#fecha').datepicker('setDate', new Date());
+      $('#btnEliminar').hide();
+      $('#tituloFormulario').text('Registrar nueva Entrada de Formulario');
+			$('#modalFormulario').modal('show');
+		},
+		error: function(xhr, ajaxOptions,e) {
+			$.toast({
+				heading: 'Formulario',
+				text: 'A ocurrido un problema en nuestro servidor. Intente mas tarde.',
+				showHideTransition: 'slide',
+				icon: 'error',
+				position: 'bottom-right',
+				hideAfter: false,
+			});
+		}
+	});
+}
+
+function formulario(id){
+  var route = "{{path_for('vehicle.formulario.asociado',{id:vehiculo.id,id_formulario:'id_formulario'})}}".replace('id_formulario',id);
+  $.ajax({
+    type: "get",
+    url: route,
+    success: function(data,status) {
+      $('#id').val(data.id);
+      $('#id_formulario').val(data.id_formulario);
+      $('#id_vehiculo_formulario').val(data.id);
+      $('#responsable').val(data.responsable);
+      $('#observaciones').val(data.observaciones);
+      $('#arancel').val(data.arancel);
+      var fecha = moment(data.fecha, 'YYYY-MM-DD');
+      var fecha_vto = moment(data.fecha_vto, 'YYYY-MM-DD');
+      var dias = Math.round((fecha_vto-fecha)/(1000*60*60*24));
+      if (dias==0) {
+        $('#divVencimiento').hide();
+      } else {
+        $('#divVencimiento').show();
+      }
+      $('#dias').val(dias);
+      $('#fecha_vto').datepicker('setDate', fecha_vto.format('DD/MM/YYYY'));
+      $('#fecha').datepicker('setDate', fecha.format('DD/MM/YYYY'));
+      var href = "{{path_for('vehicle.formulario.eliminar',{id:vehiculo.id,id_formulario:'id_formulario'})}}".replace('id_formulario',id);
+      $('#btnEliminar').attr('href',href);
+      $('#btnEliminar').show();
+      $('#tituloFormulario').text('Editar Entrada de Formulario');
+      $('#modalFormulario').modal('show');
+    },
+    error: function(xhr, ajaxOptions,e) {
+      $.toast({
+        heading: 'Formulario',
+        text: 'A ocurrido un problema en nuestro servidor. Intente mas tarde.',
+        showHideTransition: 'slide',
+        icon: 'error',
+        position: 'bottom-right',
+        hideAfter: false,
+      });
+    }
+  });
+}
+</script>
+{% endblock %}

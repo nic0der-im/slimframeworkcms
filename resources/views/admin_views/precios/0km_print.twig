@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no" />
+    <meta name="author" content="Ciro Automotores" />
+    <base href="{{ base_url() }}/administracion" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="/bootstrap-3.3.6/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/AdminLTE.min.css" />
+    <link rel="stylesheet" href="/css/skins/skin-blue.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/ionicons.min.css" />
+    
+    <link rel="stylesheet" href="/asources/css/default.css" />
+    <style type="text/css">
+    @page {
+  size: A4;
+  margin: 0;
+}
+@media print {
+  html, body {
+    width: 210mm;
+    height: 297mm;
+  }
+  /* ... the rest of the rules ... */
+}
+</style>
+  </head>
+
+  <body onload="window.print();">
+  <div class="row">
+    <div class="col-xs-10 col-xs-offset-1">
+  	{% include 'admin_views/admin_partials/flash.twig' %}
+  	<section class="invoice">
+        <!-- title row -->
+        <div class="row">
+          <div class="col-xs-12">
+            <h2 class="page-header">
+              <i class="fa fa-dollar"></i> {{ nuevo.modelo }} [{{ nuevo.seg }}]
+              <small class="pull-right">Cotización al día de hoy</small>
+            </h2>
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- info row -->
+        <div class="row invoice-info">
+          <div class="col-sm-6 invoice-col">
+            <h5 style="background-color:#f7f7f7; text-align: center; padding: 7px 10px; margin-top: 0;">DATOS DEL VENDEDOR:</h5>
+            <address>
+              <strong>{{ auth.individuo.nombre }} {{ auth.individuo.apellido }}</strong><br>
+              Ciro Automotores {{ auth.empleado.agencia.nombre }}<br>
+              <b>Correo: </b> {{ auth.user.email }}<br>
+              <b>Teléfono: </b> {{ auth.individuo.telefono }}<br>
+            </address>
+          </div>
+          <!-- /.col -->
+          <div class="col-sm-6 invoice-col pull-right">
+            <h5 style="background-color:#f7f7f7; text-align: center; padding: 7px 10px; margin-top: 0;">DATOS DEL VEHÍCULO:</h5>
+            <address>
+              <strong>{{ nuevo.getMarca.nombre }}</strong><br>
+              <b>Modelo: </b> {{ nuevo.modelo }} {{ nuevo.catalogo }}<br>
+              <b>Motor: </b> {{ nuevo.motor }}<br>
+              <b>Carrocería: </b>{{ nuevo.carroceria }}
+            </address>
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+        <!-- accepted payments column -->
+        <div class="col-xs-12">
+          <h5 style="background-color:#3c8dbc; color:#FFF;  text-align: center; padding: 7px 10px; margin-top: 0;">Cálculo del crédito:</h5>
+
+          <div class="table-responsive">
+            <table class="table">
+              <tbody>
+              <tr style="background-color:#d0c0c0;">
+                <th style="width:50%">Precio de lista del vehículo:</th>
+                <td><span class="pull-right">$ {{ nuevo.precio_sugerido }}</span></td>
+              </tr>
+              <tr>
+                <th>70% del vehículo:</th>
+                <td><span class="pull-right">$ {{ nuevo.precio_sugerido * 0.7 }}</span></td>
+              </tr>
+              
+              <tr>
+                <th>Total del crédito:</th>
+                <td><a class="btn btn-xs btn-success btn-flat btn-block">$ {{ nuevo.precio_sugerido * 0.7 }} {# {{ (nuevo.precio_sugerido * 0.7) - ((nuevo.precio_sugerido * 0.7) * (fijos.prenda / 100)) -  fijos.otorgamiento }} #}</a></td>
+              </tr>
+            </tbody></table>
+          </div>
+        </div>
+        <!-- /.col -->
+        <div class="col-xs-12">
+          <h5 style="background-color:#3c8dbc; color:#FFF; text-align: center; padding: 7px 10px; margin-top: 0;">Entrega mínima:</h5>
+
+          <div class="table-responsive">
+            <table class="table">
+              <tbody>
+               <tr style="background-color:#d0c0c0;">
+                <th style="width:50%">Precio de lista del vehículo:</th>
+                <td><span class="pull-right">$ {{  nuevo.precio_sugerido }}</span></td>
+              </tr>
+              <tr>
+                <th>Flete y patentamiento: </th>
+                <td><span class="pull-right">$ {{ nuevo.flete_patentamiento }}</span></td>
+              </tr>
+              <tr>
+                <th>Prenda ({{ fijos.prenda }}% del crédito)</th>
+                <td><span class="pull-right">$ {{ (nuevo.precio_sugerido * 0.7) * (fijos.prenda / 100) }}</span></td>
+              </tr>
+              <tr>
+                <th>Gastos de sellado:</th>
+                <td><span class="pull-right">$ {{ nuevo.precio_sugerido * (fijos.sellado/100) }}</span></td>
+              </tr>
+              <tr>
+                <th>Gastos de otorgamiento:</th>
+                <td><span class="pull-right">$ {{ fijos.otorgamiento }}</span></td>
+              </tr>
+              <tr>
+                <th>Crédito a financiar:</th>
+                <td><span class="pull-right">- $ {{ nuevo.precio_sugerido * 0.7 }}</span></td>
+              </tr>
+              <tr>
+                <th>Bonificación:</th>
+                <td><span class="pull-right">- ${{ bonificacion }} </span></td>
+              </tr>
+              <tr>
+                <th>Entrega Mínima:</th>
+                <td><a class="btn btn-xs btn-success btn-flat btn-block">$ {{ (nuevo.precio_sugerido + nuevo.flete_patentamiento + nuevo.precio_sugerido * (fijos.sellado/100)) - ((nuevo.precio_sugerido * 0.7) - ((nuevo.precio_sugerido * 0.7) * (fijos.prenda / 100)) -  fijos.otorgamiento) - bonificacion }}</a></td>
+              </tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+        <!-- /.row -->
+      </section>
+    </div>
+  </div>
+  <script src="/js/jquery-1.12.4.min.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+    <script src="/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script src="/js/moment.min.js"></script>
+    <script src="/asources/js/adminlte.min.js"></script>
+    <script src="/asources/js/main.js"></script>
+    <script src="/asources/js/notificaciones.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-98062930-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-98062930-1');
+		</script>
+		<!-- GOOGLE -->
+
+		<!-- Facebook Pixel Code -->
+		<script>
+		!function(f,b,e,v,n,t,s)
+		{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+		n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+		if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+		n.queue=[];t=b.createElement(e);t.async=!0;
+		t.src=v;s=b.getElementsByTagName(e)[0];
+		s.parentNode.insertBefore(t,s)}(window,document,'script',
+		'https://connect.facebook.net/en_US/fbevents.js');
+
+
+		fbq('init', '215762682248425');
+		fbq('track', 'PageView');
+		</script>
+		<!-- End Facebook Pixel Code -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+		<meta name="author" content="Ciro Automotores" />
+		<base href="{{ base_url() }}" />
+
+		{% if production %}
+
+		<link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+		<link rel="stylesheet" href="/dist/css/login.min.css" />
+
+		{% else %}
+
+		<link rel="stylesheet" href="dev/css/bootstrap.min.css">
+		<link rel="stylesheet" href="dev/css/font-awesome.min.css"/>
+		<link rel="stylesheet" href="/css/login.css" />
+
+		{% endif %}
+
+
+
+		<meta property="og:locale" content="es_AR" />
+		<meta property="og:site_name" content="Ciro Automotores Argentina" />
+		<meta property="og:url" content="{{base_url()}}{{current_path}}" />
+		{% if 'contacto' in return_url%}
+			<meta property="og:title" content="Ciro Automotores - Regístrate y hacé contacto para comprar autos usados en Salta y Jujuy" />
+			<meta property="og:description" content="¡Regístrate! Ciro Automotores tiene los mejores autos usados en Salta y Jujuy. ¡Hacé contacto!" />
+			<meta name="description" content="¡Registrate hoy mismo! Hacé contacto con Ciro Automores y compra autos usados en Salta y Jujuy." />
+  		<meta name="keywords" content="autos usados salta, autos usados en salta" />
+			<title>Autos Usados Salta y Jujuy | Contacto | Registro | Ciro Automotores</title>
+		{% elseif 'nosotros' in return_url %}
+			<meta property="og:title" content="Ciro Automotores - Tenemos los mejores autos usados en Salta y Jujuy para vos" />
+			<meta property="og:description" content="Ciro Automotores trae para vos los mejores autos usados en Salta y Jujuy. ¡Hacé contacto!" />
+			<meta name="description" content="Ciro Automores vende autos usados en Salta y Jujuy además de autos 0 KM. ¡Visítanos!" />
+  		<meta name="keywords" content="autos usados salta, autos usados en salta, autos 0 km " />
+			<title>Autos Usados Salta y Jujuy | Nosotros | Registro | Ciro Automotores</title>
+		{% elseif 'vendetuauto' in return_url %}
+			<meta property="og:title" content="Ciro Automotores - Vende uno de tu autos usados en Salta y Jujuy" />
+			<meta property="og:description" content="¡Vende tu auto en Ciro Automotores! Aquí están los mejores autos en Salta y Jujuy. ¿Qué esperas?." />
+			<meta name="description" content="¿Querés vender tu auto? En Ciro Automotores vendemos autos usados en Salta y Jujuy al igual que autos 0 KM. ¡Visítanos!" />
+  		<meta name="keywords" content="autos usados salta, autos usados en salta, autos 0 km" />
+			<title>Autos Usados Salta y Jujuy | Vende tu Auto | Registro | Ciro Automotores</title>
+		{% elseif 'preguntasfrecuentes' in return_url %}
+			<meta property="og:title" content="Ciro Automotores - ¡Hacé las preguntas que vos quieras! Vendemos los mejores autos usados en Salta y Jujuy. ¡Te esperamos!" />
+			<meta property="og:description" content="¡Hacé contacto y realiza las preguntas que quieras! Tenemos los mejores autos en Jujuy y Salta. ¡Te esperamos!" />
+			<meta name="description" content="¡Hacé tus preguntas! En Ciro Automotores vendemos autos usados en Salta y Jujuy. ¿Qué esperas? Llámanos" />
+  		<meta name="keywords" content="autos usados salta, autos usados en salta" />
+			<title>Autos Usados Salta y Jujuy | Preguntas Frecuentes | Registro | Ciro Automotores</title>
+		{% elseif return_url is not defined %}
+			<meta property="og:title" content="Ciro Automotores - Regístrate y compra autos usados en Salta y Jujuy además de autos 0 KM" />
+			<meta property="og:description" content="¡Regístrate! Aquí encontrarás los mejores autos usados en Salta y Jujuy, además de autos 0 KM. ¡Te esperamos!" />
+			<meta name="description" content="¡Regístrate ahora! Ciro Automotores tiene autos usados en Salta y autos 0 KM también. ¡Te esperamos!" />
+  		<meta name="keywords" content="autos usados en jujuy, autos usados en salta, autos 0 km" />
+			<title> Autos Usados Salta y Jujuy | Registro | Ciro Automotores</title>
+		{% elseif publicacion %}
+			<meta property="og:title" content="Ciro Automotores - Regístrate y compra autos usados en Salta y Jujuy {{publicacion.titulo}}" />
+			<meta property="og:description" content="¡Regístrate hoy! Compra uno de nuestros autos usados en Salta o en Jujuy. Aquí podrás encontrar el auto de marca {{publicacion.titulo}}." />
+			<meta name="description" content="Si querés el modelo {{ publicacion.titulo }} en Ciro Automotores vendemos autos usados en Salta y Jujuy al igual que autos 0 kilómetros ¡Visítanos!" />
+  		<meta name="keywords" content="autos usados en salta, autos 0 kilometros" />
+			<title>{{publicacion.titulo}} | Registro | Ciro Automotores</title>
+		{% elseif filtros %}
+			{% if filtros.marca.show is defined %}
+			{% set showMarca = filtros.marca.show~' ' %}
+			{% set filtroMarca = ' de la marca '~filtros.marca.show %}
+			{% set titleMarca = filtros.marca.show|title ~' | ' %}
+			{% set keyMarca = 'autos '~filtros.marca.show~', ' %}
+			{% endif %}
+			{% if filtros.year is defined %}
+			{% set showAnio = filtros.year.show~' ' %}
+			{% set filtroAnio = ' '~filtros.year.show %}
+			{% set titleAnio = filtros.year.show ~' | ' %}
+			{% set keyAnio = 'autos '~filtros.year.show~', ' %}
+			{% endif %}
+			{% if filtros.ubicacion.show is defined %}
+			{% set showUbicacion = filtros.ubicacion.show~' ' %}
+			{% set filtroUbicacion = ' en '~filtros.ubicacion.show %}
+			{% set titleUbicacion = filtros.ubicacion.show|title ~' | ' %}
+			{% set keyUbicacion = 'autos '~filtros.ubicacion.show~', ' %}
+			{% endif %}
+			{% if filtros.motor.show is defined %}
+			{% set showMotor = filtros.motor.show~' ' %}
+			{% set filtroMotor = ' con motor '~filtros.motor.show %}
+			{% set titleMotor = filtros.motor.show|title ~' | ' %}
+			{% set keyMotor = 'autos '~filtros.motor.show~', ' %}
+			{% endif %}
+			{% if filtros.transmision.show is defined %}
+			{% set showTransmision = filtros.transmision.show~' ' %}
+			{% set filtroTransmision = ' con transmisión '~filtros.transmision.show %}
+			{% set titleTransmision = filtros.transmision.show|title ~' | ' %}
+			{% set keyTransmision = 'autos '~filtros.transmision.show~', ' %}
+			{% endif %}
+			{% if filtros.modelo.show is defined %}
+			{% set showModelo = filtros.modelo.show~' ' %}
+			{% set filtroModelo = ' modelo '~filtros.modelo.show %}
+			{% set titleModelo = filtros.modelo.show|title ~' | ' %}
+			{% set keyModelo = 'autos '~filtros.modelo.show~', ' %}
+			{% endif %}
+			{% set return_url = 'vehiculos/filtrar/'~return_url~'/' %}
+			{% set keyword = keyMarca~keyAnio~keyUbicacion~keyMotor~keyTransmision~keyModelo %}
+			<meta property="og:title" content="Ciro Automotores - Regístrate y compra autos usados en Salta y Jujuy {{showMarca}}{{showAnio}}{{showUbicacion}}{{showMotor}}{{showTransmision}}{{showModelo}}" />
+			<meta property="og:description" content="¡Hacé tu registro hoy! Compra uno de nuestros autos usados en Salta o en Jujuy. Aquí podrás encontrar el auto{{filtroUbicacion}}{{filtroMotor}}{{filtroTransmision}}{{filtroAnio}}{{filtroMarca}}{{filtroModelo}}." />
+			{% set metaDescription = 'Si querés autos'~filtroUbicacion~filtroMotor~filtroTransmision~filtroAnio~filtroMarca~filtroModelo~' en Ciro Automotores vendemos autos usados Salta y Jujuy al igual que autos 0 KM. ¡Visítanos!' %}
+			{% if metaDescription|length > 165 %}
+			<meta name="description" content="Si querés autos {{showMarca}}{{showAnio}}{{showUbicacion}}{{showMotor}}{{showTransmision}}{{showModelo}}en Ciro Automotores vendemos autos usados Salta y Jujuy al igual que autos 0 KM. ¡Visítanos!" />
+			{% else %}
+			<meta name="description" content="{{metaDescription}}" />
+			{% endif %}
+  		<meta name="keywords" content="{{ keyword|trim(', ', 'right') }}" />
+			<title> {{titleMarca}}{{titleAnio}}{{titleUbicacion}}{{titleMotor}}{{titleTransmision}}{{titleModelo}}Registro | Ciro Automotores</title>
+		{% else %}
+			<meta property="og:title" content="Ciro Automotores - Regístrate y compra autos usados en Salta y Jujuy además de autos 0 KM" />
+			<meta property="og:description" content="¡Regístrate! Aquí encontrarás los mejores autos usados en Salta y Jujuy, además de autos 0 KM. ¡Te esperamos!" />
+			<meta name="description" content="¡Regístrate ahora! Ciro Automotores tiene autos usados en Salta y autos 0 KM también. ¡Te esperamos!" />
+  		<meta name="keywords" content="autos usados en jujuy, autos usados en salta, autos 0 km" />
+			<title> Autos Usados Salta y Jujuy | Registro | Ciro Automotores</title>
+		{% endif %}
+	</head>
+	<body>
+		<div class="container">
+			<form class="form-signup" action="{{ path_for('auth.signup') }}" method="post">
+				<h2 class="form-signup-heading"><img src="{{static_assets}}/images/logo.png" class="login-logo" alt="Logo Ciro Automotores"></h2>
+				<p class="text-muted">Registrate para recibir todas las novedades y <b>ofertas exclusivas</b> en tu casilla de correo.</p>
+				<div class="form-group {{ errors.car_nombre ? ' has-error' : '' }}">
+					<label for="car_nombre" class="sr-only">Nombre</label>
+					<input type="text" id="car_nombre" name="car_nombre" class="form-control" placeholder="Nombre" value="{{ old.car_nombre }}">
+					{% if errors.car_nombre %}
+						<span class="help-block">{{ errors.car_nombre | first }}</span>
+					{% endif %}
+				</div>
+
+				<div class="form-group{{ errors.car_apellido ? ' has-error' : '' }}">
+					<label for="car_apellido" class="sr-only">Apellido</label>
+					<input type="text" id="car_apellido" name="car_apellido" class="form-control" placeholder="Apellido" value="{{ old.car_apellido }}">
+					{% if errors.car_apellido %}
+						<span class="help-block">{{ errors.car_apellido | first }}</span>
+					{% endif %}
+				</div>
+
+				<div class="form-group{{ errors.car_email ? ' has-error' : '' }}">
+					<label for="car_email" class="sr-only">Dirección de correo electrónico</label>
+					<input type="text" id="car_email" name="car_email" class="form-control" placeholder="Dirección de correo electrónico" value="{{ old.car_email }}">
+					{% if errors.car_email %}
+						<span class="help-block">{{ errors.car_email | first }}</span>
+					{% endif %}
+				</div>
+
+				<div class="form-group{{ errors.car_phone ? ' has-error' : '' }}">
+					<label for="car_phone" class="sr-only">Teléfono</label>
+					<input type="tel" id="car_phone" name="car_phone" class="form-control" placeholder="Teléfono" value="{{ old.car_phone }}">
+					{% if errors.car_phone %}
+						<span class="help-block">{{ errors.car_phone | first }}</span>
+					{% endif %}
+				</div>
+
+				<div class="form-group{{ errors.car_password ? ' has-error' : '' }}">
+					<label for="car_password" class="sr-only">Contraseña</label>
+					<input type="password" id="car_password" name="car_password" class="form-control" placeholder="Contraseña">
+					{% if errors.car_password %}
+						<span class="help-block">{{ errors.car_password | first }}</span>
+					{% endif %}
+				</div>
+
+				<div class="text-muted bd-callout bd-callout-warning">
+					<div class="row h-100 justify-content-center align-items-center">
+						<h5 class="nm">Podemos ayudarte.</h5>
+					</div>
+					<p class="">Comentanos qué estás buscando para asi brindarte una atención personalizada.</p>
+					<div class="checkbox nm">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="col-md-6 np">
+									<label class="thingslike">
+										<input type="checkbox" name="thingslike[]" value="vender"> Vender mi vehículo
+									</label>
+								</div>
+								<div class="col-md-6 np">
+									<label class="thingslike">
+										<input type="checkbox" name="thingslike[]" value="comprar"> Comprar un vehículo
+									</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6 np">
+									<label class="thingslike">
+										<input type="checkbox" name="thingslike[]" value="novedades"> Recibir novedades
+									</label>
+								</div>
+								<div class="col-md-6 np">
+									<label class="thingslike">
+										<input type="checkbox" name="thingslike[]" value="ofertas"> Recibir ofertas
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value="todook" id="ipcheckbox" required=""> Acepto los <a href="#">términos de uso</a> y estoy de acuerdo con las <a href="#">políticas de privacidad</a>.
+					</label>
+				</div>
+				<button class="btn btn-md btn-primary btn-block" type="submit" id="btn-signup" disabled>Registrarme</button>
+				{{ csrf.field | raw }}
+			</form>
+		</div>
+
+		{% if production %}
+
+		<script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+		<script src="//stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.threedubmedia/2.2/event.drag/jquery.event.drag.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+
+		{% else %}
+
+		<script type="text/javascript" src="dev/js/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="dev/js/popper.min.js"></script>
+		<script type="text/javascript" src="dev/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.threedubmedia/2.2/event.drag/jquery.event.drag.min.js"></script>
+		<script type="text/javascript" src="dev/js/tether.min.js"></script>
+
+		{% endif %}
+
+		<script type="text/javascript">
+		$(document).ready(function() {
+
+			$("#ipcheckbox").change(function() {
+				if(this.checked) {
+					$('#btn-signup').prop('disabled', false);
+				}
+				else
+				{
+					$('#btn-signup').prop('disabled', true);
+				}
+			});
+		});
+		</script>
+	</body>
+</html>

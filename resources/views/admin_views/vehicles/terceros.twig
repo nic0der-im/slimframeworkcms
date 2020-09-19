@@ -1,0 +1,391 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+
+{% endblock %}
+{% block title %}Listado de usados de terceros{% endblock %}
+{% block header_title %}Listado de usados de terceros{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" >
+	Terceros
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card card-success">
+			<div class="card-header">
+				<h3 class="card-title text-bold">Lista general de usados de terceros:</h3>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-hover" id="tablaTerceros" width="100%">
+						<thead>
+							<tr>
+								<th>Creado</th>
+								<th>Dominio</th>
+								<th data-orderable="false">KMs</th>
+								<th data-orderable="false">Observaciónes</th>
+								<th data-orderable="false"> </th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for usado in usados %}
+								<tr>
+									<td>{{ usado.created_at | date('d/m/Y') }}</td>
+									<td>{{ usado.dominio }}</td>
+									<td>{{ usado.kilometraje }}</td>
+									<td>{{ usado.observaciones }}</td>
+									<td style=" white-space: nowrap;">
+										<a href="{{path_for('vehicle.terceros.borrar', {	'id': usado.id_vehiculo })}}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estas seguro que quieres eliminar este vehiculo?.');" data-toggle="tooltip" data-container="body" title="Eliminar"><i class="ion ion-trash-a"></i></a>
+										<a href="{{path_for('vehicle.gestionarfotos', {	'id': usado.id_vehiculo })}}" class="btn btn-info btn-sm" data-toggle="tooltip" data-container="body" title="Ver imagenes">
+											<i class="ion ion-images"></i>
+										</a>
+										{% if usado.publicacion.id>0 %}
+										<a class="btn btn-primary btn-sm" onclick="modalPublicacion({{usado.publicacion.id}});" data-toggle="tooltip" data-container="body" title="Ver Publicacion"><i class="ion ion-document-text"></i></a>
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalPublicacion">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Publicacion</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+      	<form class="form" method="POST" id="formPublicacion" >
+      		<input type="hidden" name="id_publicacion" id="id_publicacion">
+      		<div class="row">
+      			<div class="col-md-4">
+							<label for="fecha">Inicio</label>
+							<input type="text" class="form-control datepicker" name="fecha" id="fecha" autocomplete="off">
+						</div>
+						<div class="col-md-4">
+							<label for="fecha_vto">Vencimiento</label>
+							<input type="text" class="form-control datepicker" name="fecha_vto" id="fecha_vto" autocomplete="off">
+						</div>
+						<div class="col-md-1">
+							<label for="dias">Dias</label>
+							<input type="text" class="form-control" name="dias" id="dias" readonly value="0">
+						</div>
+						<div class="col-md-3">
+							<label for="renobar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+							<a class="btn btn-warning" id="btnRenobar">Generar Renobacion</a>
+						</div>
+						<div class="col-md-12">
+							<label for="observacion">Observacion</label>
+							<input type="text" class="form-control" name="observacion" id="observacion" autocomplete="off">
+						</div>
+        	</div>
+      		<div class="row">
+      			<div class="col-md-12">
+							<label for="titulo">Titulo Sugerido</label>
+							<input type="text" class="form-control" name="titulo" id="titulo" autocomplete="off">
+						</div>
+						<div class="col-md-12">
+							<label for="contenido">Contenido</label>
+							<textarea class="form-control"  name="contenido" id="contenido" placeholder="Contenido" autocomplete="off" required data-toggle="tooltip" data-placement="auto" title="Ingresá el titulo de la publicación.<br>Por ejemplo: <b>[terminaresto]</b>">
+							</textarea>
+						</div>
+        	</div>
+        	<div class="row">
+        		<div class="col-md-12">
+        			<br>
+							<label for="">Listado de renobaciones</label>
+						</div>
+        		<table class="table table-bordered" style="width:100%;" id="tablaRenobaciones">
+        			<thead>
+        				<th>
+        					Creado
+        				</th>
+        				<th>
+        					Desde
+        				</th>
+        				<th>
+        					Hasta
+        				</th>
+        				<th data-orderable="false">
+        					Dias
+        				</th>
+        				<th data-orderable="false"></th>
+        				<th data-visible="false">id</th>
+        			</thead>
+        			<tbody>
+        			</tbody>
+        		</table>
+        	</div>
+
+        	<button type="submit" class="hidden" id="submitPublicacion" style="display:none;"></button>
+        	{{ csrf.field | raw }}
+      	</form>
+
+      </div>
+      <div class="modal-footer">
+      	<a class="btn btn-success pull-right" id="btnPublicacion">Publicar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block custom_js %}
+
+<script type="text/javascript">
+$(document).ready(function(e) {
+
+	var unMes = new Date();
+	unMes.setMonth(unMes.getMonth() + 1);
+	var dias = Math.round((unMes-new Date())/(1000*60*60*24));
+	$('#dias').val(dias);
+	$('#fecha').datepicker({
+			language:'es-ES',
+			zIndex: 1151,
+		  autoHide: true,
+		  autoPick: true,
+		  format: 'dd/mm/yyyy',
+		  startDate: new Date(),
+		  endDate: unMes,
+		});
+	$('#fecha_vto').datepicker({
+			language:'es-ES',
+			zIndex: 1151,
+		  autoHide: true,
+		  autoPick: true,
+		  format: 'dd/mm/yyyy',
+		  startDate: new Date(),
+		  endDate: unMes,
+		});
+	$('#fecha_vto').datepicker('setDate', unMes);
+	$('#fecha').on('pick.datepicker', function (e) {
+	  var hasta = $('#fecha_vto').datepicker('getDate');
+	  if (e.date < hasta) {
+	  	var dias = Math.round((hasta-e.date)/(1000*60*60*24));
+	  	$('#dias').val(dias);
+	  } else {
+	  	$('#fecha').datepicker('setDate', new Date());
+	  	var dias = Math.round((hasta-new Date())/(1000*60*60*24));
+	  	$('#dias').val(dias);
+	  }
+	});
+	$('#fecha_vto').on('pick.datepicker', function (e) {
+	  var desde = $('#fecha').datepicker('getDate');
+	  if (e.date > desde) {
+	  	var dias = Math.round((e.date-desde)/(1000*60*60*24));
+	  	$('#dias').val(dias);
+	  } else {
+	  	$('#fecha').datepicker('setDate', unMes);
+	  	var dias = Math.round((unMes-desde)/(1000*60*60*24));
+	  	$('#dias').val(dias);
+	  }
+	});
+
+	CKEDITOR.replace( 'contenido', {
+		height: 200,
+		toolbarGroups: [
+			{"name":"basicstyles","groups":["basicstyles"]},
+			{"name":"links","groups":["links"]},
+			{"name":"paragraph","groups":["list","blocks", "align"]},
+			{"name":"document","groups":["mode"]},
+			{"name":"insert","groups":["insert"]},
+			{"name":"styles","groups":["styles"]},
+		],
+		// Remove the redundant buttons from toolbar groups defined above.
+		removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar,Image'
+	});
+	$.fn.dataTable.moment( 'DD/MM/YYYY' );
+	$('#tablaTerceros').DataTable( {
+		order:[[0,'desc']],
+	  lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	$('#tablaRenobaciones').DataTable( {
+		lengthChange: false,
+    searching: false,
+    paging: false,
+    info: false,
+    ordering: false,
+		"language": {
+		    "sProcessing":     "Procesando...",
+		    "sLengthMenu":     "Mostrar _MENU_ registros",
+		    "sZeroRecords":    "No se encontraron resultados",
+		    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+		    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+		    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+		    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+		    "sInfoPostFix":    "",
+		    "sSearch":         "Buscar:",
+		    "sUrl":            "",
+		    "sInfoThousands":  ",",
+		    "sLoadingRecords": "Cargando...",
+		    "oPaginate": {
+		        "sFirst":    "Primero",
+		        "sLast":     "Último",
+		        "sNext":     "Siguiente",
+		        "sPrevious": "Anterior"
+		    },
+		    "oAria": {
+		        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+		        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+		    }
+		}
+	});
+
+	$('#modalPublicacion').on('shown.bs.modal', function (e) {
+    $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+  });
+
+	$('#btnRenobar').on('click',function(){
+		var boolean = false;
+		if(Number($('#dias').val())<1){
+			$.toast({
+        heading: 'Publicacion',
+        text: 'La renobacion solo puede contenier dias mayores a cero.',
+        showHideTransition: 'slide',
+        icon: 'warning',
+        position: 'bottom-right',
+        hideAfter: false,
+      });
+		}
+		var id = $('#id_publicacion').val();
+		var route = "{{path_for('vehicle.terceros.renobar',{'id':99})}}".replace('99',id);
+		$('#formPublicacion').attr('action', route);
+		$('#submitPublicacion').trigger('click');
+	});
+
+
+});
+
+function modalPublicacion(id){
+	$('#id_publicacion').val(id);
+	var route = "{{path_for('vehicle.terceros.publicacion',{'id':99})}}".replace('99',id);
+	$.ajax({
+    type: "get",
+    url: route,
+    success: function(data,status){
+    	$('#titulo').val(data.titulo);
+    	CKEDITOR.instances.contenido.setData( data.contenido );
+    	for (var i = data.renobaciones.length - 1; i >= 0; i--) {
+    		var item = data.renobaciones[i];
+    		var autor = item.individuo.apellido + ' ' + item.individuo.nombre ;
+    		var created_at = moment(item.created_at, 'YYYY-MM-DD HH:mm:ss');
+        var creado = respuestaDiferenciaFecha(created_at);
+        creado = '<label class="control-label" data-toggle="tooltip" data-container="body" data-html="true" title="Creado '+creado+'<br>por '+autor+'">'+created_at.format('DD/MM/YYYY')+'</label>';
+    		var table = $('#tablaRenobaciones').DataTable();
+				table.row.add([
+					creado,
+					moment(item.fecha, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+         	moment(item.fecha_vto, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+         	item.dias,
+         	'<a class="btn btn-sm btn-danger" onclick="eliminarRenobacion('+item.id+');" data-toggle="tooltip" data-container="body" title="Eliminar"><i class="ion ion-trash-a"></i></a>',
+         	item.id
+					])
+				.draw()
+			  .node();
+    	}
+    	$('#modalPublicacion').modal('show');
+    },
+    error: function(xhr, ajaxOptions,e) {
+      $.toast({
+        heading: 'Publicacion',
+        text: 'A ocurrido un problema en nuestro servidor. Intente mas tarde.',
+        showHideTransition: 'slide',
+        icon: 'error',
+        position: 'bottom-right',
+        hideAfter: false,
+      });
+    }
+  });
+}
+
+function eliminarRenobacion(id){
+	var route = "{{path_for('vehicle.terceros.eliminar',{'id':99})}}".replace('99',id);
+	bootbox.confirm({
+    title: "Eliminar la Renobacion?",
+    message: "Las publicacion asociada tambien sera dadas de baja si no existe una renobacion que cubra la fecha actual.",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancelar'
+      },
+      confirm: {
+        label: '<i class="ion ion-trash-a"></i> Confirmar'
+      }
+    },
+    callback: function (result) {
+      if(result){
+        $.ajax({
+          type: "get",
+          url: route,
+          success: function(data,status){
+            var table = $('#tablaRenobaciones').DataTable();
+            var row = '';
+				  	var filas = table.rows().data();
+				  	var monto = 0;
+				  	for (var i = filas.length - 1; i >= 0; i--) {
+				  		if(Number(filas[i][5])==Number(id)){
+				  			row = i;
+				  			break;
+				  		}
+				  	}
+				  	table.row(row).remove().draw();
+
+            $.toast({
+              heading: 'Publicacion',
+              text: 'Renobacion eliminada',
+              showHideTransition: 'slide',
+              icon: 'success',
+              position: 'bottom-right',
+            });
+          },
+          error: function(xhr, ajaxOptions,e) {
+            $.toast({
+              heading: 'Publicacion',
+              text: 'A ocurrido un problema en nuestro servidor. Intente mas tarde.',
+              showHideTransition: 'slide',
+              icon: 'error',
+              position: 'bottom-right',
+              hideAfter: false,
+            });
+          }
+        });
+      }
+    }
+  });
+}
+
+</script>
+{% endblock %}

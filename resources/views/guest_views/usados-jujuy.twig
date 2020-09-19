@@ -1,0 +1,360 @@
+{% extends "guest_views/base_fixed.twig" %}
+
+{% block head %}
+	<meta property="og:title" content="Ciro Automotores - ¡Hacé contacto hoy mismo! Tenemos autos usados en Salta y Jujuy además de autos 0 KM" />
+	<meta property="og:description" content="¡Hacé contacto con Ciro Automotores! Tenemos los mejores autos usados en Salta y Jujuy. ¡Te esperamos!" />
+	<meta name="description" content="{# 👁‍🗨 #} Ciro Automotores tiene los mejores autos usados en Salta y también contamos con autos 0 kilómetros. {# 🔥 #} !Hacé contacto ahora mismo! {# 🔥 #}" />
+	<meta name="keywords" content="autos usados salta, autos usados en salta, autos 0 km" />
+{% endblock %}
+
+{% block aditional_css %}
+	{% if production %}
+	<link rel="stylesheet" href="/dist/css/vehicle-grid.min.css">
+	<link rel="stylesheet" href="/dist/css/vehicles.min.css">
+	{% else %}
+	<link rel="stylesheet" href="/css/basic/sources/vehicle-grid.css">
+	<link rel="stylesheet" href="/css/vehiculos/sources/vehicles.css">
+	{% endif %}
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css" />
+	<style type="text/css">
+
+	.titulo_jujuy {
+		font-weight: 800;
+		color: #fff;
+		font-size: 300%
+	}
+	.subtitulo_jujuy {
+		font-size: 80%;
+		font-weight: 300;
+		color: #fff;
+	}
+
+	.landing-background {
+		position: absolute;
+		width: 100%;
+		min-height: 100%;
+	}
+
+	@media(min-width: 320px) {
+		.subtitulo_jujuy {
+			font-size: 100%;
+			font-weight: 300;
+			color: #fff;
+		}
+	}
+
+	@media(min-width: 576px) {
+
+	}
+
+	@media(min-width: 992px) {
+
+		.titulo_jujuy {
+			font-size: 450%;
+		}
+		.subtitulo_jujuy {
+			font-size: 150%;
+		}
+
+	}
+	
+	.btn-outline-white {
+		border: 1px solid #fff;
+		color: #fff;
+		font-weight: 300;
+		background-color: rgba(255,255,255, 0);
+	}
+
+	.btn-outline-white:hover {
+		background-color: rgba(255,255,255, .2);
+		color: #fff;
+	}
+
+	.landing-fh {
+		margin-top: 0px;
+	}
+
+	.landing-section .container-fluid {
+		margin-top: 0px;
+	}
+
+	.landing-section {
+		position: relative;
+		overflow: hidden;
+	}
+
+	.landing-section.fullscreen {
+		min-height: 100vh;
+	}
+
+	
+
+	.landing-background img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.landing-overlay {
+		position: absolute;
+		background-color: rgba(0,0,0,.4);
+		width: 100%;
+		height: 100%;
+	}
+
+	.landing-content {
+		display: flex;
+		width: 100%;
+		align-items: center;
+	}
+
+	.fullscreen .landing-content {		
+		height: 100vh;
+	}
+
+	.form-landing {
+
+	}
+
+	.form-landing .form-control {
+		border-top-left-radius: 1em;
+		border-bottom-left-radius: 1em;
+	}
+
+	.btn-outline-white {
+		border-radius: 1em;
+	}
+	.form-landing .btn-outline-white {
+		border-radius: none;
+		border-top-right-radius: 1em !important;
+		border-bottom-right-radius: 1em !important;	
+	}
+
+	.landing-vehicles .slick-track,
+	.other-brands .slick-track {
+		margin: initial;
+	}
+
+	.landing-vehicles .slick-list,
+	.other-brands .slick-list {
+		margin: 0px -.5em;
+	}
+
+	.landing-vehicles.slick-slider .slick-slide,
+	.other-brands.slick-slider .slick-slide {
+		padding: 0px .5em;
+	}
+
+	.slick-track {
+	display: flex;
+}
+
+.slick-track .slick-slide {
+	display: flex;
+  height: auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.slick-track .slick-slide>div {
+	height: 100%;	
+}
+
+.slick-prev {
+	
+	z-index: 1;
+	position: absolute;	
+}
+.slick-prev::before {
+	
+}
+
+.vehicle-card {
+	height: 100%;
+	display: flex !important;	
+  justify-content: space-between;
+  border: none;
+}
+
+
+	</style>
+{% endblock %}
+
+{% block title %}✅ Autos Usados Jujuy {% endblock %}
+
+{% block content %}
+<div class="landing-section">
+	<div class="landing-background bg-primary"></div>
+	<div class="landing-content p-4">
+		<div class="container-fluid">
+			<div class="row d-flex align-items-center">
+				<div class="col-lg-5 text-center text-lg-left">
+					<span class="subtitulo_jujuy">¿Estás buscando vehículos en Jujuy?</span>
+					<h1 class="titulo_jujuy">Autos Usados en Jujuy</h1>
+					<div class="row">
+						<div class="col-lg-12 col-sm-8 mx-auto">
+							<form class="sbr_form form-landing" id="searchbar" method="POST" action="{{path_for('publicaciones.buscar')}}">
+								<div class="input-group">						  
+								  <input type="text" autofocus name="sbrq" id="input_search_desktop" class="form-control" placeholder="Buscá autos, camionetas y más..." onClick="ga('send', 'event', 'pagina_usados_jujuy', 'landing-page', 'buscador');">
+								  <div class="input-group-prepend">
+								    <button class="btn btn-outline-white" type="button" onClick="ga('send', 'event', 'pagina_usados_jujuy', 'landing-page', 'buscador');">Buscar</button>
+								  </div>
+								</div>
+								{{ csrf.field | raw }}
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-6 d-lg-block d-none offset-lg-1 mt-3">
+					<div class="landing-vehicles col-vehicles">
+						{% for publicacion in publicaciones|slice(0,6) %}
+							<div class="card vehicle-card">
+								<div class="vehicle-mi">
+									<div class="vehicle-media">
+										<div class="carousel-inner">
+											{% if publicacion.vehiculo.getFotos | length > 0 %}
+												<img class="card-img-top" src="{{path_for('imagen',{'params':publicacion.vehiculo.getFotos[0].archivo},{'p':'small'})}}" alt="{{publicacion.titulo}}">
+												{#{% if publicacion.vehiculo.created_at > "now"|date_modify('-2 Week') %}
+													<img class="lazo" src="/images/2a.png">
+												{% elseif publicacion.rankSemana %}
+													<img class="lazo" src="/images/2b.png">
+												{% endif %}#}
+											{% else %}
+												<img class="card-img-top" src="{{path_for('imagen',{'params':'/asources/images/no-disponible.png'},{'p':'small'})}}" alt="Sin imagen para mostrar.">
+												<div class="overlayer">
+													<div class="w-100">
+														Vehículo sin imagen.<br>Por el momento...
+													</div>
+												</div>
+											{% endif %}
+										</div>
+									</div>
+									<button onClick="ga('send', 'event', 'pagina_usados_jujuy', 'landing-page', 'btn_whatsapp');" class="btn-sm btn-whatsapp btn-outline-success" data-href="https://api.whatsapp.com/send?phone=543874898080&text={% if auth.individuo %}Hola,%20mi%20nombre%20es%20{{auth.individuo.nombre|url_encode}}%20{{auth.individuo.apellido|url_encode}}{% else %}Hola{% endif %}.%20Tengo%20una%20consulta%20sobre%20esta%20publicación%20*{{publicacion.titulo|url_encode}}*.%0A{{base_url()|url_encode}}{{path_for('vehicle.ver', {	'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })|url_encode}}" data-toggle="popover-whatsapp">
+										<i class="fa fa-whatsapp"></i>
+									</button>
+									<div class="card-block vehicle-params">
+										<div class="vehicle-param vehicle-title">{{ publicacion.titulo }}</div>
+										<div class="vehicle-param vehicle-price">$ {{publicacion.vehiculo.precio_venta | number_format(0, '.', '.')}}</div>
+										<div class="vehicle-param vehicle-data">{{ publicacion.vehiculo.year }} {{ publicacion.vehiculo.getUsado.kilometraje ? '| ' ~ publicacion.vehiculo.getUsado.kilometraje ~ 'km' : ''}}</div>										
+									</div>
+								</div>						
+								<div class="vehicle-view-pub">
+									<a href="{{path_for('vehicle.ver', { 'titulo': publicacion.titulo|trim|replace({' ':'-'})|e|lower, 'id': publicacion.id })}}" class="btn btn-sm btn-outline-primary btn-ver-publicacion pull-right" onClick="ga('send', 'event', 'pagina_usados_jujuy', 'landing-page', 'btn_verpublicacion');" >Ver publicación</a>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			<div class="row mt-4">
+				<div class="col-lg-6 col-sm-8 mx-auto mt-lg-4">
+					<a href="{{path_for('home')}}"><button class="btn btn-outline-white btn-lg form-control" type="button" onClick="ga('send', 'event', 'pagina_usados_jujuy', 'landing-page', 'btn_vermas');">
+						<b class="d-lg-block d-none">Ver más autos disponibles en Jujuy</b>
+						<b class="d-lg-none d-block">Ver todos los autos</b>
+					</button></a>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div>
+{% endblock %}
+
+{% block custom_js %}
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+	<script type="text/javascript">
+
+	$(document).ready(function(){
+		var estado = 0;
+
+
+		$('.landing-vehicles').slick({
+		  dots: true,
+		  infinite: true,
+		  speed: 300,
+		  slidesToShow: 2,
+		  slidesToScroll: 2
+		});
+
+	var srb_form = $('.sbr_form')[0];
+	sessionStorage.setItem('sul', 'null');
+	
+	$('.searchbartxt').focus(function(){
+		srb_form = $($(this).data('form'));
+		console.log(srb_form);
+		if(sessionStorage.getItem('sul') != 'null') {
+		}
+	});
+$( "#input_search_desktop" ).autocomplete({
+		open: function () {
+			$( "#input_search_desktop" ).addClass('searching');
+			$('ul.ui-autocomplete').addClass('opened');
+		},
+		close: function(event, ui) {			
+			$(this).data().autocomplete.term = null; // Clear the cached search term, make every search new
+			$( "#input_search_mobile" ).removeClass('searching');
+			$('ul.ui-autocomplete').removeClass('opened'); 
+		},
+		focus: function( event, ui ) {
+      $( "#input_search_desktop" ).val( ui.item.year + ui.item.marca + ui.item.modelo );
+      return false;
+    },
+    select: function( event, ui ) {
+      $( "#input_search_desktop" ).val( ui.item.year + ui.item.marca + ui.item.modelo );
+     	location.href = ui.item.url;
+      return false;
+    },
+		source: function(request, response) {
+			if(estado == 0) {
+				estado = 1;
+				$.ajax({
+					url: $('#searchbar').attr('action'),
+					data: $('#searchbar').serialize(),
+					method: $('#searchbar').attr('method'),
+					cache: false,
+					dataType: 'json',
+					success: function( data ) {
+						response( data.res);
+						console.log(data);
+					},
+					complete: function (jqXHR) {
+						var csrfToken = jqXHR.getResponseHeader('X-CSRF-Token');
+						if (csrfToken) {
+							try {
+								csrfToken = $.parseJSON(csrfToken);
+								var csrfTokenKeys = Object.keys(csrfToken);
+								var hiddenFields = $('#searchbar').find('input.csrf[type="hidden"]');
+								if (csrfTokenKeys.length === hiddenFields.length) {
+									hiddenFields.each(function(i) {
+										$(this).attr('name', csrfTokenKeys[i]);
+										$(this).val(csrfToken[csrfTokenKeys[i]]);
+									});
+								}
+								estado = 0;
+							}
+							catch (e) {
+
+							}
+						}
+					}
+				});
+			}
+		},
+		minLength: 2
+	}).autocomplete( "instance" )._renderItem = function( ul, item ) {
+		sessionStorage.setItem('sul', ul.attr('id'));
+		console.log(item);
+		var str = item.year + item.marca + item.modelo;
+		var t = String(str).replace(
+			new RegExp(this.term, "gi"),
+			"<span class='srb-highlight'>$&</span>");
+		return $("<li>").data("item.autocomplete", item)
+			.append("<div class='srb-item' data-marca='"+item.marca+"' data-year='"+item.year+"' data-modelo='"+item.modelo+"'>" + t + "</div>")
+			.appendTo(ul);
+	};
+
+	});
+
+	</script>
+
+{% endblock %}

@@ -1,0 +1,489 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+<style type="text/css">
+.input_celda{
+	width: 100px;
+}
+</style>
+{% endblock %}
+{% block title %}Informe General de Caja{% endblock %}
+{% block header_title %}Informe General de Caja{% endblock %}
+{% block breadcrumb %}
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>Ver</h3>
+        <p>Libro de Mayores</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-table"></i>
+      </div>
+      <a href="{{ path_for('informe.cuenta') }}" class="small-box-footer"> Acceder <i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>Ver</h3>
+        <p>Estadísticas en Gráficos</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-stats-bars"></i>
+      </div>
+      <a href="{{ path_for('comprobante.estadisticas') }}" class="small-box-footer"> Acceder <i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-warning">
+      <div class="inner">
+        <h3>44</h3>
+
+        <p>Ingresos / Egresos</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-person-add"></i>
+      </div>
+      <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h3>65</h3>
+
+        <p>Unique Visitors</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-pie-graph"></i>
+      </div>
+      <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+</div>
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header no-border">
+        <div class="d-flex justify-content-between">
+          <h3 class="card-title">Stock Nuevos / Vendidos</h3>
+          <a href="javascript:void(0);">Ver detallado</a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex">
+          <p class="d-flex flex-column">
+            <span class="text-bold text-lg">Stock</span>
+            <span>A lo largo del año</span>
+          </p>
+          <p class="ml-auto d-flex flex-column text-right">
+            <span class="text-success">
+              <i class="fa fa-arrow-up"></i> 12.5%
+            </span>
+            <span class="text-muted">Contra el mes pasado</span>
+          </p>
+        </div>
+        <!-- /.d-flex -->
+
+        <div class="position-relative mb-4"><div class="chartjs-size-monitor" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+          <canvas id="visitors-chart" height="200" width="487" class="chartjs-render-monitor" style="display: block; width: 487px; height: 200px;"></canvas>
+        </div>
+
+        <div class="d-flex flex-row justify-content-end">
+          <span class="mr-2">
+            <i class="fa fa-square text-primary"></i> Nuevos
+          </span>
+
+          <span>
+            <i class="fa fa-square text-gray"></i> Vendidos
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- /.card -->
+    <div class="card">
+      <div class="card-header no-border">
+        <h3 class="card-title">Índice Rotación y Permanencia de Stock</h3>
+        <div class="card-tools">
+          <a href="#" class="btn btn-tool btn-sm">
+            <i class="fa fa-download"></i>
+          </a>
+          <a href="#" class="btn btn-tool btn-sm">
+            <i class="fa fa-bars"></i>
+          </a>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-striped table-valign-middle">
+          <thead>
+          <tr>
+            <th data-orderable="false">Mes</th>
+            <th data-orderable="false">Stock</th>
+            <th data-orderable="false">Usados Nuevos</th>
+            <th data-orderable="false">Usados Vendidos</th>
+            <th data-orderable="false">Índice Rot</th>
+            <th data-orderable="false">Dias Perm</th>
+          </tr>
+          </thead>
+          <tbody>
+           {% for item in stock %}
+            <tr>
+              <td>
+                {{item.mes}}
+              </td>
+              <td>
+                {{item.stock}}
+              </td>
+              <td>
+                {{item.nuevos}}
+              </td>
+              <td>
+                {{item.vendidos}}
+              </td>
+              <td>
+                {{item.indice_rotacion|number_format(2, ',', '')}}
+              </td>
+              <td>
+                {{item.permanencia_stock|number_format(2, ',', '')}}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- /.card -->
+  </div>
+  <!-- /.col-md-6 -->
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header no-border">
+        <div class="d-flex justify-content-between">
+          <h3 class="card-title">Stock Nuevos / Vendidos</h3>
+          <a href="javascript:void(0);">Ver detallado</a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex">
+          <p class="d-flex flex-column">
+            <span class="text-bold text-lg">Stock</span>
+            <span>A lo largo del año</span>
+          </p>
+          <p class="ml-auto d-flex flex-column text-right">
+            <span class="text-success">
+              <i class="fa fa-arrow-up"></i> 33.1%
+            </span>
+            <span class="text-muted">Contra el mes pasado</span>
+          </p>
+        </div>
+        <!-- /.d-flex -->
+
+        <div class="position-relative mb-4">
+          <div class="chartjs-size-monitor" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;">
+            <div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+              <div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0">
+              </div>
+            </div>
+            <div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+              <div style="position:absolute;width:200%;height:200%;left:0; top:0">
+              </div>
+            </div>
+          </div>
+          <canvas id="sales-chart" height="200" width="487" class="chartjs-render-monitor" style="display: block; width: 487px; height: 200px;">
+          </canvas>
+        </div>
+
+        <div class="d-flex flex-row justify-content-end">
+          <span class="mr-2">
+            <i class="fa fa-square text-primary"></i> Nuevos
+          </span>
+
+          <span>
+            <i class="fa fa-square text-gray"></i> Vendidos
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- /.card -->
+
+    <div class="card">
+      <div class="card-header no-border">
+        <h3 class="card-title">Resúmen General Caja</h3>
+        <div class="card-tools">
+          <a href="#" class="btn btn-sm btn-tool">
+            <i class="fa fa-download"></i>
+          </a>
+          <a href="#" class="btn btn-sm btn-tool">
+            <i class="fa fa-bars"></i>
+          </a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+          <p class="text-success text-xl">
+            <i class="ion ion-ios-refresh-empty"></i>
+          </p>
+          <p class="d-flex flex-column text-right">
+            <span class="font-weight-bold">
+              <i class="ion ion-android-arrow-up text-success"></i> 12%
+            </span>
+            <span class="text-muted">CONVERSION RATE</span>
+          </p>
+        </div>
+        <!-- /.d-flex -->
+        <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+          <p class="text-warning text-xl">
+            <i class="ion ion-ios-cart-outline"></i>
+          </p>
+          <p class="d-flex flex-column text-right">
+            <span class="font-weight-bold">
+              <i class="ion ion-android-arrow-up text-warning"></i> 0.8%
+            </span>
+            <span class="text-muted">SALES RATE</span>
+          </p>
+        </div>
+        <!-- /.d-flex -->
+        <div class="d-flex justify-content-between align-items-center mb-0">
+          <p class="text-danger text-xl">
+            <i class="ion ion-ios-people-outline"></i>
+          </p>
+          <p class="d-flex flex-column text-right">
+            <span class="font-weight-bold">
+              <i class="ion ion-android-arrow-down text-danger"></i> 1%
+            </span>
+            <span class="text-muted">REGISTRATION RATE</span>
+          </p>
+        </div>
+        <!-- /.d-flex -->
+      </div>
+    </div>
+  </div>
+  <!-- /.col-md-6 -->
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript">
+$(function () {
+  'use strict'
+  const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Novimebre", "Diciembre"];
+
+  var ticksStyle = {
+    fontColor: '#495057',
+    fontStyle: 'bold'
+  }
+
+  var mode      = 'index'
+  var intersect = true
+
+  var $salesChart = $('#sales-chart')
+  var salesChart  = new Chart($salesChart, {
+    type   : 'bar',
+    data   : {
+      labels  : ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      datasets: [
+      {
+        type: 'bar',
+        label: 'Nuevos',
+        backgroundColor: window.chartColors.blue,
+        stack: 'Stack 0',
+        data: [ 
+          {% for mes in stock %}
+            {{ mes.nuevos }},
+          {% endfor %} 
+        ]
+      }, 
+      {
+        type: 'bar',
+        label: 'Vendidos',
+        backgroundColor: window.chartColors.black,
+        stack: 'Stack 1',
+        data: [ 
+          {% for mes in stock %}
+            {{ mes.vendidos }},
+          {% endfor %} 
+        ]
+      }, 
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      tooltips           : {
+        mode     : mode,
+        intersect: intersect
+      },
+      hover              : {
+        mode     : mode,
+        intersect: intersect
+      },
+      legend             : {
+        display: false
+      },
+      scales             : {
+        yAxes: [{
+          stacked: true,
+        }],
+        xAxes: [{
+          stacked: true,
+          display  : true,
+          gridLines: {
+            display: false
+          },
+          ticks    : ticksStyle
+        }]
+      }
+    }
+  });
+
+    window.onload = function() {
+      var ctx = document.getElementById('canvas').getContext('2d');
+      window.myBar = new Chart(ctx, {
+        type: 'bar',
+        data: barChartData,
+        options: {
+          responsive: true,
+          title: {
+            display: true,
+            text: 'Chart.js Combo Bar Line Chart'
+          },
+        }
+      });
+    };
+
+  var $visitorsChart = $('#visitors-chart')
+  var visitorsChart  = new Chart($visitorsChart, {
+    data   : {
+      labels  : ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      datasets: [{
+        type                : 'line',
+        label              : 'Nuevos Salta',
+        data                : [
+        {% for mes in stock %}
+            {{ mes.nuevos_salta }},
+          {% endfor %}
+        ],
+        backgroundColor     : 'transparent',
+        borderColor         : window.chartColors.black,
+        pointBorderColor    : window.chartColors.black,
+        pointBackgroundColor: window.chartColors.black,
+        fill                : false
+        // pointHoverBackgroundColor: '#007bff',
+        // pointHoverBorderColor    : '#007bff'
+      },
+      {
+          type                : 'line',
+          label              : 'Nuevos Oran',
+          data                : [
+          {% for mes in stock %}
+            {{ mes.nuevos_oran }},
+          {% endfor %}
+          ],
+          backgroundColor     : 'tansparent',
+          borderColor         : window.chartColors.blue,
+          pointBorderColor    : window.chartColors.blue,
+          pointBackgroundColor: window.chartColors.blue,
+          fill                : false
+          // pointHoverBackgroundColor: '#ced4da',
+          // pointHoverBorderColor    : '#ced4da'
+      },
+      {
+          type                : 'line',
+          label              : 'Vendidos Salta',
+          data                : [
+          {% for mes in stock %}
+            {{ mes.vendidos_salta }},
+          {% endfor %}
+          ],
+          backgroundColor     : 'tansparent',
+          borderColor         : window.chartColors.red,
+          pointBorderColor    : window.chartColors.red,
+          pointBackgroundColor: window.chartColors.red,
+          fill                : false
+      },
+      {
+          type                : 'line',
+          label              : 'Vendidos Oran',
+          data                : [
+          {% for mes in stock %}
+            {{ mes.vendidos_oran }},
+          {% endfor %}
+          ],
+          backgroundColor     : 'tansparent',
+          borderColor         : window.chartColors.green,
+          pointBorderColor    : window.chartColors.green,
+          pointBackgroundColor: window.chartColors.green,
+          fill                : false
+      }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      tooltips           : {
+        mode     : mode,
+        intersect: intersect
+      },
+      hover              : {
+        mode     : mode,
+        intersect: intersect
+      },
+      legend             : {
+        display: false
+      },
+      scales             : {
+        yAxes: [{
+          // display: false,
+          gridLines: {
+            display      : true,
+            lineWidth    : '4px',
+            color        : 'rgba(0, 0, 0, .2)',
+            zeroLineColor: 'transparent'
+          },
+          ticks    : $.extend({
+            beginAtZero : true,
+          }, ticksStyle)
+        }],
+        xAxes: [{
+          display  : true,
+          gridLines: {
+            display: false
+          },
+          ticks    : ticksStyle
+        }]
+      }
+    }
+  })
+});
+
+window.chartColors = {
+  red: 'rgb(255, 50, 50)',
+  orange: 'rgb(255, 159, 64)',
+  yellow: 'rgb(255, 205, 86)',
+  green: 'rgb(75, 192, 192)',
+  blue: 'rgb(50, 50, 255)',
+  purple: 'rgb(153, 102, 255)',
+  black: 'rgb(10, 10, 10)',
+  grey: 'rgb(201, 203, 207)'
+};
+
+window.randomScalingFactor = function() {
+    return Math.round(Samples.utils.rand(-100, 100));
+};
+
+Samples.utils.srand(Date.now());
+
+</script>
+<script src="https://adminlte.io/themes/dev/AdminLTE/plugins/chart.js/Chart.min.js"></script>
+<script type="text/javascript">
+</script>
+{% endblock %}

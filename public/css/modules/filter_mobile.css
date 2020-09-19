@@ -1,0 +1,85 @@
+.filter_mobile {
+	height: 100vh;
+	/*top: 105vh;*/
+	position: fixed;
+	background-color: #3286C6;
+	width: 100%;
+	z-index: 999999;
+}
+
+.btn-close-filter_mobile {
+	font-weight: 300;
+	color: #fff;
+	background-color: transparent;
+	border: 0px;
+	font-size: 1.8em;
+	cursor: pointer;
+	margin-left: .25em;
+	display: inline-flex;
+	height: 100%;
+  line-height: 0;
+  align-items: center;
+}
+
+.filter_mobile .navbar {
+  display: flex;
+  position: relative;
+  height: 56px;
+  align-items: center;
+  justify-content: normal;
+}
+
+.filter_mobile .navbar-title {
+	height: 100%;
+	display: inline-flex;
+	color: #fff;
+	margin-left: 1em;
+	line-height: 0;
+  align-items: center;
+  margin-top: .3em;
+}
+
+.filter_mobile .filter_box {
+	display: flex;
+	width: 90%;
+	margin: auto;
+	padding: .5em 0em;
+	flex-wrap: wrap;
+	justify-content: center;
+  padding-top: 1em;
+}
+
+.filter_mobile .filter_box .filter-header {
+	flex-basis: 100%;
+	font-weight: 400;
+	font-size: 14px;
+	color: #fff;
+	position: relative;
+  display: flex;
+  justify-content: center;
+  height: 21px;
+}
+
+.filter_mobile .filter_box .filter-header span {
+	display: block;
+  padding: 0px 5px;
+  background-color: #3286C6;
+  position: absolute;
+  top: -10px;
+  z-index: 9;
+}
+
+.filter_mobile .filter_box .filter-header::after {
+	content: "";
+	width: 100%;
+	position: absolute;
+	left:0;
+	height: 1px;
+	background-color: rgba(255, 255, 255, .3);
+}
+
+.filter_mobile .filter_box .filter-body {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+}

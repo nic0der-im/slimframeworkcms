@@ -1,0 +1,162 @@
+{% extends "admin_views/base.twig" %}
+{% block aditional_css %}
+{% endblock %}
+{% block title %}Obligaciones{% endblock %}
+{% block header_title %}Listado de Cuentas Corrientes{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active">
+  <a> Cuentas Corriente</a>
+</li>
+{% endblock %}
+{% block content %}
+<div class="row">
+	{% include 'admin_views/admin_partials/flash.twig' %}
+</div>
+
+  <div class="row">
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-primary">
+        <div class="inner">
+          <h3>{{ abiertas-canceladas }}</h3>
+          <p>Cuentas abiertas</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-bag"></i>
+        </div>
+        <a href="#" class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-success">
+        <div class="inner">
+          <h3>{{ canceladas }}</h3>
+          <p>Cuentas Cerradas</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-stats-bars"></i>
+        </div>
+        <a href="#" class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-warning">
+        <div class="inner">
+          <h3>{{ transferidas }}</h3>
+          <p>Cuentas transferidas</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-person-add"></i>
+        </div>
+        <a href="#" class="small-box-footer"><i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+
+    <div class="col-lg-3 col-xs-6 col-md-3" >
+      <div class="card card-success" id="boxMovimiento" >
+        <div class="card-header">
+          <h3 class="card-title">Filtros</h3>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="recibo">Mostrar cuentas canceladas</label>
+                <select class="form-control filtrarTabla select2" name="recibo" id="recibo">
+                  <option value="1">NO</option>
+                  <option value="0">SI</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-default">
+    <div class="card-header">
+      <h3 class="card-title">Listado de Cuentas Corrientes</h3>
+      <div class="card-tools">
+        <a class="btn btn-xs btn-flat btn-primary" href="{{path_for('cuenta.crear')}}">Nueva Cuente Corriente  <i class="fa fa-plus"></i></a>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+         <table class="table table-hover tabla_cuentas" width="100%">
+          <thead>
+            <tr>
+              <th>Nombre cuenta corriente</th>
+              <th>Tipo de cuenta</th>
+              <th>Última actualización:</th>
+              <th>Monto Total</th>
+              <th>Pagado</th>
+              <th>Saldo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cuenta in cuentas %}
+              <tr>
+    	        	<td>{{ cuenta.nombre_cuenta }}</td>
+    	        	<td>{% if cuenta.tipo_cuenta == 1 %}Cliente{% elseif cuenta.tipo_cuenta == 2 %}Provedor{% elseif cuenta.tipo_cuenta == 3 %}Banco{% endif %}</td>
+    	        	<td>{{ cuenta.updated_at }}</td>
+                <td>
+                  $&nbsp;{{cuenta.total|number_format(2, ',', '.')}}
+                </td>
+                <td>
+                  $&nbsp;{{cuenta.pagado|number_format(2, ',', '.')}}
+                </td>
+                <td>
+                  $&nbsp;{{(cuenta.total - cuenta.pagado)|number_format(2, ',', '.')}}
+                </td>
+    	        	<td>
+    	        		<a class="btn btn-sm btn-flat btn-success" href="{{path_for('cuenta.crearmovimiento', {'id': cuenta.id })}}"><i class="fa fa-dollar"></i> Pagar</a>
+    	        		<a class="btn btn-sm btn-flat btn-primary" href="{{path_for('cuenta.movimientos', {'id': cuenta.id })}}"><i class="fa fa-book"></i> Resumen</a>
+    	        	</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    	</div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript">
+$('.tabla_cuentas').DataTable( {
+	lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "TODO"]],
+	"language": {
+	    "sProcessing":     "Procesando...",
+	    "sLengthMenu":     "Mostrar _MENU_ registros",
+	    "sZeroRecords":    "No se encontraron resultados",
+	    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+	    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+	    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+	    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+	    "sInfoPostFix":    "",
+	    "sSearch":         "Buscar:",
+	    "sUrl":            "",
+	    "sInfoThousands":  ",",
+	    "sLoadingRecords": "Cargando...",
+	    "oPaginate": {
+	        "sFirst":    "Primero",
+	        "sLast":     "Último",
+	        "sNext":     "Siguiente",
+	        "sPrevious": "Anterior"
+	    },
+	    "oAria": {
+	        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+	        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+	    }
+	}
+});
+</script>
+{% endblock %}
